@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - development
+      - pipeline-apk # Remove if unneeded
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -15,8 +16,9 @@ steps:
 - script: |
     npm install
     npm test
+    npm run coverage
   workingDirectory: ''
-  displayName: 'Npm Install and Test'
+  displayName: 'Npm Install, Test and Coverage'
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
@@ -25,6 +27,11 @@ steps:
     testResultsFiles: '**/junit.xml'
     testResultsFormat: "JUnit"
     testRunTitle: 'Test Results'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/output/cobertura-coverage.xml
 
 - task: Gradle@2
   inputs:
