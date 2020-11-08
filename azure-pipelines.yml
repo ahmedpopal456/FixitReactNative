@@ -1,0 +1,49 @@
+trigger:
+  branches:
+    include:
+      - pipeline-apk
+      # add other branches after the test
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- script: npm install
+  workingDirectory: ''
+  displayName: 'Install node dependencies'
+
+- task: Gradle@2
+  inputs:
+      workingDirectory: '/android'
+      gradleWrapperFile: '/android/gradlew'
+      gradleOptions: '-Xmx3072m'
+      publishJUnitResults: false
+      testResultsFiles: '**/TEST-*.xml'
+      tasks: 'assembleRelease'
+
+- task: AndroidSigning@3
+  inputs:
+      apkFiles: '**/*.apk'
+      apksign: true
+      apksignerKeystoreFile: 'development-key.keystore'
+      apksignerKeystorePassword: '$(keystores-password)'
+      apksignerKeystoreAlias: 'devkey-alias'
+      apksignerKeyPassword: '$(keystores-password)'
+      apksignerArguments: --out $(Build.SourcesDirectory)/apk-test.apk # To rename apk file
+      zipalign: true
+
+- task: CopyFiles@2
+  inputs:
+    contents: '**/*.apk'
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: apks
+    publishLocation: 'container'
