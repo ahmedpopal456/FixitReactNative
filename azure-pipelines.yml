@@ -1,6 +1,7 @@
 trigger:
   branches:
     include:
+      # - development
       - pipeline-apk
       # add other branches after the test
 
@@ -13,9 +14,19 @@ steps:
     versionSpec: '10.x'
   displayName: 'Install Node.js'
 
-- script: npm install
+- script: |
+    npm install
+    npm test
   workingDirectory: ''
-  displayName: 'Install node dependencies'
+  displayName: 'Npm Install and Test'
+
+- task: PublishTestResults@2
+  displayName: "Publish Test Results"
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/junit.xml'
+    testResultsFormat: "JUnit"
+    testRunTitle: 'Test Results'
 
 - task: Gradle@2
   inputs:
@@ -34,7 +45,7 @@ steps:
       apksignerKeystorePassword: '$(keystores-password)'
       apksignerKeystoreAlias: 'devkey-alias'
       apksignerKeyPassword: '$(keystores-password)'
-      apksignerArguments: --out $(Build.SourcesDirectory)/apk-test.apk # To rename apk file
+      apksignerArguments: --out $(Build.SourcesDirectory)/output/dev-apk.apk # To rename apk file
       zipalign: true
 
 - task: CopyFiles@2
@@ -44,6 +55,6 @@ steps:
 
 - task: PublishBuildArtifacts@1
   inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    pathToPublish: '$(Build.ArtifactStagingDirectory)/output/'
     artifactName: apks
     publishLocation: 'container'
