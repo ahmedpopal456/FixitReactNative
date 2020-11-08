@@ -44,11 +44,10 @@
     "reporters": [
       "default",
       "jest-junit"
-    ],
-    "coverageDirectory": "output"
+    ]
   },
   "jest-junit": {
-    "outputDirectory": "output",
+    "outputDirectory": "test",
     "outputName": "jest-junit.xml"
   }
 }

@@ -13,12 +13,22 @@ steps:
     versionSpec: '10.x'
   displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm test
-    npm run coverage
-  workingDirectory: ''
-  displayName: 'Npm Install, Test and Coverage'
+- task: Npm@1
+  displayName: 'Npm install'
+  inputs:
+    command: 'install'
+
+- task: Npm@1
+  displayName: 'Npm test'
+  inputs:
+    command: 'custom'
+    customCommand: 'run test'
+
+- task: Npm@1
+  displayName: 'Npm run coverage'
+  inputs:
+    command: 'custom'
+    customCommand: 'run coverage'
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
@@ -30,8 +40,9 @@ steps:
 
 - task: PublishCodeCoverageResults@1
   inputs:
-    codeCoverageTool: Cobertura
-    summaryFileLocation: $(System.DefaultWorkingDirectory)/output/cobertura-coverage.xml
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
+    reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
 - task: Gradle@2
   inputs:
@@ -50,7 +61,7 @@ steps:
       apksignerKeystorePassword: '$(keystores-password)'
       apksignerKeystoreAlias: 'devkey-alias'
       apksignerKeyPassword: '$(keystores-password)'
-      apksignerArguments: --out $(Build.SourcesDirectory)/output/dev-apk.apk # To rename apk file
+      apksignerArguments: --out $(Build.SourcesDirectory)/dev-apk.apk # To rename apk file
       zipalign: true
 
 - task: CopyFiles@2
@@ -60,6 +71,6 @@ steps:
 
 - task: PublishBuildArtifacts@1
   inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)/output/'
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: apks
     publishLocation: 'container'
