@@ -28,7 +28,7 @@ steps:
   displayName: 'Npm run coverage'
   inputs:
     command: 'custom'
-    customCommand: 'run coverage'
+    customCommand: 'run test:ci'
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
