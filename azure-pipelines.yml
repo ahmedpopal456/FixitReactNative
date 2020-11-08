@@ -1,9 +1,7 @@
 trigger:
   branches:
     include:
-      # - development
-      - pipeline-apk
-      # add other branches after the test
+      - development
 
 pool:
   vmImage: 'ubuntu-latest'

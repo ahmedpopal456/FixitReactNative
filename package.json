@@ -47,6 +47,6 @@
   },
   "jest-junit": {
     "outputDirectory": "output",
-    "outputName": "junit.xml"
+    "outputName": "jest-junit.xml"
   }
 }
