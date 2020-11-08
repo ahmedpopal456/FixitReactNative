@@ -1,17 +1,19 @@
 {
-  "name": "FixitReactNative",
+  "name": "fixit-react-native",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
     "ios": "npx react-native run-ios",
     "start": "npx react-native start",
-    "test": "jest",
+    "test": "jest --coverage",
+    "test:ci": "jest --env=jsdom --testResultsProcessor=\"jest-junit\" --coverage",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "@types/styled-components": "^5.1.4",
     "fixit-mobile-components": "^1.0.8",
+    "jest-junit": "^12.0.0",
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-vector-icons": "^7.1.0",
@@ -38,6 +40,11 @@
     "transformIgnorePatterns": [
       "node_modules/?!(react-native|native-base)"
     ],
+    "coverageReporters": [
+      "cobertura",
+      "html",
+      "lcov"
+    ],
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -46,5 +53,13 @@
       "json",
       "node"
     ]
+  },
+  "jest-junit": {
+    "suiteName": "jest tests",
+    "outputDirectory": "test",
+    "classNameTemplate": "{classname} - {title}",
+    "titleTemplate": "{classname} - {title}",
+    "ancestorSeparator": " > ",
+    "usePathForSuiteName": "true"
   }
 }
