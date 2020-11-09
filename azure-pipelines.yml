@@ -34,7 +34,7 @@ steps:
   displayName: "Publish Test Results"
   condition: succeededOrFailed()
   inputs:
-    testResultsFiles: '**/jest-junit.xml'
+    testResultsFiles: '**/junit.xml'
     testResultsFormat: "JUnit"
     testRunTitle: 'Test Results'
 
