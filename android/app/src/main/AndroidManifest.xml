@@ -2,6 +2,7 @@
   package="com.fixitreactnative">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
       android:name=".MainApplication"
@@ -19,6 +20,18 @@
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity>
+      <!--Intent filter to capture authorization code response from the default browser on the device calling back to our app after interactive sign in -->
+      <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data
+                android:scheme="msauth"
+                android:host="com.fixitreactnative"
+                android:path="{{RedirectUriPath}}" />
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
