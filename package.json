@@ -8,15 +8,24 @@
     "start": "npx react-native start",
     "test": "jest --coverage",
     "test:ci": "jest --env=jsdom --testResultsProcessor=\"jest-junit\" --coverage",
-    "eslint": "eslint . --ext .js,.ts",
-    "eslint:fix": "eslint . --ext .js,.ts --fix"
+    "eslint": "eslint . --ext .js,.ts,.tsx",
+    "eslint:fix": "eslint . --ext .js,.ts,.tsx --fix",
+    "tsc": "tsc"
   },
   "dependencies": {
+    "@react-native-community/masked-view": "^0.1.10",
+    "@react-navigation/bottom-tabs": "^5.11.7",
+    "@react-navigation/native": "^5.9.2",
+    "@react-navigation/stack": "^5.14.2",
     "@types/styled-components": "5.1.4",
-    "fixit-common-ui": "1.0.21",
+    "fixit-common-ui": "^1.0.26-beta",
     "react": "16.13.1",
     "react-native": "0.63.3",
+    "react-native-gesture-handler": "^1.9.0",
     "react-native-msal": "3.0.1",
+    "react-native-reanimated": "^1.13.2",
+    "react-native-safe-area-context": "^3.1.9",
+    "react-native-screens": "^2.17.1",
     "react-native-svg": "12.1.0",
     "react-native-vector-icons": "7.1.0",
     "styled-components": "5.2.1"
@@ -62,6 +71,9 @@
     "reporters": [
       "default",
       "jest-junit"
+    ],
+    "setupFiles": [
+      "<rootDir>/jest/setup.js"
     ]
   },
   "jest-junit": {

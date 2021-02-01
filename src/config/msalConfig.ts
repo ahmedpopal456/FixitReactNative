@@ -1,4 +1,4 @@
-import type { B2CConfiguration } from './b2cClient';
+import type { B2CConfiguration } from '../b2c/b2cClient';
 
 export const b2cConfig: B2CConfiguration = {
   auth: {
@@ -14,5 +14,5 @@ export const b2cConfig: B2CConfiguration = {
 };
 
 export const b2cScopes = [
-  '{{B2CScopes}}'
-]
+  '{{B2CScopes}}',
+];

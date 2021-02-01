@@ -45,6 +45,9 @@
     /* Experimental Options */
     "experimentalDecorators": true,           /* Enables experimental support for ES7 decorators. */
   },
+  "include": [
+    "./src/**/*"
+  ],
   "exclude": [
     "node_modules", "babel.config.js", "metro.config.js", "jest.config.js"
   ]
