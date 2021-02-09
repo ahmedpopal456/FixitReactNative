@@ -2,75 +2,170 @@ trigger:
   branches:
     include:
       - development
+      - staging
+      - master
       - pipeline-apk # Remove if unneeded
 
-pool:
-  vmImage: 'ubuntu-latest'
+variables:
+  # Version Handling Variables
+  majorProductVersion: 1   
+  minorProductVersion: 0
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+jobs:
+# master branch versioning
+- job: Build_Master_Version_Number
+  displayName: 'Bump package version - master branch'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  variables:
+    masterMajorMinor: $(majorProductVersion).$(minorProductVersion)
+    masterPatchCount: $[counter(variables['masterMajorMinor'], 0)]
+  steps:
+    - bash: |
+        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).$(masterPatchCount)"
+      name: IfMasterSetBuildNameAndPatch
 
-- task: Npm@1
-  displayName: 'Npm install'
-  inputs:
-    command: 'install'
+# staging branch versioning
+- job: Build_Staging_Version_Number
+  displayName: 'Bump package version - staging branch'
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/staging')
+  variables:
+    stagingMajorMinor: $(majorProductVersion).$(minorProductVersion)-beta
+    stagingPatchCount: $[counter(variables['stagingMajorMinor'], 0)]
+  steps:
+    - bash: |
+        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).$(stagingPatchCount)-beta"
+      name: IfStagingSetBuildNameAndPatch
 
-- task: Npm@1
-  displayName: 'Npm test'
-  inputs:
-    command: 'custom'
-    customCommand: 'run test'
+# development branch versioning
+- job: Build_Development_Version_Number
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/development')
+  variables:
+    stagingMajorMinor: $(majorProductVersion).$(minorProductVersion)-alpha
+    stagingPatchCount: $[counter(variables['stagingMajorMinor'], 0)]
+  steps:
+    - bash: |
+        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).$(stagingPatchCount)-alpha"
+      name: IfDelevopmentSetBuildNameAndPatch
 
-- task: Npm@1
-  displayName: 'Npm run coverage'
-  inputs:
-    command: 'custom'
-    customCommand: 'run test:ci'
+# PR versioning for master branch, staging branch & development branch
+- job: Build_PullRequest_Version_Number
+  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/staging'), ne(variables['Build.SourceBranch'], 'refs/heads/development'), eq(variables['Build.Reason'], 'PullRequest'))
+  variables:
+    pullRequestMajorMinor: $(majorProductVersion).$(minorProductVersion)-pre-alpha$(variables['system.pullrequest.pullrequestid'])
+    pullRequestPatchCount: $[counter(variables['pullRequestMajorMinor'], 0)]
+  steps:
+    - bash: |
+        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).0-alpha$(system.pullrequest.pullrequestid)-$(pullRequestPatchCount)"
+      name: IfPullRequestBuildNameAndPatch
 
-- task: PublishTestResults@2
-  displayName: "Publish Test Results"
-  condition: succeededOrFailed()
-  inputs:
-    testResultsFiles: '**/junit.xml'
-    testResultsFormat: "JUnit"
-    testRunTitle: 'Test Results'
+# Name branch prefix to build version (master branch & staging branch)
+- job: Build_Branch_Version_Number
+  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/staging'), ne(variables['Build.Reason'], 'PullRequest'))
+  variables:
+    branchMajorMinor: $(majorProductVersion).$(minorProductVersion)-br$(variables['build.sourcebranch'])
+    branchPatchCount: $[counter(variables['branchMajorMinor'], 0)]
+  steps:
+    - bash: |
+        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).0-$(Build.BuildId)-$(branchPatchCount)"
+      name: IfBranchBuildNameAndPatch
 
-- task: PublishCodeCoverageResults@1
-  inputs:
-    codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
-    reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
+- job: Build_Fix_Management_Projects
+  dependsOn:
+      - Build_Branch_Version_Number
+      - Build_PullRequest_Version_Number
+      - Build_Development_Version_Number
+      - Build_Staging_Version_Number
+      - Build_Master_Version_Number
+  condition: or(succeeded('Build_Branch_Version_Number'), succeeded('Build_PullRequest_Version_Number'), succeeded('Build_Development_Version_Number'), succeeded('Build_Staging_Version_Number'), succeeded('Build_Master_Version_Number'))
 
-- task: Gradle@2
-  inputs:
-      workingDirectory: 'android'
-      gradleWrapperFile: 'android/gradlew'
-      gradleOptions: '-Xmx3072m'
-      publishJUnitResults: false
-      testResultsFiles: '**/TEST-*.xml'
-      tasks: 'assembleRelease'
+  variables:
+      # This library is published to the FixitFeed https://dev.azure.com/FixIt-App/FixIt-Capstone/_packaging?_a=feed&feed=FixitFeed
+    projectName: FixIt-Capstone
+    feedName: FixitFeed
+    apkName: 'fixit'
 
-- task: AndroidSigning@3
-  inputs:
-      apkFiles: '**/*.apk'
-      apksign: true
-      apksignerKeystoreFile: 'development-key.keystore'
-      apksignerKeystorePassword: '$(keystores-password)'
-      apksignerKeystoreAlias: 'devkey-alias'
-      apksignerKeyPassword: '$(keystores-password)'
-      apksignerArguments: --out $(Build.SourcesDirectory)/dev-apk.apk # To rename apk file
-      zipalign: true
+  pool:
+    vmImage: 'ubuntu-latest'
+    displayName: 'Run Main Build'
 
-- task: CopyFiles@2
-  inputs:
-    contents: '**/*.apk'
-    targetFolder: '$(build.artifactStagingDirectory)'
+  steps:
+  # Installer
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.x'
+    displayName: 'Install Node.js'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: apks
-    publishLocation: 'container'
+  - task: Npm@1
+    displayName: 'Npm install'
+    inputs:
+      command: 'install'
+
+  # Run Unit Tests
+  - task: Npm@1
+    displayName: 'Npm test'
+    inputs:
+      command: 'custom'
+      customCommand: 'run test'
+
+  - task: Npm@1
+    displayName: 'Npm run coverage'
+    inputs:
+      command: 'custom'
+      customCommand: 'run test:ci'
+
+  # Publish Test Results
+  - task: PublishTestResults@2
+    displayName: "Publish Test Results"
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFiles: '**/junit.xml'
+      testResultsFormat: "JUnit"
+      testRunTitle: 'Test Results'
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
+      reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
+
+  # Npm Versioning
+  - task: Npm@1
+    displayName: 'Npm - Bump package version'
+    inputs:
+      command: 'custom'
+      workingDir: $(Build.SourcesDirectory)
+      verbose: false
+      customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
+      customRegistry: 'useFeed'
+      customFeed: '$(projectName)/$(feedName)'
+  
+  - task: Gradle@2
+    inputs:
+        workingDirectory: 'android'
+        gradleWrapperFile: 'android/gradlew'
+        gradleOptions: '-Xmx3072m'
+        publishJUnitResults: false
+        testResultsFiles: '**/TEST-*.xml'
+        tasks: 'assembleRelease'
+
+  - task: AndroidSigning@3
+    inputs:
+        apkFiles: '**/*.apk'
+        apksign: true
+        apksignerKeystoreFile: 'development-key.keystore'
+        apksignerKeystorePassword: '$(keystores-password)'
+        apksignerKeystoreAlias: 'devkey-alias'
+        apksignerKeyPassword: '$(keystores-password)'
+        apksignerArguments: --out $(Build.SourcesDirectory)/${apkName}-${Build.BuildNumber}.apk
+        zipalign: true
+
+  - task: CopyFiles@2
+    inputs:
+      contents: '**/*.apk'
+      targetFolder: '$(build.artifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: apks
+      publishLocation: 'container'
