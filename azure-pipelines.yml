@@ -55,7 +55,7 @@ jobs:
     pullRequestPatchCount: $[counter(variables['pullRequestMajorMinor'], 0)]
   steps:
     - bash: |
-        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).0-alpha$(system.pullrequest.pullrequestid)-$(pullRequestPatchCount)"
+        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).0-pre-alpha$(system.pullrequest.pullrequestid)-$(pullRequestPatchCount)"
       name: IfPullRequestBuildNameAndPatch
 
 # Name branch prefix to build version (master branch & staging branch)
