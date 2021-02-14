@@ -18,6 +18,7 @@
     "@react-navigation/native": "^5.9.2",
     "@react-navigation/stack": "^5.14.2",
     "@types/styled-components": "5.1.4",
+    "fixit-common-data-store": "file:../packages/fixit-common-data-store-0.1.0.tgz",
     "fixit-common-ui": "^1.0.26-beta",
     "react": "16.13.1",
     "react-native": "0.63.3",
