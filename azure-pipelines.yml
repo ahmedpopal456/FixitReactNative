@@ -58,9 +58,9 @@ jobs:
         echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).0-pre-alpha$(system.pullrequest.pullrequestid)-$(pullRequestPatchCount)"
       name: IfPullRequestBuildNameAndPatch
 
-# Name branch prefix to build version (master branch & staging branch)
+# Name branch prefix to build version (master branch, staging branch & development branch)
 - job: Build_Branch_Version_Number
-  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/staging'), ne(variables['Build.Reason'], 'PullRequest'))
+  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/staging'),ne(variables['Build.SourceBranch'], 'refs/heads/development'), ne(variables['Build.Reason'], 'PullRequest'))
   variables:
     branchMajorMinor: $(majorProductVersion).$(minorProductVersion)-br$(variables['build.sourcebranch'])
     branchPatchCount: $[counter(variables['branchMajorMinor'], 0)]
