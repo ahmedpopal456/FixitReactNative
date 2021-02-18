@@ -3,8 +3,7 @@ import { Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
 import { colors, Icon } from 'fixit-common-ui';
-import BottomTabHighlightsAnimator from '../animators/bottomTabHighlightsAnimator';
-import BottomTabIconAnimator from '../animators/bottomTabIconAnimator';
+import animator from '../animators';
 
 // TODO: remove this when real screens are implemented
 const DummyScreen = (props: { text: React.ReactNode; }) => (
@@ -13,7 +12,7 @@ const DummyScreen = (props: { text: React.ReactNode; }) => (
   </View>
 );
 
-// These highlights are added on the active navigation item
+// TODO: move this to CommonUI
 function Highlights() {
   return (
     <>
@@ -55,12 +54,12 @@ function BottomBarNavigator() : JSX.Element {
             const isFocused = useIsFocused();
             return (
               <>
-                <BottomTabHighlightsAnimator focused={isFocused}>
+                <animator.BottomTabHighlightsAnimator focused={isFocused}>
                   <Highlights />
-                </BottomTabHighlightsAnimator>
-                <BottomTabIconAnimator focused={isFocused}>
+                </animator.BottomTabHighlightsAnimator>
+                <animator.BottomTabIconAnimator focused={isFocused}>
                   <Icon library='FontAwesome5' name='user' color={iconColor} size={18} style={{ marginBottom: -10 }} />
-                </BottomTabIconAnimator>
+                </animator.BottomTabIconAnimator>
               </>
             );
           },
@@ -76,12 +75,12 @@ function BottomBarNavigator() : JSX.Element {
             const isFocused = useIsFocused();
             return (
               <>
-                <BottomTabHighlightsAnimator focused={isFocused}>
+                <animator.BottomTabHighlightsAnimator focused={isFocused}>
                   <Highlights />
-                </BottomTabHighlightsAnimator>
-                <BottomTabIconAnimator focused={isFocused}>
+                </animator.BottomTabHighlightsAnimator>
+                <animator.BottomTabIconAnimator focused={isFocused}>
                   <Icon library='FontAwesome5' name='home' color={iconColor} size={18} style={{ marginBottom: -10 }} />
-                </BottomTabIconAnimator>
+                </animator.BottomTabIconAnimator>
               </>
             );
           },
@@ -97,12 +96,12 @@ function BottomBarNavigator() : JSX.Element {
             const isFocused = useIsFocused();
             return (
               <>
-                <BottomTabHighlightsAnimator focused={isFocused}>
+                <animator.BottomTabHighlightsAnimator focused={isFocused}>
                   <Highlights />
-                </BottomTabHighlightsAnimator>
-                <BottomTabIconAnimator focused={isFocused}>
+                </animator.BottomTabHighlightsAnimator>
+                <animator.BottomTabIconAnimator focused={isFocused}>
                   <Icon library='FontAwesome5' name='hammer' color={iconColor} size={18} style={{ marginBottom: -10 }} />
-                </BottomTabIconAnimator>
+                </animator.BottomTabIconAnimator>
               </>
             );
           },
@@ -118,12 +117,12 @@ function BottomBarNavigator() : JSX.Element {
             const isFocused = useIsFocused();
             return (
               <>
-                <BottomTabHighlightsAnimator focused={isFocused}>
+                <animator.BottomTabHighlightsAnimator focused={isFocused}>
                   <Highlights />
-                </BottomTabHighlightsAnimator>
-                <BottomTabIconAnimator focused={isFocused}>
+                </animator.BottomTabHighlightsAnimator>
+                <animator.BottomTabIconAnimator focused={isFocused}>
                   <Icon library='FontAwesome5' name='comment' color={iconColor} size={18} style={{ marginBottom: -10 }} />
-                </BottomTabIconAnimator>
+                </animator.BottomTabIconAnimator>
               </>
             );
           },

@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, FunctionComponent } from 'react';
 import { Animated } from 'react-native';
+import { BottomTabIconAnimatorProps } from '../models/animators/bottomTabIconAnimatorProps';
 
-const BottomTabIconAnimator : FunctionComponent = (props) => {
+const BottomTabIconAnimator : FunctionComponent<BottomTabIconAnimatorProps> = (props) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

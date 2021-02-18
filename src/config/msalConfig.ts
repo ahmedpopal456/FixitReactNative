@@ -1,18 +1,18 @@
-import type { B2CConfiguration } from '../b2c/b2cClient';
+import type { B2CTypes } from 'fixit-common-data-store';
 
-export const b2cConfig: B2CConfiguration = {
+export const b2cConfig: B2CTypes.B2CConfiguration = {
   auth: {
-    clientId: '{{Name}}',
-    authorityBase: '{{AuthorityBase}}',
+    clientId: '60d0d7ce-85ff-427d-ae26-8e1510bb776d',
+    authorityBase: 'https://fixitb2ctest.b2clogin.com/fixitb2ctest.onmicrosoft.com',
     policies: {
-      signIn: '{{PolicyNameSignIn}}',
-      signUp: '{{PolicyNameSignUp}}',
-      passwordReset: '{{PolicyNamePwdReset}}',
-      editProfile: '{{PolicyNameEditProfile}}',
+      signIn: 'B2C_1A-signin',
+      signUp: 'B2C_1A_signup',
+      passwordReset: 'B2C_1A_PasswordReset',
+      editProfile: 'B2C_1A_ProfileEdit',
     },
   },
 };
 
 export const b2cScopes = [
-  '{{B2CScopes}}',
+  'https://FixitB2CTest.onmicrosoft.com/60d0d7ce-85ff-427d-ae26-8e1510bb776d/user_impersonation',
 ];

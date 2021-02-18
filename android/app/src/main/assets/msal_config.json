@@ -1,11 +1,11 @@
 {
-  "client_id": "{{Name}}",
+  "client_id": "60d0d7ce-85ff-427d-ae26-8e1510bb776d",
   "authorization_user_agent": "DEFAULT",
-  "redirect_uri": "{{RedirectUriMSAL}}",
+  "redirect_uri": "msauth://com.fixitreactnative/Xo8WBi6jzSxKDVR4drqm84yr9iU%3D",
   "authorities": [
     {
       "type": "B2C",
-      "authority_url": "{{AuthorityUrl}}",
+      "authority_url": "https://FixitB2CTest.b2clogin.com/tfp/FixitB2CTest.onmicrosoft.com/B2C_1A_signin/",
       "default": true
     }
   ],

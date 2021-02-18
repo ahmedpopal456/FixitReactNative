@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, FunctionComponent } from 'react';
 import { Animated } from 'react-native';
+import { BottomTabHighlightsAnimatorProps } from '../models/animators/bottomTabHighlightsAnimatorProps';
 
-const BottomTabHighlightsAnimator : FunctionComponent = (props) => {
+const BottomTabHighlightsAnimator :
+FunctionComponent<BottomTabHighlightsAnimatorProps> = (props) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
