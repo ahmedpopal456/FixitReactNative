@@ -1,0 +1,76 @@
+trigger:
+  branches:
+    include:
+      - development
+      - pipeline-apk # Remove if unneeded
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- task: Npm@1
+  displayName: 'Npm install'
+  inputs:
+    command: 'install'
+
+- task: Npm@1
+  displayName: 'Npm test'
+  inputs:
+    command: 'custom'
+    customCommand: 'run test'
+
+- task: Npm@1
+  displayName: 'Npm run coverage'
+  inputs:
+    command: 'custom'
+    customCommand: 'run test:ci'
+
+- task: PublishTestResults@2
+  displayName: "Publish Test Results"
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/junit.xml'
+    testResultsFormat: "JUnit"
+    testRunTitle: 'Test Results'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
+    reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
+
+- task: Gradle@2
+  inputs:
+      workingDirectory: 'android'
+      gradleWrapperFile: 'android/gradlew'
+      gradleOptions: '-Xmx3072m'
+      publishJUnitResults: false
+      testResultsFiles: '**/TEST-*.xml'
+      tasks: 'assembleRelease'
+
+- task: AndroidSigning@3
+  inputs:
+      apkFiles: '**/*.apk'
+      apksign: true
+      apksignerKeystoreFile: 'development-key.keystore'
+      apksignerKeystorePassword: '$(keystores-password)'
+      apksignerKeystoreAlias: 'devkey-alias'
+      apksignerKeyPassword: '$(keystores-password)'
+      apksignerArguments: --out $(Build.SourcesDirectory)/dev-apk.apk # To rename apk file
+      zipalign: true
+
+- task: CopyFiles@2
+  inputs:
+    contents: '**/*.apk'
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: apks
+    publishLocation: 'container'

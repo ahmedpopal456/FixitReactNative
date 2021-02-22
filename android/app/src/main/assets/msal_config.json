@@ -1,0 +1,13 @@
+{
+  "client_id": "{{Name}}",
+  "authorization_user_agent": "DEFAULT",
+  "redirect_uri": "{{RedirectUriMSAL}}",
+  "authorities": [
+    {
+      "type": "B2C",
+      "authority_url": "{{AuthorityUrl}}",
+      "default": true
+    }
+  ],
+  "account_mode": "MULTIPLE"
+}
