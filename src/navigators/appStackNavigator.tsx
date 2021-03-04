@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { connect } from 'fixit-common-data-store';
 import RegisterScreen from '../screens/registerScreen';
 import BottomBarNavigator from './bottomBarNavigator';
+import HomeScreen from '../screens/homeScreen';
 
 const Stack = createStackNavigator();
 
@@ -11,11 +12,9 @@ class AppStackNavigator extends
   render() : JSX.Element {
     return (
       <Stack.Navigator headerMode='none'>
-        {this.props.isAuthenticated ? (
           <Stack.Screen name="Main" component={BottomBarNavigator} />
-        ) : (
+          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Auth" component={RegisterScreen} />
-        )}
       </Stack.Navigator>
     );
   }
