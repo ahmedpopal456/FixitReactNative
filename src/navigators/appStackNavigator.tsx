@@ -1,18 +1,17 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { connect } from 'fixit-common-data-store';
+import {createStackNavigator} from '@react-navigation/stack';
+import {connect} from 'fixit-common-data-store';
 import RegisterScreen from '../screens/registerScreen';
-import BottomBarNavigator from './bottomBarNavigator';
+import NotificationSetup from '../Setup';
 
 const Stack = createStackNavigator();
 
-class AppStackNavigator extends
-  React.Component<{isAuthenticated:boolean}> {
-  render() : JSX.Element {
+class AppStackNavigator extends React.Component<{isAuthenticated: boolean}> {
+  render(): JSX.Element {
     return (
-      <Stack.Navigator headerMode='none'>
+      <Stack.Navigator headerMode="none">
         {this.props.isAuthenticated ? (
-          <Stack.Screen name="Main" component={BottomBarNavigator} />
+          <Stack.Screen name="Main" component={NotificationSetup} />
         ) : (
           <Stack.Screen name="Auth" component={RegisterScreen} />
         )}
@@ -21,7 +20,7 @@ class AppStackNavigator extends
   }
 }
 
-const mapStateToProps = (state: { user:{isAuthenticated: boolean; }}) => ({
+const mapStateToProps = (state: {user: {isAuthenticated: boolean}}) => ({
   isAuthenticated: state.user.isAuthenticated,
 });
 

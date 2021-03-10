@@ -1,0 +1,144 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotificationDispatcher should render with given state from Redux store 1`] = `
+<Modal
+  animationType="slide"
+  hardwareAccelerated={false}
+  onRequestClose={[Function]}
+  transparent={true}
+  visible={true}
+>
+  <View
+    style={
+      Object {
+        "alignItems": "center",
+        "flex": 1,
+        "justifyContent": "center",
+        "marginTop": 22,
+      }
+    }
+  >
+    <View
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "white",
+          "borderRadius": 20,
+          "elevation": 5,
+          "margin": 20,
+          "padding": 35,
+          "shadowColor": "#000",
+          "shadowOffset": Object {
+            "height": 2,
+            "width": 0,
+          },
+          "shadowOpacity": 0.25,
+          "shadowRadius": 4,
+        }
+      }
+    >
+      <Text
+        style={
+          Object {
+            "marginBottom": 15,
+            "textAlign": "center",
+          }
+        }
+      >
+        FixClientRequestNotification
+      </Text>
+      <Text
+        style={
+          Object {
+            "fontSize": 20,
+            "fontWeight": "800",
+            "marginBottom": 15,
+            "textAlign": "center",
+          }
+        }
+      >
+        test-1
+      </Text>
+      <Text
+        style={
+          Object {
+            "marginBottom": 15,
+            "textAlign": "center",
+          }
+        }
+      />
+      <View
+        accessible={true}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          Object {
+            "alignItems": "center",
+            "alignSelf": "flex-start",
+            "backgroundColor": "#FFD14A",
+            "borderColor": "#FFD14A",
+            "borderRadius": 3,
+            "borderWidth": 1,
+            "flexDirection": "row",
+            "justifyContent": "center",
+            "marginBottom": 5,
+            "marginLeft": 5,
+            "marginRight": 5,
+            "marginTop": 5,
+            "opacity": 1,
+            "paddingBottom": 7,
+            "paddingLeft": 7,
+            "paddingRight": 7,
+            "paddingTop": 7,
+          }
+        }
+        testID="test-dismiss"
+      >
+        <View
+          style={
+            Array [
+              Object {
+                "flexBasis": 0,
+                "flexGrow": 1,
+                "flexShrink": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            color="primary"
+            fontSize={17}
+            fontWeight={400}
+            justification="center"
+            padding={6}
+            style={
+              Array [
+                Object {
+                  "color": "#33343E",
+                  "flexDirection": "row",
+                  "fontFamily": "Raleway",
+                  "fontSize": 17,
+                  "fontWeight": "400",
+                  "paddingBottom": 6,
+                  "paddingLeft": 6,
+                  "paddingRight": 6,
+                  "paddingTop": 6,
+                  "textAlign": "center",
+                },
+              ]
+            }
+          >
+            Dismiss
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</Modal>
+`;

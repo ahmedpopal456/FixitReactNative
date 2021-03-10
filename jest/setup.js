@@ -20,3 +20,30 @@ jest.mock('react-native-reanimated', () => {
 jest.mock('react-native/Libraries/Animated/src/NativeAnimatedHelper');
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
+
+jest.mock('@react-native-firebase/messaging', () => {
+  return () => ({
+    hasPermission: jest.fn(() => Promise.resolve(true)),
+    subscribeToTopic: jest.fn(),
+    unsubscribeFromTopic: jest.fn(),
+    requestPermission: jest.fn(() => Promise.resolve(true)),
+    getToken: jest.fn(() => Promise.resolve('myMockToken')),
+  })
+});
+
+jest.mock('react-native-device-info', () => {
+  return {
+    getVersion: () => 4,
+    getUniqueId: () => 'test-id'
+  }
+});
+
+jest.mock('redux-persist', () => {
+  const real = jest.requireActual('redux-persist');
+  return {
+    ...real,
+    persistReducer: jest
+      .fn()
+      .mockImplementation((config, reducers) => reducers),
+  };
+});
