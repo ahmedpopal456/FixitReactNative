@@ -1,4 +1,4 @@
-import {KeyValuePair} from '../KeyValuePair';
+import { KeyValuePair } from '../KeyValuePair';
 
 export interface DeviceInstallationUpsertRequest {
   UserId: string;

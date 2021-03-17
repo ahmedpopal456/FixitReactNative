@@ -1,7 +1,7 @@
 import React from 'react';
-import messaging from '@react-native-firebase/messaging';
+import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import NotificationHandler from './handlers/notificationHandler';
-import {FirebaseMessagingTypes} from '@react-native-firebase/messaging/lib';
+
 import BottomBarNavigator from './navigators/bottomBarNavigator';
 
 class NotificationSetup extends React.Component<{user: any}> {
@@ -19,11 +19,10 @@ class NotificationSetup extends React.Component<{user: any}> {
     }
   }
 
-  async requestUserPermission(): Promise<boolean> {
+  requestUserPermission = async (): Promise<boolean> => {
     const authStatus = await messaging().requestPermission();
-    const enabled: boolean =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    const enabled: boolean = authStatus === messaging.AuthorizationStatus.AUTHORIZED
+      || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
     return enabled;
   }
@@ -53,9 +52,7 @@ class NotificationSetup extends React.Component<{user: any}> {
     );
   }
 
-  render() {
-    return <BottomBarNavigator />;
-  }
+  render = () => <BottomBarNavigator />
 }
 
 export default NotificationSetup;

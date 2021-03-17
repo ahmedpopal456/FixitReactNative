@@ -1,21 +1,21 @@
 /* istanbul ignore file */
-import {DeviceInstallationUpsertRequest} from 'src/models/notifications/DeviceInstallationUpsertRequest';
+import { DeviceInstallationUpsertRequest } from 'src/models/notifications/DeviceInstallationUpsertRequest';
 
 export default class NotificationService {
-  private _baseUrl: string;
+  private baseUrl: string;
 
   constructor(baseUrl: string) {
-    this._baseUrl = baseUrl;
+    this.baseUrl = baseUrl;
   }
 
   getInstallation(installationId: string): Promise<Response> {
-    const route: string = `${this._baseUrl}/Installations/${installationId}`;
+    const route = `${this.baseUrl}/Installations/${installationId}`;
     return fetch(route);
   }
 
   // TODO: change any to actual model
   enqueue(notificationRequest: any): Promise<Response> {
-    return fetch(this._baseUrl, {
+    return fetch(this.baseUrl, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -28,8 +28,8 @@ export default class NotificationService {
   installDevice(
     deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest,
   ): Promise<Response> {
-    const route: string = `${this._baseUrl}/Installations`;
-    console.log('install NOT from mock')
+    const route = `${this.baseUrl}/Installations`;
+    console.log('install NOT from mock');
     return fetch(route, {
       method: 'PUT',
       headers: {
@@ -41,7 +41,7 @@ export default class NotificationService {
   }
 
   uninstallDevice(installationId: string): Promise<Response> {
-    const route: string = `${this._baseUrl}/Installations/${installationId}`;
-    return fetch(route, {method: 'DELETE'});
+    const route = `${this.baseUrl}/Installations/${installationId}`;
+    return fetch(route, { method: 'DELETE' });
   }
 }

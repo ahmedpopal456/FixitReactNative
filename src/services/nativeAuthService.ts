@@ -1,5 +1,5 @@
 import PublicClientApplication from 'react-native-msal';
-import {persistentStore, persistentActions} from 'fixit-common-data-store';
+import { persistentStore, persistentActions } from 'fixit-common-data-store';
 import * as constants from './constants/authConstants';
 import {
   B2CConfiguration,
@@ -28,14 +28,14 @@ export default class NativeAuthService {
     // Set the default authority for the PublicClientApplication (publicClientApplication).
     // If we don't provide one,
     // it will use the default, common authority
-    const {policies, ...restOfAuthConfig} = this.b2cConfig.auth;
+    const { policies, ...restOfAuthConfig } = this.b2cConfig.auth;
     const authority = this.getAuthority(policies.signIn);
-    const knownAuthorities: string[] = Object.values(policies).map((policy) =>
-      this.getAuthority(policy),
+    const knownAuthorities: string[] = Object.values(policies).map(
+      (policy) => this.getAuthority(policy),
     );
     this.publicClientApplication = new PublicClientApplication({
       ...this.b2cConfig,
-      auth: {authority, knownAuthorities, ...restOfAuthConfig},
+      auth: { authority, knownAuthorities, ...restOfAuthConfig },
     });
   }
 
@@ -49,7 +49,7 @@ export default class NativeAuthService {
     // ...rest is used to destructure the parameters into
     // individual element of a "list" of b2cSignInUpParams
     // so that we can pass it to the parameters of acquireToken()
-    const {...rest} = b2cSignInUpParams;
+    const { ...rest } = b2cSignInUpParams;
     const authority = this.getAuthority(this.b2cConfig.auth.policies.signUp);
     const msalResult = await this.publicClientApplication.acquireToken({
       ...rest,
@@ -82,8 +82,8 @@ export default class NativeAuthService {
       return msalResult;
     } catch (error) {
       if (
-        error.message.includes(NativeAuthService.B2C_PASSWORD_CHANGE) &&
-        this.b2cConfig.auth.policies.passwordReset
+        error.message.includes(NativeAuthService.B2C_PASSWORD_CHANGE)
+        && this.b2cConfig.auth.policies.passwordReset
       ) {
         return this.resetPassword(b2cSignInUpParams);
       }
@@ -123,8 +123,8 @@ export default class NativeAuthService {
     User will have to sign in again to get a token */
   public async signOut(params?: B2CSignOutParams): Promise<boolean> {
     const accounts = await this.publicClientApplication.getAccounts();
-    const signOutPromises = accounts.map((account) =>
-      this.publicClientApplication.signOut({...params, account}),
+    const signOutPromises = accounts.map(
+      (account) => this.publicClientApplication.signOut({ ...params, account }),
     );
     await Promise.all(signOutPromises);
     persistentStore.dispatch(
@@ -134,7 +134,7 @@ export default class NativeAuthService {
   }
 
   private async resetPassword(params: B2CSignInUpParams) {
-    const {webviewParameters: wvp, ...rest} = params;
+    const { webviewParameters: wvp, ...rest } = params;
     const webviewParameters: MSALWebviewParams = {
       ...wvp,
       ios_prefersEphemeralWebBrowserSession: true,

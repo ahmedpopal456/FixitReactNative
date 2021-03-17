@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
 import { colors, Icon } from 'fixit-common-ui';
 import animator from '../animators';
+import FixesStackNavigator from './fixesStackNavigator';
 
 // TODO: remove this when real screens are implemented
 const DummyScreen = (props: { text: React.ReactNode; }) => (
@@ -89,7 +90,7 @@ function BottomBarNavigator() : JSX.Element {
         {(props) => <DummyScreen {...props} text={'home'} />}
       </BottomBarNav.Screen>
       <BottomBarNav.Screen
-        name="Your Fixes"
+        name="Fixes"
         options={{
           tabBarIcon: ({ focused }) => {
             const iconColor = focused ? 'accent' : 'primary';
@@ -107,7 +108,7 @@ function BottomBarNavigator() : JSX.Element {
           },
         }}
       >
-        {(props) => <DummyScreen {...props} text={'your fixes'} />}
+        {(props) => <FixesStackNavigator />}
       </BottomBarNav.Screen>
       <BottomBarNav.Screen
         name="Chat"

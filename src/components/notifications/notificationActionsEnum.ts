@@ -1,4 +1,4 @@
-export enum NotificationAction {
+enum NotificationAction {
     FIX_CLIENT_REQUEST,
     FIX_CRAFTSMAN_RESPONSE,
     FIX_PLAN_UPDATE,
@@ -6,3 +6,4 @@ export enum NotificationAction {
     MESSAGE_ENTRY,
     RATING_UPDATE,
 }
+export default NotificationAction;

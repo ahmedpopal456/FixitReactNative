@@ -1,12 +1,10 @@
-jest.mock('../../src/services/notificationService');
-
-import {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
-import {store, notificationActions} from 'fixit-common-data-store';
+import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import { store, notificationActions } from 'fixit-common-data-store';
 import NotificationHandler from '../../src/handlers/notificationHandler';
 
+jest.mock('../../src/services/notificationService');
 
 describe('Notification Handler', () => {
-
   it('should not displayNotification if invalid', () => {
     const handler = NotificationHandler.getInstance();
     const badNotification = {};
@@ -20,15 +18,15 @@ describe('Notification Handler', () => {
     const goodNotification: FirebaseMessagingTypes.RemoteMessage = {
       messageId: 'id',
       notification: {
-        title: 'title'
-      }
+        title: 'title',
+      },
     };
 
     handler.displayNotification(goodNotification);
 
     expect(store.dispatch).toHaveBeenCalledTimes(1);
     expect(store.dispatch).toHaveBeenCalledWith(
-      notificationActions.default.displayNotification(goodNotification)
+      notificationActions.default.displayNotification(goodNotification),
     );
   });
 
@@ -40,8 +38,8 @@ describe('Notification Handler', () => {
     const notification: FirebaseMessagingTypes.RemoteMessage = {
       messageId: 'id',
       notification: {
-        title: 'title'
-      }
+        title: 'title',
+      },
     };
 
     handler.onForegroundNotification(notification);
@@ -56,8 +54,8 @@ describe('Notification Handler', () => {
     const notification: FirebaseMessagingTypes.RemoteMessage = {
       messageId: 'id',
       notification: {
-        title: 'title'
-      }
+        title: 'title',
+      },
     };
 
     handler.onBackgroundNotification(notification);
@@ -73,8 +71,8 @@ describe('Notification Handler', () => {
     const notification: FirebaseMessagingTypes.RemoteMessage = {
       messageId: 'id',
       notification: {
-        title: 'title'
-      }
+        title: 'title',
+      },
     };
 
     handler.onBackgroundNotificationOpened(notification);
@@ -84,10 +82,8 @@ describe('Notification Handler', () => {
   });
 
   it('should register device if it is not registered', async () => {
-
     const handler = NotificationHandler.getInstance();
     // TODO: figure out how to mock the state
     await handler.registerDevice();
-
   });
 });

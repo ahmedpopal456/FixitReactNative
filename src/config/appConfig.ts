@@ -1,4 +1,5 @@
-export const config = {
+const config = {
   // TODO: change to deployed url
-  notificationApiUrl: 'http://localhost:7071/api/Notifications',
+  notificationApiUrl: 'https://fixit-dev-nms-api.azurewebsites.net/api/Notifications',
 };
+export default config;

@@ -2,45 +2,42 @@ import React from 'react';
 import {
   connect,
   rootContext,
-  notificationActions
+  notificationActions,
 } from 'fixit-common-data-store';
+import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import NotificationFactory from '../../factories/notificationFactory';
-import {NotificationProps} from '../../models/notifications/NotificationProps';
-import {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
+import { NotificationProps } from '../../models/notifications/NotificationProps';
 
 class NotificationDispatcher extends React.Component<any> {
-
   render() {
-    return <NotificationFactory {...this._buildChildProps()} />;
+    return <NotificationFactory {...this.buildChildProps()} />;
   }
 
-  private _buildChildProps(): NotificationProps {
+  private buildChildProps(): NotificationProps {
     const message = this.props.messages[this.props.messages?.length - 1];
     const notificationType = +message?.data?.type;
 
     return {
-      message: message,
+      message,
       type: notificationType,
       onDismissNotification: this.props.onDismissNotification,
     };
   }
 }
 
-const mapStateToProps = (state: {notifications: {messages: FirebaseMessagingTypes.RemoteMessage[]}}) => {
-  return {
-    messages: state.notifications.messages,
-  };
-};
+const mapStateToProps = (state: {
+  notifications: {messages: FirebaseMessagingTypes.RemoteMessage[]}
+}) => ({
+  messages: state.notifications.messages,
+});
 
-const mapDispatchToProps = (dispatch: Function) => {
-  return {
-    onDismissNotification: (id: string) => {
-      dispatch(notificationActions.default.dismissNotification(id));
-    },
-  };
-};
+const mapDispatchToProps = (dispatch: Function) => ({
+  onDismissNotification: (id: string) => {
+    dispatch(notificationActions.default.dismissNotification(id));
+  },
+});
 
-//@ts-ignore
+// @ts-ignore
 export default connect(mapStateToProps, mapDispatchToProps, null, {
   context: rootContext,
 })(NotificationDispatcher);

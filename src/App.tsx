@@ -1,7 +1,6 @@
 import React from 'react';
-import {StatusBar} from 'react-native';
-import AppStackNavigator from './navigators/appStackNavigator';
-import {NavigationContainer} from '@react-navigation/native';
+import { StatusBar } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import {
   PersistGate,
   persistentStorePersistor,
@@ -10,6 +9,7 @@ import {
   rootContext,
   persistentStore,
 } from 'fixit-common-data-store';
+import AppStackNavigator from './navigators/appStackNavigator';
 import SplashScreen from './screens/splashScreen';
 import NotificationDispatcher from './components/notifications/NotificationDispatcher';
 

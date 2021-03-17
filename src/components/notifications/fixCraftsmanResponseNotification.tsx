@@ -1,47 +1,9 @@
 import React from 'react';
-import {Modal, StyleSheet, Text, View} from 'react-native';
-import {Button} from 'fixit-common-ui';
-
-import {NotificationProps} from '../../models/notifications/NotificationProps';
-
-// TODO: Refactor this component
-export class FixCraftsmanResponseNotification extends React.Component<NotificationProps> {
-  constructor(props: NotificationProps) {
-    super(props);
-  }
-
-  render() {
-    const isVisible = this.props.message != undefined;
-    return (
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isVisible}
-        onRequestClose={() => {
-          this.props.onDismissNotification(this.props.message?.messageId);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>FixClientRequestNotification</Text>
-            <Text style={styles.modalTextTitle}>
-              {this.props.message?.notification?.title}
-            </Text>
-            <Text style={styles.modalText}>
-              {this.props.message?.notification?.body}
-            </Text>
-            <Button
-              onPress={() => {
-                this.props.onDismissNotification(this.props.message?.messageId);
-              }}
-              color="accent">
-              Dismiss
-            </Button>
-          </View>
-        </View>
-      </Modal>
-    );
-  }
-}
+import {
+  Modal, StyleSheet, Text, View,
+} from 'react-native';
+import { Button } from 'fixit-common-ui';
+import { NotificationProps } from '../../models/notifications/NotificationProps';
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -94,3 +56,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+// TODO: Refactor this component
+export default class FixCraftsmanResponseNotification extends React.Component<NotificationProps> {
+  render() {
+    const isVisible = this.props.message !== undefined;
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isVisible}
+        onRequestClose={() => {
+          this.props.onDismissNotification(this.props.message?.messageId);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>FixClientRequestNotification</Text>
+            <Text style={styles.modalTextTitle}>
+              {this.props.message?.notification?.title}
+            </Text>
+            <Text style={styles.modalText}>
+              {this.props.message?.notification?.body}
+            </Text>
+            <Button
+              onPress={() => {
+                this.props.onDismissNotification(this.props.message?.messageId);
+              }}
+              color="accent">
+              Dismiss
+            </Button>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+}

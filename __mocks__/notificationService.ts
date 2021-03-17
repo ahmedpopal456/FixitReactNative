@@ -1,9 +1,8 @@
 export default class NotificationService {
-  installDevice(
+  installDevice = (
     deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest,
-  ): Promise<Response> {
-    console.log('installing from mock')
+  ): Promise<Response> => {
+    console.log('installing from mock');
     return Promise.resolve(new Response());
   }
 }
-

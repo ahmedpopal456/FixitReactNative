@@ -1,10 +1,10 @@
 import React from 'react';
-import {NotificationAction} from '../components/notifications/notificationActionsEnum';
+import NotificationAction from '../components/notifications/notificationActionsEnum';
 import {
   FixClientRequestNotification,
   FixCraftsmanResponseNotification,
 } from '../components/notifications';
-import {NotificationProps} from '../models/notifications/NotificationProps';
+import { NotificationProps } from '../models/notifications/NotificationProps';
 
 // TODO: Implement all the Notification Components
 // this is just an example demonstrating the possiblility of various

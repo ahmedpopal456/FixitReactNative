@@ -1,6 +1,6 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import {connect} from 'fixit-common-data-store';
+import { createStackNavigator } from '@react-navigation/stack';
+import { connect } from 'fixit-common-data-store';
 import RegisterScreen from '../screens/registerScreen';
 import NotificationSetup from '../Setup';
 

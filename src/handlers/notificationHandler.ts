@@ -2,24 +2,25 @@ import {
   store,
   notificationActions,
   persistentStore,
-  persistentActions
+  persistentActions,
 } from 'fixit-common-data-store';
-import {FirebaseMessagingTypes} from '@react-native-firebase/messaging/lib';
-import messaging from '@react-native-firebase/messaging';
+import messaging, {
+  FirebaseMessagingTypes,
+} from '@react-native-firebase/messaging/lib';
+
 import DeviceInfo from 'react-native-device-info';
-import {Platform} from 'react-native';
-import {DeviceInstallationUpsertRequest} from 'src/models/notifications/DeviceInstallationUpsertRequest';
-import jwt_decode from 'jwt-decode';
+import { Platform } from 'react-native';
+import { DeviceInstallationUpsertRequest } from 'src/models/notifications/DeviceInstallationUpsertRequest';
+import jwtDecode from 'jwt-decode';
 import NotificationService from '../services/notificationService';
-import {config} from '../config/appConfig';
+import config from '../config/appConfig';
 
 export default class NotificationHandler {
   private static instance: NotificationHandler;
-  private _notificationService = new NotificationService(
+
+  private notificationService = new NotificationService(
     config.notificationApiUrl,
   );
-
-  private constructor() {}
 
   public static getInstance(): NotificationHandler {
     if (!NotificationHandler.instance) {
@@ -28,14 +29,14 @@ export default class NotificationHandler {
     return NotificationHandler.instance;
   }
 
-  private _tokenIsOutdated(token: string): boolean {
+  private tokenIsOutdated = (token: string): boolean => {
     const state = persistentStore.getState();
-    return token != state.pushChannelToken;
-  }
+    return token !== state.pushChannelToken;
+  };
 
   displayNotification(message: FirebaseMessagingTypes.RemoteMessage) {
-    if (!this._notificationCanBeDisplayed(message)) {
-      throw 'Notification cannot be displayed.'
+    if (!this.notificationCanBeDisplayed(message)) {
+      throw 'Notification cannot be displayed.';
     }
     store.dispatch(notificationActions.default.displayNotification(message));
   }
@@ -44,8 +45,8 @@ export default class NotificationHandler {
     const token: any = await messaging().getToken();
     const platform = Platform.OS === 'ios' ? 'apns' : 'fcm';
     const state = persistentStore.getState();
-    if (this._tokenIsOutdated(token) && state.user.authToken) {
-      const decodedAuthToken: {sub: string} = jwt_decode(state.user.authToken);
+    if (this.tokenIsOutdated(token) && state.user.authToken) {
+      const decodedAuthToken: {sub: string} = jwtDecode(state.user.authToken);
       const userId = decodedAuthToken.sub;
 
       const deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest = {
@@ -53,11 +54,11 @@ export default class NotificationHandler {
         InstallationId: DeviceInfo.getUniqueId(),
         Platform: platform,
         PushChannelToken: token,
-        Tags: [{key: 'default', value: 'user'}],
+        Tags: [{ key: 'default', value: 'user' }],
         Templates: {},
       };
 
-      this._notificationService
+      this.notificationService
         .installDevice(deviceInstallationUpsertRequest)
         .then((_) => {
           persistentStore.dispatch(
@@ -75,7 +76,7 @@ export default class NotificationHandler {
     this.displayNotification(message);
   }
 
-  onBackgroundNotification(message: FirebaseMessagingTypes.RemoteMessage) {
+  onBackgroundNotification = (message: FirebaseMessagingTypes.RemoteMessage) => {
     // TODO: what to do when a notification appears in the bg
   }
 
@@ -91,14 +92,10 @@ export default class NotificationHandler {
     this.displayNotification(message);
   }
 
-  private _notificationCanBeDisplayed(
+  private notificationCanBeDisplayed = (
     message: FirebaseMessagingTypes.RemoteMessage,
-  ) {
-    return (
-      message &&
-      message.messageId &&
-      message.notification &&
-      message.notification.title
-    );
-  }
+  ) => message
+    && message.messageId
+    && message.notification
+    && message.notification.title;
 }
