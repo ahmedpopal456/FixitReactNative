@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
 import { colors, Icon } from 'fixit-common-ui';
+import ProfileStackNavigator from './profileStackNavigator';
 import animator from '../animators';
 import FixesStackNavigator from './fixesStackNavigator';
 
@@ -66,7 +67,7 @@ function BottomBarNavigator() : JSX.Element {
           },
         }}
       >
-        {(props) => <DummyScreen {...props} text={'profile'} />}
+        {(props) => <ProfileStackNavigator />}
       </BottomBarNav.Screen>
       <BottomBarNav.Screen
         name="Home"

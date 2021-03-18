@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import BottomBarNavigator from '../src/navigators/bottomBarNavigator';
 
 jest.useFakeTimers();
-it('renders correctly', () => {
+it('renders correctly', async () => {
   renderer.create(
     <NavigationContainer>
       <BottomBarNavigator />

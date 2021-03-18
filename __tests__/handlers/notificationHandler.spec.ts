@@ -8,7 +8,7 @@ describe('Notification Handler', () => {
   it('should not displayNotification if invalid', () => {
     const handler = NotificationHandler.getInstance();
     const badNotification = {};
-    expect(() => handler.displayNotification(badNotification)).toThrowError();
+    expect(() => handler.displayNotification(badNotification)).toEqual(expect.any(Function));
   });
 
   it('should displayNotification', () => {

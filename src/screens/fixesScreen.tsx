@@ -320,7 +320,7 @@ export default class FixesScreen extends React.Component<unknown, {
   }
 
   renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => void 0} style={styles.fixContainer}>
+    <TouchableOpacity onPress={() => undefined} style={styles.fixContainer}>
       <View style={[styles.statusBar, this.getStatusColor(item.status)]}></View>
       <View style={{ width: 200, paddingVertical: 5 }}>
         <Text>
@@ -345,7 +345,7 @@ export default class FixesScreen extends React.Component<unknown, {
           <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
-          <NotificationBell notifications={0} onPress={() => void 0} />
+          <NotificationBell notifications={0} onPress={() => undefined} />
         </View>
         <View style={styles.topCycleContainer}>
           <Button // fixSelected = true

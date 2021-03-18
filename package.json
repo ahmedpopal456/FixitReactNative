@@ -21,6 +21,7 @@
     "@react-navigation/native": "^5.9.2",
     "@react-navigation/stack": "^5.14.2",
     "@types/styled-components": "5.1.4",
+    "axios": "^0.21.1",
     "fixit-common-data-store": "^1.0.16-alpha",
     "fixit-common-ui": "^1.0.2-alpha",
     "jwt-decode": "^3.1.2",

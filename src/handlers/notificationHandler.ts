@@ -36,7 +36,8 @@ export default class NotificationHandler {
 
   displayNotification(message: FirebaseMessagingTypes.RemoteMessage) {
     if (!this.notificationCanBeDisplayed(message)) {
-      throw 'Notification cannot be displayed.';
+      console.warn('Notification cannot be displayed.');
+      return;
     }
     store.dispatch(notificationActions.default.displayNotification(message));
   }
