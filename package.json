@@ -18,6 +18,7 @@
     "@react-navigation/bottom-tabs": "^5.11.7",
     "@react-navigation/native": "^5.9.2",
     "@react-navigation/stack": "^5.14.2",
+    "@types/react-native-snap-carousel": "^3.8.2",
     "@types/styled-components": "5.1.4",
     "fixit-common-data-store": "^1.0.39-beta",
     "fixit-common-ui": "^1.0.34-beta",
@@ -28,6 +29,7 @@
     "react-native-reanimated": "^1.13.2",
     "react-native-safe-area-context": "^3.1.9",
     "react-native-screens": "^2.17.1",
+    "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "12.1.0",
     "react-native-vector-icons": "7.1.0",
     "styled-components": "5.2.1"

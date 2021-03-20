@@ -1,7 +1,8 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Icon, Tag, Button } from 'fixit-common-ui';
 import SearchTextInput from '../components/SearchTextInput';
+import Carousel from '../components/carousel';
 
 class HomeScreen extends 
     React.Component<{navigation:any}> {
@@ -77,7 +78,14 @@ class HomeScreen extends
           render() : JSX.Element {
             return (
                 <>
-                    <View style={{paddingTop:200, paddingLeft:10, paddingRight:10}}>
+                    <SafeAreaView>
+                      <Carousel 
+                      images={['https://images.unsplash.com/photo-1559571509-1b5c9241070b?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=2767&q=80',
+                        'https://images.unsplash.com/photo-1531168556467-80aace0d0144?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=668&q=80',
+                        'https://images.unsplash.com/photo-1541918602878-4e1ebfc7b739?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=668&q=80'
+                      ]} />
+                    </SafeAreaView>
+                    <View style={{paddingTop:20, paddingLeft:10, paddingRight:10}}>
                         <View style={styles.content}>
                             <View style={{flexDirection:'row'}}>
 
