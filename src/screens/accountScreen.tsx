@@ -85,14 +85,14 @@ const styles = StyleSheet.create({
 });
 
 export default class AccountScreen extends React.Component
-<unknown, {
+<any, {
   firstName: string,
   lastName: string,
-  address: Record<string, unknown>,
+  address: Record<string, any>,
   profilePictureUrl: string,
   averageRating: number
 }> {
-  constructor(props: unknown) {
+  constructor(props: any) {
     super(props);
     this.state = {
       firstName: store.getState().profile.profile.firstName,

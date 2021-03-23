@@ -61,13 +61,13 @@ const styles = StyleSheet.create({
 });
 
 export default class RatingsScreen extends React.Component
-<unknown, {
+<any, {
   ratingsId: string;
   averageRating: number;
   ratings: [];
-  ratingsOfUser: Record<string, unknown> }
+  ratingsOfUser: Record<string, any> }
 > {
-  constructor(props: unknown) {
+  constructor(props: any) {
     super(props);
     this.state = {
       ratingsId: store.getState().ratings.ratings.ratingsId,

@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class FixesScreen extends React.Component<unknown, {
+export default class FixesScreen extends React.Component<any, {
   fixSelected: boolean,
   showPending: boolean,
   showProgress: boolean,
@@ -94,7 +94,7 @@ export default class FixesScreen extends React.Component<unknown, {
   completedFixes: [],
   terminatedFixes: [],
 }> {
-  constructor(props: unknown) {
+  constructor(props: any) {
     super(props);
     this.state = {
       fixSelected: true,
