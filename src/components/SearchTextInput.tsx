@@ -16,6 +16,7 @@ export default class SearchTextInput extends
 
     state ={
       value: this.props.value,
+      placeholder: this.props.placeholder
     }
 
     onFocus = () : void => {
@@ -28,8 +29,10 @@ export default class SearchTextInput extends
         this.props.onFocus();
       }
     }
+    
 
     render() : JSX.Element {
+
       return (
         <>
           <View style={{
@@ -39,19 +42,22 @@ export default class SearchTextInput extends
               ref={(c) => { this.textInput = c; }}
               onFocus={ () => this.onFocus() }
               style={{
-                height: (this.props.big) ? 150 : 50,
                 backgroundColor: 'white',
                 borderRadius: 10,
-                width: '150%', 
+                width: 325,
+                maxWidth: 325, 
                 fontSize: 20, 
-                paddingHorizontal:20
+                paddingHorizontal:20 
               }}
               multiline={this.props.big}
               selectionColor={colors.accent}
               value={this.props.value}
               onChangeText={this.props.onChange}
               placeholder={this.props.placeholder}
-              onSubmitEditing={this.props.onSubmitEditing}/>
+              onSubmitEditing={this.props.onSubmitEditing}
+              maxLength={22}
+              onTextInput={() => this.setState({placeholder: ''})}
+              />
           </View>
         </>
       );
