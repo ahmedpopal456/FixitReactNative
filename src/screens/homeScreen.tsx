@@ -7,25 +7,36 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Icon, Tag, Button } from "fixit-common-ui";
+import axios from 'axios';
 import SearchTextInput from "../components/SearchTextInput";
 import Carousel from "../components/carousel";
 
 class HomeScreen extends React.Component<{ navigation: any }> {
+
+  componentDidMount(){
+    let suggestedTags = [""];
+    axios.get('https://fixit-dev-fms-api.azurewebsites.net/api/tags/3')
+    .then(res => {
+      var i;
+      for( i=0; i< res.data.length; i++){
+        suggestedTags.push(res.data[i].name)
+      }
+      if (i > -1) {
+        suggestedTags.splice(0, 1);
+      }
+      this.setState({suggestedTags})
+      }
+    )
+  }
+
   state = {
     titleFieldVisible: false,
     titleFieldTextVisible: true,
     tagSuggestionsVisible: false,
-    suggestedTags: ["kitchen", "bathroom", "fireplace", "TV room"],
+    suggestedTags: [""],
+    // suggestedTags: ["kitchen", "bathroom", "fireplace", "TV room"],
     tagInputText: "",
     tags: [""],
-  };
-
-  handleNextStep = (): void => {
-    this.props.navigation.navigate("FixRequestDescriptionStep");
-  };
-
-  showTitleField = (): void => {
-    this.setState({ titleFieldVisible: true, titleFieldTextVisible: false });
   };
 
   setTagInputText = (text: string): void => {
@@ -41,6 +52,7 @@ class HomeScreen extends React.Component<{ navigation: any }> {
       }));
     }
   };
+  
 
   removeTag = (tag: string): void => {
     const tagArr = this.state.tags;
@@ -81,16 +93,15 @@ class HomeScreen extends React.Component<{ navigation: any }> {
   render(): JSX.Element {
     return (
       <>
+      <View style={{backgroundColor: "#FFD14A"}}>
         <SafeAreaView>
           <Carousel
             images={[
-              "https://images.unsplash.com/photo-1559571509-1b5c9241070b?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=2767&q=80",
-              "https://images.unsplash.com/photo-1531168556467-80aace0d0144?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=668&q=80",
-              "https://images.unsplash.com/photo-1541918602878-4e1ebfc7b739?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=668&q=80",
+              "https://i.imgur.com/iYScKgH.png", "https://i.imgur.com/hnNt4Vl.png"
             ]}
           />
         </SafeAreaView>
-        <View style={{ paddingTop: 20, paddingLeft: 10, paddingRight: 10 }}>
+        <View style={{ paddingTop: 20, paddingLeft: 0, paddingRight: 0 }}>
           <View style={styles.content}>
             <View style={{ flexDirection: "row" }}>
               <View style={{ position: "absolute", zIndex: -1 }}>
@@ -102,9 +113,9 @@ class HomeScreen extends React.Component<{ navigation: any }> {
                   onSubmitEditing={this.addTag}
                 />
               </View>
-              <View style={{ paddingLeft: 260, marginVertical: -3, paddingBottom:10 }}>
+              <View style={{ paddingLeft: 280, marginVertical: -3, paddingBottom:10 }}>
                 <Button
-                  onPress={() => console.log("button pressed")}
+                  onPress={() => console.log("BUTTON TEMPLATE")}
                   color="primary"
                   width={50}
                   padding={0}
@@ -193,6 +204,7 @@ class HomeScreen extends React.Component<{ navigation: any }> {
               ) : null
             )}
           </View>
+        </View>
         </View>
       </>
     );

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useRef, useState} from 'react';
 import {
   Animated,
   Dimensions,
@@ -72,7 +72,7 @@ const Carousel: React.FC<Props> = ({images}) => {
 const styles = StyleSheet.create({
   image: {
     resizeMode: 'cover',
-    height: 200,
+    height: 250,
     width: MAX_WIDTH,
   },
   container: {

@@ -44,8 +44,8 @@ export default class SearchTextInput extends
               style={{
                 backgroundColor: 'white',
                 borderRadius: 10,
-                width: 325,
-                maxWidth: 325, 
+                width: 345,
+                maxWidth: 345, 
                 fontSize: 20, 
                 paddingHorizontal:20 
               }}
@@ -55,7 +55,7 @@ export default class SearchTextInput extends
               onChangeText={this.props.onChange}
               placeholder={this.props.placeholder}
               onSubmitEditing={this.props.onSubmitEditing}
-              maxLength={22}
+              maxLength={25}
               onTextInput={() => this.setState({placeholder: ''})}
               />
           </View>

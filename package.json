@@ -20,6 +20,7 @@
     "@react-navigation/stack": "^5.14.2",
     "@types/react-native-snap-carousel": "^3.8.2",
     "@types/styled-components": "5.1.4",
+    "axios": "^0.21.1",
     "fixit-common-data-store": "^1.0.39-beta",
     "fixit-common-ui": "^1.0.34-beta",
     "react": "16.13.1",
