@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Animated,
   Dimensions,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import useInterval from './useInterval';
 
 type Props = {
@@ -15,9 +16,9 @@ type Props = {
 const MAX_WIDTH = Dimensions.get('screen').width;
 
 const Carousel: React.FC<Props> = ({images}) => {
-  const animation = useRef(new Animated.Value(0));
-  const [currentImage, setCurrentImage] = useState(0);
-  useInterval(() => handleAnimation(), 3000);
+  var animation = useRef(new Animated.Value(0));
+  var [currentImage, setCurrentImage] = useState(0);
+  useInterval(() => handleAnimation(), 5000);
 
   const handleAnimation = () => {
     let newCurrentImage = currentImage + 1;
@@ -43,18 +44,23 @@ const Carousel: React.FC<Props> = ({images}) => {
               transform: [{translateX: animation.current}],
             },
           ]}>
+            {/* Change to component */}
           {images.map((image) => (
             <Image key={image} source={{uri: image}} style={styles.image} />
           ))}
         </Animated.View>
         <View style={styles.indicatorContainer}>
           {images.map((image, index) => (
-            <View
+            <TouchableOpacity
               key={`${image}_${index}`}
               style={[
                 styles.indicator,
                 index === currentImage ? styles.activeIndicator : undefined,
               ]}
+              onPress={()=>{
+                setCurrentImage(index);
+                handleAnimation();
+              }}
             />
           ))}
         </View>
