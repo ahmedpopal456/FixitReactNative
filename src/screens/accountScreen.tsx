@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Icon, NotificationBell } from 'fixit-common-ui';
 import {
-  store, ProfileService, RatingsService, ConfigFactory, connect, PersistentState,
+  store, ProfileService, RatingsService, ConfigFactory, PersistentState, connect,
 } from 'fixit-common-data-store';
 import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
 
@@ -105,7 +105,8 @@ class AccountScreen extends React.Component
   }
 
   // TODO: Get userId from the store
-  async componentDidMount() {
+  //       Replace userId string with : this.props.userId
+  async componentDidMount() : Promise<void> {
     const responseProfile = await profileService.getUserProfile('858e2783-b80b-48e6-b895-3c88bf0808a9');
     const responseRatings = await ratingsService.getUserRatingsAverage('858e2783-b80b-48e6-b895-3c88bf0808a9');
     this.setState({
@@ -129,7 +130,8 @@ class AccountScreen extends React.Component
         <View style={styles.imageContainer}>
           <View style={styles.circle}>
           </View>
-          <Text>{this.state.firstName} {this.state.lastName}</Text>
+          {/* <Text>{this.state.firstName} {this.state.lastName}</Text> */}
+          <Text>{this.props.firstName} {this.props.lastName}</Text>
         </View>
 
         <View style={styles.bodyContainer}>
@@ -166,6 +168,9 @@ class AccountScreen extends React.Component
 
 function mapStateToProps(state: PersistentState) {
   return {
+    userId: state.user.userId,
+    firstName: state.user.firstName,
+    lastName: state.user.lastName,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
   };
 }

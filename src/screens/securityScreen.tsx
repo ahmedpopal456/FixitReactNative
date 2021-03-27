@@ -85,6 +85,7 @@ class SecurityScreen extends React.Component
   }
 
   // TODO: Get userId from the store
+  //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
     const response = await profileService.getUserProfile('858e2783-b80b-48e6-b895-3c88bf0808a9');
     this.setState({
@@ -96,6 +97,7 @@ class SecurityScreen extends React.Component
   }
 
   // TODO: Get userId from the store
+  //       Replace userId string with : this.props.userId
   updateRequest() : void {
     axios.put('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile', {
       firstName: this.state.firstName,
@@ -186,6 +188,9 @@ class SecurityScreen extends React.Component
 
 function mapStateToProps(state: PersistentState) {
   return {
+    userId: state.user.userId,
+    firstName: state.user.firstName,
+    lastName: state.user.lastName,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
   };
 }

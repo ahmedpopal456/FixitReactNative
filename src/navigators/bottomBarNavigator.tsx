@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
 import { colors, Icon } from 'fixit-common-ui';
+import HomeScreen from '../screens/homeScreen';
 import ProfileStackNavigator from './profileStackNavigator';
 import animator from '../animators';
 import FixesStackNavigator from './fixesStackNavigator';
@@ -88,7 +89,7 @@ function BottomBarNavigator() : JSX.Element {
           },
         }}
       >
-        {(props) => <DummyScreen {...props} text={'home'} />}
+        {(props) => <HomeScreen />}
       </BottomBarNav.Screen>
       <BottomBarNav.Screen
         name="Fixes"

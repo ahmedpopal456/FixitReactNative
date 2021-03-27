@@ -85,6 +85,7 @@ class RatingsScreen extends React.Component
   }
 
   // TODO: Get userId from the store
+  //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
     const response = await ratingsService.getUserRatingsAverage(
       '858e2783-b80b-48e6-b895-3c88bf0808a9',
@@ -92,7 +93,7 @@ class RatingsScreen extends React.Component
     this.setState({
       ratingsId: response.ratings.id,
       averageRating: response.ratings.averageRating,
-      ratings: response.ratings.ratings,
+      ratings: response.ratings,
       ratingsOfUser: response.ratings.ratingsOfUser,
     });
   }
@@ -146,6 +147,9 @@ class RatingsScreen extends React.Component
 
 function mapStateToProps(state: PersistentState) {
   return {
+    userId: state.user.userId,
+    firstName: state.user.firstName,
+    lastName: state.user.lastName,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
   };
 }

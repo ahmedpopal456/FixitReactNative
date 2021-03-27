@@ -92,6 +92,9 @@ const RatingItemScreen = (props: {
 
 function mapStateToProps(state: PersistentState) {
   return {
+    userId: state.user.userId,
+    firstName: state.user.firstName,
+    lastName: state.user.lastName,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
   };
 }

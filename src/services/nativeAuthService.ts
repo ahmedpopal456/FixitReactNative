@@ -1,5 +1,6 @@
 import PublicClientApplication from 'react-native-msal';
 import { persistentStore, persistentActions } from 'fixit-common-data-store';
+import axios from 'axios';
 import * as constants from './constants/authConstants';
 import {
   B2CConfiguration,
@@ -56,8 +57,25 @@ export default class NativeAuthService {
       authority,
     });
     persistentStore.dispatch(
-      persistentActions.default.setAuthStatus(true, msalResult.accessToken),
+      persistentActions.default.setAuthStatus(
+        true,
+        msalResult.accessToken,
+        msalResult.tenantId!,
+        msalResult.account.claims?.given_name,
+        msalResult.account.claims?.family_name,
+      ),
     );
+    // TODO: Use the commented line when user in cosmosdb is fixed
+    // axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${msalResult.tenantId}/account/profile/summary`)
+    axios.get('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile/summary')
+      .then((response) => {
+        persistentStore.dispatch(persistentActions.default.setUserInfo(
+          response.data.id,
+          response.data.firstName,
+          response.data.lastName,
+          response.data.role, response.data.status,
+        ));
+      });
     return msalResult;
   }
 
@@ -77,8 +95,26 @@ export default class NativeAuthService {
         b2cSignInUpParams,
       );
       persistentStore.dispatch(
-        persistentActions.default.setAuthStatus(true, msalResult.accessToken),
+        persistentActions.default.setAuthStatus(
+          true,
+          msalResult.accessToken,
+          msalResult.tenantId!,
+          msalResult.account.claims?.given_name,
+          msalResult.account.claims?.family_name,
+        ),
       );
+      // TODO: Use the commented line when user in cosmosdb is fixed
+      // axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${msalResult.tenantId}/account/profile/summary`)
+      axios.get('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile/summary')
+        .then((response) => {
+          persistentStore.dispatch(persistentActions.default.setUserInfo(
+            response.data.id,
+            response.data.firstName,
+            response.data.lastName,
+            response.data.role, response.data.status,
+          ));
+          return response;
+        });
       return msalResult;
     } catch (error) {
       if (
@@ -128,7 +164,7 @@ export default class NativeAuthService {
     );
     await Promise.all(signOutPromises);
     persistentStore.dispatch(
-      persistentActions.default.setAuthStatus(false, ''),
+      persistentActions.default.setAuthStatus(false, '', '', '', ''),
     );
     return true;
   }
