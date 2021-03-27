@@ -1,9 +1,14 @@
 import React from 'react';
 import 'react-native';
-import renderer from 'react-test-renderer';
+import { shallow } from 'enzyme';
+import { Provider, store } from 'fixit-common-data-store';
 import ProfileScreen from '../src/screens/profileScreen';
 
 jest.useFakeTimers();
 it('renders correctly', async () => {
-  renderer.create(<ProfileScreen />);
+  shallow(
+    <Provider store={store}>
+      <ProfileScreen />,
+    </Provider>,
+  );
 });

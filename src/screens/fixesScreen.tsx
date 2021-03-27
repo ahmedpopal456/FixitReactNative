@@ -4,9 +4,11 @@ import {
 } from 'react-native';
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, FixesService, ConfigFactory } from 'fixit-common-data-store';
+import {
+  store, FixesService, ConfigFactory, connect, PersistentState, FixesModel,
+} from 'fixit-common-data-store';
 
-const fixesService = new FixesService(new ConfigFactory());
+const fixesService = new FixesService(new ConfigFactory(), store);
 
 // TODO: Remove when fixed:
 //       ScrollView + FlatList = Nested VirtualizedList
@@ -80,19 +82,19 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class FixesScreen extends React.Component<any, {
+class FixesScreen extends React.Component<any, {
   fixSelected: boolean,
   showPending: boolean,
   showProgress: boolean,
   showReview: boolean,
   showCompleted: boolean,
   showTerminated: boolean,
-  newFixes: [],
-  pendingFixes: [],
-  inProgressFixes: [],
-  inReviewFixes: [],
-  completedFixes: [],
-  terminatedFixes: [],
+  newFixes: Array<FixesModel>,
+  pendingFixes: Array<FixesModel>,
+  inProgressFixes: Array<FixesModel>,
+  inReviewFixes: Array<FixesModel>,
+  completedFixes: Array<FixesModel>,
+  terminatedFixes: Array<FixesModel>,
 }> {
   constructor(props: any) {
     super(props);
@@ -103,17 +105,17 @@ export default class FixesScreen extends React.Component<any, {
       showReview: true,
       showCompleted: true,
       showTerminated: true,
-      newFixes: store.getState().fixes.newFixes.newFixes,
-      pendingFixes: store.getState().fixes.pendingFixes.pendingFixes,
-      inProgressFixes: store.getState().fixes.inProgressFixes.inProgressFixes,
-      inReviewFixes: store.getState().fixes.inReviewFixes.inReviewFixes,
-      completedFixes: store.getState().fixes.completedFixes.completedFixes,
-      terminatedFixes: store.getState().fixes.terminatedFixes.terminatedFixes,
+      newFixes: store.getState().fixes.newFixes,
+      pendingFixes: store.getState().fixes.pendingFixes,
+      inProgressFixes: store.getState().fixes.inProgressFixes,
+      inReviewFixes: store.getState().fixes.inReviewFixes,
+      completedFixes: store.getState().fixes.completedFixes,
+      terminatedFixes: store.getState().fixes.terminatedFixes,
     };
   }
 
   // TODO: Get userId from store
-  async componentDidMount() {
+  async componentDidMount() : Promise<void> {
     const newFixResponse = await fixesService.getNewFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const pendingFixResponse = await fixesService.getPendingFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const inProgresFixResponse = await fixesService.getInProgressFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
@@ -177,7 +179,7 @@ export default class FixesScreen extends React.Component<any, {
                   nestedScrollEnabled={true}
                   data={this.state.pendingFixes}
                   renderItem={this.renderItem}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item: any) => item.id}
                 />
               </View>
               : null
@@ -210,7 +212,7 @@ export default class FixesScreen extends React.Component<any, {
                   nestedScrollEnabled={true}
                   data={this.state.inProgressFixes}
                   renderItem={this.renderItem}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item: any) => item.id}
                 />
               </View>
               : null
@@ -243,7 +245,7 @@ export default class FixesScreen extends React.Component<any, {
                   nestedScrollEnabled={true}
                   data={this.state.inReviewFixes}
                   renderItem={this.renderItem}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item: any) => item.id}
                 />
               </View>
               : null
@@ -275,7 +277,7 @@ export default class FixesScreen extends React.Component<any, {
                   nestedScrollEnabled={true}
                   data={this.state.completedFixes}
                   renderItem={this.renderItem}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item: any) => item.id}
                 />
               </View>
               : null
@@ -308,7 +310,7 @@ export default class FixesScreen extends React.Component<any, {
                   nestedScrollEnabled={true}
                   data={this.state.terminatedFixes}
                   renderItem={this.renderItem}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item: any) => item.id}
                 />
               </View>
               : null
@@ -319,7 +321,7 @@ export default class FixesScreen extends React.Component<any, {
     );
   }
 
-  renderItem = ({ item }) => (
+  renderItem = ({ item } : any) : JSX.Element => (
     <TouchableOpacity onPress={() => undefined} style={styles.fixContainer}>
       <View style={[styles.statusBar, this.getStatusColor(item.status)]}></View>
       <View style={{ width: 200, paddingVertical: 5 }}>
@@ -338,14 +340,17 @@ export default class FixesScreen extends React.Component<any, {
     </TouchableOpacity>
   );
 
-  render() {
+  render() : JSX.Element {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.topContainer}>
           <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
-          <NotificationBell notifications={0} onPress={() => undefined} />
+          <NotificationBell
+            notifications={this.props.unseenNotificationsNumber}
+            onPress={() => this.props.navigation.navigate('Notifications')}
+          />
         </View>
         <View style={styles.topCycleContainer}>
           <Button // fixSelected = true
@@ -405,7 +410,7 @@ export default class FixesScreen extends React.Component<any, {
                   nestedScrollEnabled={true}
                   data={this.state.newFixes}
                   renderItem={this.renderItem}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item: any) => item.id}
                 />
               }
             </View>
@@ -415,3 +420,11 @@ export default class FixesScreen extends React.Component<any, {
     );
   }
 }
+
+function mapStateToProps(state: PersistentState) {
+  return {
+    unseenNotificationsNumber: state.unseenNotificationsNumber,
+  };
+}
+
+export default connect(mapStateToProps)(FixesScreen);

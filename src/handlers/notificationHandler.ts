@@ -3,15 +3,16 @@ import {
   notificationActions,
   persistentStore,
   persistentActions,
+  NotificationModel,
 } from 'fixit-common-data-store';
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging/lib';
-
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
 import { DeviceInstallationUpsertRequest } from 'src/models/notifications/DeviceInstallationUpsertRequest';
 import jwtDecode from 'jwt-decode';
+import base64 from 'react-native-base64';
 import NotificationService from '../services/notificationService';
 import config from '../config/appConfig';
 
@@ -34,12 +35,26 @@ export default class NotificationHandler {
     return token !== state.pushChannelToken;
   };
 
-  displayNotification(message: FirebaseMessagingTypes.RemoteMessage) {
-    if (!this.notificationCanBeDisplayed(message)) {
+  displayNotification(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
+    if (!this.notificationCanBeDisplayed(remoteMessage)) {
       console.warn('Notification cannot be displayed.');
       return;
     }
-    store.dispatch(notificationActions.default.displayNotification(message));
+    store.dispatch(notificationActions.default.displayNotification(remoteMessage));
+
+    const notificationModel : NotificationModel = {
+      ...remoteMessage,
+      requestSummary: JSON.parse(base64.decode(remoteMessage.data.message)),
+      visited: false,
+    };
+    const { unseenNotificationsNumber } = persistentStore.getState();
+    // type of notification needs to be array instead of notificationModelect of array
+    const { notifications } = persistentStore.getState().notificationList;
+    notifications.unshift(notificationModel);
+    persistentStore.dispatch(persistentActions.default.setNotificationList(
+      { notifications },
+      unseenNotificationsNumber + 1,
+    ));
   }
 
   async registerDevice() {
@@ -55,7 +70,7 @@ export default class NotificationHandler {
         InstallationId: DeviceInfo.getUniqueId(),
         Platform: platform,
         PushChannelToken: token,
-        Tags: [{ key: 'default', value: 'user' }],
+        Tags: [{ key: 'userId', value: userId }],
         Templates: {},
       };
 
@@ -73,30 +88,37 @@ export default class NotificationHandler {
     }
   }
 
-  onForegroundNotification(message: FirebaseMessagingTypes.RemoteMessage) {
-    this.displayNotification(message);
+  onForegroundNotification(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
+    this.displayNotification(remoteMessage);
   }
 
-  onBackgroundNotification = (message: FirebaseMessagingTypes.RemoteMessage) => {
+  // When app is not opened
+  onBackgroundNotification = (
+    remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+  ) => {
     // TODO: what to do when a notification appears in the bg
-  }
+  };
 
+  // When app is not opened, but click on notif banner
+  // background -> background opened
   onBackgroundNotificationOpened(
-    message: FirebaseMessagingTypes.RemoteMessage,
+    remoteMessage: FirebaseMessagingTypes.RemoteMessage,
   ) {
     // TODO: navigate to appropriate screen
-    this.displayNotification(message);
+    this.displayNotification(remoteMessage);
   }
 
-  onQuitNotificationOpened(message: FirebaseMessagingTypes.RemoteMessage) {
+  // When app is closed, open from background notif banner
+  // background -> quit opened
+  onQuitNotificationOpened(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
     // TODO: navigate to appropriate screen
-    this.displayNotification(message);
+    this.displayNotification(remoteMessage);
   }
 
   private notificationCanBeDisplayed = (
-    message: FirebaseMessagingTypes.RemoteMessage,
-  ) => message
-    && message.messageId
-    && message.notification
-    && message.notification.title;
+    remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+  ) => remoteMessage
+    && remoteMessage.messageId
+    && remoteMessage.notification
+    && remoteMessage.notification.title;
 }

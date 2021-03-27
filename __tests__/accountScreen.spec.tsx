@@ -1,9 +1,14 @@
 import React from 'react';
 import 'react-native';
-import renderer from 'react-test-renderer';
+import { shallow } from 'enzyme';
+import { Provider, store } from 'fixit-common-data-store';
 import AccountScreen from '../src/screens/accountScreen';
 
 jest.useFakeTimers();
 it('renders correctly', async () => {
-  renderer.create(<AccountScreen />);
+  shallow(
+    <Provider store={store}>
+      <AccountScreen />,
+    </Provider>,
+  );
 });

@@ -2,13 +2,14 @@ import React from 'react';
 import {
   SafeAreaView, Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
-import { Icon } from 'fixit-common-ui';
+import { Icon, NotificationBell } from 'fixit-common-ui';
 import {
-  store, ProfileService, RatingsService, ConfigFactory,
+  store, ProfileService, RatingsService, ConfigFactory, connect, PersistentState,
 } from 'fixit-common-data-store';
+import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
 
-const profileService = new ProfileService(new ConfigFactory());
-const ratingsService = new RatingsService(new ConfigFactory());
+const profileService = new ProfileService(new ConfigFactory(), store);
+const ratingsService = new RatingsService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   container: {
@@ -84,22 +85,22 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class AccountScreen extends React.Component
+class AccountScreen extends React.Component
 <any, {
   firstName: string,
   lastName: string,
-  address: Record<string, any>,
+  address: AddressModel,
   profilePictureUrl: string,
-  averageRating: number
+  averageRating: number,
 }> {
   constructor(props: any) {
     super(props);
     this.state = {
-      firstName: store.getState().profile.profile.firstName,
-      lastName: store.getState().profile.profile.lastName,
-      address: store.getState().profile.profile.address,
-      profilePictureUrl: store.getState().profile.profile.profilePictureUrl,
-      averageRating: store.getState().ratings.ratings.averageRating,
+      firstName: store.getState().profile.firstName,
+      lastName: store.getState().profile.lastName,
+      address: store.getState().profile.address,
+      profilePictureUrl: store.getState().profile.profilePictureUrl,
+      averageRating: store.getState().ratings.averageRating,
     };
   }
 
@@ -119,6 +120,12 @@ export default class AccountScreen extends React.Component
   render() {
     return (
       <SafeAreaView style={styles.container}>
+        <View style={{ position: 'absolute', right: 0 }}>
+          <NotificationBell
+            notifications={this.props.unseenNotificationsNumber}
+            onPress={() => this.props.navigation.navigate('Notifications')}
+          />
+        </View>
         <View style={styles.imageContainer}>
           <View style={styles.circle}>
           </View>
@@ -127,7 +134,7 @@ export default class AccountScreen extends React.Component
 
         <View style={styles.bodyContainer}>
           <View style={styles.ratingContainer}>
-            <Text>{this.state.averageRating}</Text>
+            <Text>{`${this.state.averageRating}`}</Text>
           </View>
           <View style={styles.buttonsContainer}>
             <TouchableOpacity style={styles.buttonFirst} onPress={() => this.props.navigation.navigate('Profile')}>
@@ -156,3 +163,13 @@ export default class AccountScreen extends React.Component
     );
   }
 }
+
+function mapStateToProps(state: PersistentState) {
+  return {
+    unseenNotificationsNumber: state.unseenNotificationsNumber,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export default connect(mapStateToProps)(AccountScreen);

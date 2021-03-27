@@ -1,9 +1,14 @@
 import React from 'react';
 import 'react-native';
-import renderer from 'react-test-renderer';
+import { shallow } from 'enzyme';
+import { Provider, store } from 'fixit-common-data-store';
 import RatingsScreen from '../src/screens/ratingsScreen';
 
 jest.useFakeTimers();
 it('renders correctly', async () => {
-  renderer.create(<RatingsScreen />);
+  shallow(
+    <Provider store={store}>
+      <RatingsScreen />,
+    </Provider>,
+  );
 });

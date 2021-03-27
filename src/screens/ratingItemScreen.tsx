@@ -2,7 +2,8 @@ import React from 'react';
 import {
   Text, View, StyleSheet, SafeAreaView, Dimensions,
 } from 'react-native';
-import { Button, Icon } from 'fixit-common-ui';
+import { Button, Icon, NotificationBell } from 'fixit-common-ui';
+import { connect, PersistentState } from 'fixit-common-data-store';
 
 const styles = StyleSheet.create({
   container: {
@@ -10,6 +11,10 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height - 95,
     width: '100%',
     backgroundColor: '#FFD14A',
+  },
+  topContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   bodyContainer: {
     flex: 1,
@@ -45,20 +50,30 @@ const styles = StyleSheet.create({
 });
 
 const RatingItemScreen = (props: {
-  navigation: { goBack: () => void; };
+  navigation: {
+    goBack: () => void;
+    navigate: (arg0: string) => void;
+  },
   route: {
     params: {
-      firstName: React.ReactNode;
-      lastName: React.ReactNode;
-      score: React.ReactNode;
-      comment: React.ReactNode;
+      firstName: string;
+      lastName: string;
+      score: number;
+      comment: string;
     };
-  };
-}) : JSX.Element => (
+  },
+  unseenNotificationsNumber: number,
+}): JSX.Element => (
   <SafeAreaView style={styles.container}>
-    <Button onPress={() => props.navigation.goBack()} color='accent'>
-      <Icon library='AntDesign' name='back' size={30} />
-    </Button>
+    <View style={styles.topContainer}>
+      <Button onPress={() => props.navigation.goBack()} color='transparent'>
+        <Icon library='AntDesign' name='back' size={30} />
+      </Button>
+      <NotificationBell
+        notifications={props.unseenNotificationsNumber}
+        onPress={() => props.navigation.navigate('Notifications')}
+      />
+    </View>
     <Text style={styles.title}>Your Ratings</Text>
     <View style={styles.bodyContainer}>
       <View style={styles.infoContainer}>
@@ -75,4 +90,10 @@ const RatingItemScreen = (props: {
   </SafeAreaView>
 );
 
-export default RatingItemScreen;
+function mapStateToProps(state: PersistentState) {
+  return {
+    unseenNotificationsNumber: state.unseenNotificationsNumber,
+  };
+}
+
+export default connect(mapStateToProps)(RatingItemScreen);

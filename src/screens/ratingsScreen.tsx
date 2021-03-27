@@ -7,11 +7,14 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import { Button, Icon } from 'fixit-common-ui';
+import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, RatingsService, ConfigFactory } from 'fixit-common-data-store';
+import {
+  store, RatingsService, ConfigFactory, connect, PersistentState,
+} from 'fixit-common-data-store';
+import { RatingsOfUserModel } from 'fixit-common-data-store/src/models/ratings/ratingsModel';
 
-const ratingsService = new RatingsService(new ConfigFactory());
+const ratingsService = new RatingsService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   container: {
@@ -19,6 +22,10 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height - 95,
     width: '100%',
     backgroundColor: '#FFD14A',
+  },
+  topContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   bodyContainer: {
     flex: 1,
@@ -60,25 +67,25 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class RatingsScreen extends React.Component
+class RatingsScreen extends React.Component
 <any, {
   ratingsId: string;
   averageRating: number;
   ratings: [];
-  ratingsOfUser: Record<string, any> }
-> {
+  ratingsOfUser: RatingsOfUserModel,
+}> {
   constructor(props: any) {
     super(props);
     this.state = {
-      ratingsId: store.getState().ratings.ratings.ratingsId,
-      averageRating: store.getState().ratings.ratings.averageRating,
-      ratings: store.getState().ratings.ratings.ratings,
-      ratingsOfUser: store.getState().ratings.ratings.ratingsOfUser,
+      ratingsId: store.getState().ratings.ratingsId,
+      averageRating: store.getState().ratings.averageRating,
+      ratings: store.getState().ratings.ratings,
+      ratingsOfUser: store.getState().ratings.ratingsOfUser,
     };
   }
 
   // TODO: Get userId from the store
-  async componentDidMount() {
+  async componentDidMount() : Promise<void> {
     const response = await ratingsService.getUserRatingsAverage(
       '858e2783-b80b-48e6-b895-3c88bf0808a9',
     );
@@ -90,15 +97,14 @@ export default class RatingsScreen extends React.Component
     });
   }
 
-  renderItem = ({ item }) => (
+  renderItem = ({ item } : any) : JSX.Element => (
     <TouchableOpacity
       onPress={() => this.props.navigation.navigate('RatingItem', {
         firstName: item.reviewedByUser.firstName,
         lastName: item.reviewedByUser.lastName,
         score: item.score,
         comment: item.comment,
-      })
-      }
+      })}
       style={styles.ratingItem}>
       <View style={styles.image} />
       <View style={styles.textContainer}>
@@ -111,19 +117,25 @@ export default class RatingsScreen extends React.Component
     </TouchableOpacity>
   );
 
-  render() {
+  render() : JSX.Element {
     return (
       <SafeAreaView style={styles.container}>
-        <Button onPress={() => this.props.navigation.goBack()} color="accent">
-          <Icon library="AntDesign" name="back" size={30} />
-        </Button>
+        <View style={styles.topContainer}>
+          <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
+            <Icon library='AntDesign' name='back' size={30} />
+          </Button>
+          <NotificationBell
+            notifications={this.props.unseenNotificationsNumber}
+            onPress={() => this.props.navigation.navigate('Notifications')}
+          />
+        </View>
         <Text style={styles.title}>Your Ratings</Text>
         <View style={styles.bodyContainer}>
           {this.state.ratings && this.state.ratings.length > 0 ? (
             <FlatList
               data={this.state.ratings}
               renderItem={this.renderItem}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item : any) => item.id}
             />
           ) : null}
         </View>
@@ -131,3 +143,11 @@ export default class RatingsScreen extends React.Component
     );
   }
 }
+
+function mapStateToProps(state: PersistentState) {
+  return {
+    unseenNotificationsNumber: state.unseenNotificationsNumber,
+  };
+}
+
+export default connect(mapStateToProps)(RatingsScreen);

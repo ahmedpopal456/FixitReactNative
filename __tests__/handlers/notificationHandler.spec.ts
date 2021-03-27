@@ -20,6 +20,9 @@ describe('Notification Handler', () => {
       notification: {
         title: 'title',
       },
+      data: {
+        message: 'eyJoZWxsbyI6ICJ3b3JsZCJ9',
+      },
     };
 
     handler.displayNotification(goodNotification);
@@ -40,6 +43,9 @@ describe('Notification Handler', () => {
       notification: {
         title: 'title',
       },
+      data: {
+        message: 'eyJoZWxsbyI6ICJ3b3JsZCJ9',
+      },
     };
 
     handler.onForegroundNotification(notification);
@@ -55,6 +61,9 @@ describe('Notification Handler', () => {
       messageId: 'id',
       notification: {
         title: 'title',
+      },
+      data: {
+        message: 'eyJoZWxsbyI6ICJ3b3JsZCJ9',
       },
     };
 
@@ -72,6 +81,9 @@ describe('Notification Handler', () => {
       messageId: 'id',
       notification: {
         title: 'title',
+      },
+      data: {
+        message: 'eyJoZWxsbyI6ICJ3b3JsZCJ9',
       },
     };
 

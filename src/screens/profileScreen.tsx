@@ -2,11 +2,14 @@ import React from 'react';
 import {
   Text, View, StyleSheet, Image, ScrollView, Dimensions,
 } from 'react-native';
-import { Button, Icon } from 'fixit-common-ui';
+import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, ProfileService, ConfigFactory } from 'fixit-common-data-store';
+import {
+  store, ProfileService, ConfigFactory, PersistentState, connect,
+} from 'fixit-common-data-store';
+import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
 
-const profileService = new ProfileService(new ConfigFactory());
+const profileService = new ProfileService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   container: {
@@ -14,6 +17,10 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height - 95,
     width: '100%',
     backgroundColor: '#FFD14A',
+  },
+  topContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   bodyContainer: {
     flex: 1,
@@ -54,28 +61,29 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class ProfileScreen extends React.Component
+class ProfileScreen extends React.Component
 <any, {
   firstName: string,
   lastName: string,
-  address: Record<string, any>,
+  address: AddressModel,
   profilePictureUrl: string,
-  email: string
+  email: string,
 }> {
   constructor(props: any) {
     super(props);
     this.state = {
-      firstName: store.getState().profile.profile.firstName,
-      lastName: store.getState().profile.profile.lastName,
-      address: store.getState().profile.profile.address,
-      profilePictureUrl: store.getState().profile.profile.profilePictureUrl,
+      firstName: store.getState().profile.firstName,
+      lastName: store.getState().profile.lastName,
+      address: store.getState().profile.address,
+      profilePictureUrl: store.getState().profile.profilePictureUrl,
       email: '',
     };
   }
 
   // TODO: Get userId from the store
-  async componentDidMount() {
+  async componentDidMount() : Promise<void> {
     const response = await profileService.getUserProfile('858e2783-b80b-48e6-b895-3c88bf0808a9');
+    console.log('response = ', response);
     this.setState({
       firstName: response.firstName,
       lastName: response.lastName,
@@ -84,12 +92,19 @@ export default class ProfileScreen extends React.Component
     });
   }
 
-  render() {
+  render() : JSX.Element {
     return (
       <SafeAreaView style={styles.container}>
-        <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
-          <Icon library='AntDesign' name='back' size={30} />
-        </Button>
+        {console.log(this.state)}
+        <View style={styles.topContainer}>
+          <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
+            <Icon library='AntDesign' name='back' size={30} />
+          </Button>
+          <NotificationBell
+            notifications={this.props.unseenNotificationsNumber}
+            onPress={() => this.props.navigation.navigate('Notifications')}
+          />
+        </View>
         <Text style={styles.title}>My Profile</Text>
 
         <View style={styles.bodyContainer}>
@@ -130,3 +145,11 @@ export default class ProfileScreen extends React.Component
     );
   }
 }
+
+function mapStateToProps(state: PersistentState) {
+  return {
+    unseenNotificationsNumber: state.unseenNotificationsNumber,
+  };
+}
+
+export default connect(mapStateToProps)(ProfileScreen);
