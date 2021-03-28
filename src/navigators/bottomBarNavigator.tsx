@@ -6,6 +6,7 @@ import { colors, Icon } from 'fixit-common-ui';
 import HomeScreen from '../screens/homeScreen';
 import ProfileStackNavigator from './profileStackNavigator';
 import animator from '../animators';
+import HomeStackNavigator from './homeStackNavigator';
 import FixesStackNavigator from './fixesStackNavigator';
 
 // TODO: remove this when real screens are implemented
@@ -43,11 +44,13 @@ function BottomBarNavigator() : JSX.Element {
       tabBarOptions={{
         activeTintColor: colors.accent,
         inactiveTintColor: colors.primary,
+        keyboardHidesTabBar: true,
         style: {
           paddingBottom: 10,
           height: 75,
         },
       }}
+      initialRouteName="Home"
     >
       <BottomBarNav.Screen
         name="Profile"
@@ -89,7 +92,7 @@ function BottomBarNavigator() : JSX.Element {
           },
         }}
       >
-        {(props) => <HomeScreen />}
+        {(props) => <HomeStackNavigator />}
       </BottomBarNav.Screen>
       <BottomBarNav.Screen
         name="Fixes"

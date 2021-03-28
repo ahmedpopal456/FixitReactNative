@@ -11,6 +11,8 @@ target 'FixitReactNative' do
 
   pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
 
+  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
+
   target 'FixitReactNativeTests' do
     inherit! :complete
     # Pods for testing

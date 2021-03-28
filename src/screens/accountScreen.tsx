@@ -130,7 +130,6 @@ class AccountScreen extends React.Component
         <View style={styles.imageContainer}>
           <View style={styles.circle}>
           </View>
-          {/* <Text>{this.state.firstName} {this.state.lastName}</Text> */}
           <Text>{this.props.firstName} {this.props.lastName}</Text>
         </View>
 

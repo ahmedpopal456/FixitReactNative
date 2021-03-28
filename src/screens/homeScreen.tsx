@@ -1,24 +1,28 @@
 import React from 'react';
 import {
-  SafeAreaView, Text, View, StyleSheet, TouchableOpacity,
+  Text, View,
 } from 'react-native';
 import {
   PersistentState, connect,
 } from 'fixit-common-data-store';
+import { Button } from 'fixit-common-ui';
+import UserRoles from '../models/users/userRolesEnum';
 
 class HomeScreen extends React.Component<any> {
   renderScreen() {
-    if (this.props.role === 0) { // client view
+    if (this.props.role === UserRoles.CLIENT) {
       return (
         <View style={{ justifyContent: 'center' }}>
           <Text>Home client</Text>
+          <Button onPress={() => this.props.navigation.navigate('SearchResultsScreen')}>Search</Button>
         </View>
       );
     }
-    if (this.props.role === 1) { // craftsman view
+    if (this.props.role === UserRoles.CRAFTSMAN) {
       return (
         <View style={{ justifyContent: 'center' }}>
           <Text>Home craftsman</Text>
+          <Button onPress={() => this.props.navigation.navigate('SearchResultsScreen')}>Search</Button>
         </View>
       );
     }

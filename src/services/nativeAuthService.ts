@@ -65,6 +65,7 @@ export default class NativeAuthService {
         msalResult.account.claims?.family_name,
       ),
     );
+    // TODO: Make this api call in FixitCommonDataStore
     // TODO: Use the commented line when user in cosmosdb is fixed
     // axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${msalResult.tenantId}/account/profile/summary`)
     axios.get('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile/summary')
@@ -103,6 +104,7 @@ export default class NativeAuthService {
           msalResult.account.claims?.family_name,
         ),
       );
+      // TODO: Make this api call in FixitCommonDataStore
       // TODO: Use the commented line when user in cosmosdb is fixed
       // axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${msalResult.tenantId}/account/profile/summary`)
       axios.get('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile/summary')
