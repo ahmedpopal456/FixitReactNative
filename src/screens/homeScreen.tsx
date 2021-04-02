@@ -93,7 +93,7 @@ class HomeScreen extends React.Component<{ navigation: any }> {
   render(): JSX.Element {
     return (
       <>
-      <View style={{backgroundColor: "#FFD14A"}}>
+      <View style={{height:'50%', backgroundColor: '#FFD14A'}}>
         <SafeAreaView>
           <Carousel
             images={[
@@ -101,35 +101,8 @@ class HomeScreen extends React.Component<{ navigation: any }> {
             ]}
           />
         </SafeAreaView>
-        <View style={{ paddingTop: 20, paddingLeft: 0, paddingRight: 0 }}>
+        <View style={{ paddingTop: 0, paddingLeft: 0, paddingRight: 0 }}>
           <View style={styles.content}>
-            <View style={{ flexDirection: "row" }}>
-              <View style={{ position: "absolute", zIndex: -1 }}>
-                <SearchTextInput
-                  onChange={(text: string) => this.setTagInputText(text)}
-                  value={this.state.tagInputText}
-                  placeholder="What needs Fixing?"
-                  onFocus={() => this.showTagSuggestions()}
-                  onSubmitEditing={this.addTag}
-                />
-              </View>
-              <View style={{ paddingLeft: 280, marginVertical: -3, paddingBottom:10 }}>
-                <Button
-                  onPress={() => console.log("BUTTON TEMPLATE")}
-                  color="primary"
-                  width={50}
-                  padding={0}
-                  // shape='circle'
-                >
-                  <Icon
-                    library="Ionicons"
-                    name="hammer-outline"
-                    color="accent"
-                  />
-                </Button>
-              </View>
-            </View>
-
             <Text>Most Popular Fixes</Text>
             <View
               style={{
@@ -165,8 +138,34 @@ class HomeScreen extends React.Component<{ navigation: any }> {
                 ) : null
               )}
             </View>
-          </View>
-          <View
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ position: "absolute", zIndex: -1, paddingTop:10}}>
+                <SearchTextInput
+                  onChange={(text: string) => this.setTagInputText(text)}
+                  value={this.state.tagInputText}
+                  placeholder="What needs Fixing?"
+                  onFocus={() => this.showTagSuggestions()}
+                  onSubmitEditing={this.addTag}
+                />
+              </View>
+              <View style={{ paddingLeft: 280, marginVertical: 13, paddingBottom:10 }}>
+                <Button
+                  onPress={() => console.log("BUTTON TEMPLATE")}
+                  color="primary"
+                  width={50}
+                  padding={0}
+                  // shape='circle'
+                >
+                  <Icon
+                    library="Ionicons"
+                    name="hammer-outline"
+                    color="accent"
+                  />
+                </Button>
+              </View>
+            </View>
+
+            <View
             style={{
               display: "flex",
               flexDirection: "row",
@@ -204,6 +203,8 @@ class HomeScreen extends React.Component<{ navigation: any }> {
               ) : null
             )}
           </View>
+          </View>
+          
         </View>
         </View>
       </>
@@ -216,8 +217,8 @@ const styles = StyleSheet.create({
     paddingLeft: 25,
     borderRadius: 25,
     backgroundColor: "#CDCDCD",
-    height: 150,
-    paddingTop: 25,
+    paddingTop: 20,
+    paddingBottom: 20
   },
 });
 

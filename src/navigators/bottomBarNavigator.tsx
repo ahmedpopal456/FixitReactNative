@@ -41,6 +41,7 @@ function BottomBarNavigator() : JSX.Element {
       tabBarOptions={{
         activeTintColor: colors.accent,
         inactiveTintColor: colors.primary,
+        keyboardHidesTabBar: true,
         style: {
           paddingBottom: 10,
           height: 75,

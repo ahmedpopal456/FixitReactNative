@@ -47,7 +47,8 @@ export default class SearchTextInput extends
                 width: 345,
                 maxWidth: 345, 
                 fontSize: 20, 
-                paddingHorizontal:20 
+                paddingHorizontal:20,
+                height: 60 
               }}
               multiline={this.props.big}
               selectionColor={colors.accent}
@@ -56,7 +57,6 @@ export default class SearchTextInput extends
               placeholder={this.props.placeholder}
               onSubmitEditing={this.props.onSubmitEditing}
               maxLength={25}
-              onTextInput={() => this.setState({placeholder: ''})}
               />
           </View>
         </>

@@ -37,6 +37,9 @@ const Carousel: React.FC<Props> = ({images}) => {
   return (
     <React.Fragment>
       <View>
+        <View style={{height:10, width: 10, paddingLeft:250}}>
+
+        </View>
         <Animated.View
           style={[
             styles.container,
