@@ -75,7 +75,7 @@ const Carousel: React.FC<Props> = ({images}) => {
 const styles = StyleSheet.create({
   image: {
     resizeMode: 'cover',
-    height: 250,
+    height: 215,
     width: MAX_WIDTH,
   },
   container: {
