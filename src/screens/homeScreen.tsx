@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  Image
 } from "react-native";
 import { Card, Title } from "react-native-paper";
 import { Icon, Tag, Button } from "fixit-common-ui";
@@ -95,12 +96,27 @@ class HomeScreen extends React.Component<{ navigation: any }> {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={{ height: "50%", backgroundColor: "#FFD14A" }}>
             <SafeAreaView>
-              <Carousel
-                images={[
-                  "https://i.imgur.com/jfV0e1r.png?1",
-                  "https://i.imgur.com/hnNt4Vl.png",
-                ]}
-              />
+              <View style={{height:215, flexDirection:"row", width:250}}>
+                <Image style={{height:170, width: 170, borderRadius: 15, marginTop:25}}source={{uri: 'https://images.unsplash.com/photo-1505798577917-a65157d3320a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1650&q=80'}}/>
+                <View style={{flexDirection:"column"}}>
+                  <View style={{paddingLeft:150}}>
+                <Button
+                      onPress={() => console.log("BUTTON TEMPLATE")}
+                      color="accent"
+                      width={50}
+                      padding={0}
+                    >
+                      <Icon
+                        library="Ionicons"
+                        name="notifications"
+                        color="primary"
+                        size={35}
+                      />
+                    </Button>
+                    </View>
+                  <Text style={{fontSize:20, fontWeight:"300", paddingTop:30, paddingLeft:10}}>Get the kitchen of your dreams.</Text>
+                </View>
+              </View>
             </SafeAreaView>
             <View style={{ paddingTop: 0, paddingLeft: 0, paddingRight: 0 }}>
               <View style={styles.content}>
