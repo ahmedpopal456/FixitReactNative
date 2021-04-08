@@ -8,13 +8,15 @@ import FixRequestSectionsStep from '../screens/fixRequests/fixRequestSectionsSte
 import FixRequestImagesLocationStep from '../screens/fixRequests/fixRequestImagesLocationStep';
 import FixRequestScheduleStep from '../screens/fixRequests/fixRequestScheduleStep';
 import FixRequestReview from '../screens/fixRequests/fixRequestReview';
+import CraftsmanHomeScreen from '../screens/craftsmenHomeScreen';
 
 const Stack = createStackNavigator();
 
 function HomeStackNavigator() : JSX.Element {
   return (
     <Stack.Navigator headerMode='none'>
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="CraftsmanHomeScreen" component = {CraftsmanHomeScreen}/>
+      {/* //<Stack.Screen name="HomeScreen" component={HomeScreen} /> */}
       <Stack.Screen name="SearchResultsScreen" component={SearchResultsScreen} />
       <Stack.Screen name="FixRequestMetaStep" component={FixRequestMetaStep} options={{
         animationEnabled: false,

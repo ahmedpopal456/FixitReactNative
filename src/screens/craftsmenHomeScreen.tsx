@@ -1,15 +1,18 @@
 import React from 'react';
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, FlatList } from 'react-native';
-import { Button, Icon, NotificationBell, DonutChart } from 'fixit-common-ui';
+import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground } from 'react-native';
+import { Button, Icon, NotificationBell, DonutChart, Tag } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, FixesService, ConfigFactory, FixesModel, PersistentState, connect } from 'fixit-common-data-store';
-import { ScrollView } from 'react-native-gesture-handler';
+import { store, FixesService, ConfigFactory, FixesModel, PersistentState, connect, RatingsService } from 'fixit-common-data-store';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import bgImage from '../assets/background-right.png';
 import image from '../assets/bedroom.png';
 import {Rating} from 'react-native-ratings';
+import { ScrollView } from 'react-native-gesture-handler';
+import Calendar from '../components/calendar';
+import axios from "axios";
 
 const fixesService = new FixesService(new ConfigFactory(), store);
+const ratingsService = new RatingsService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   container: {
@@ -29,25 +32,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-  input: {
-    height: 50,
-    width: 280,
-    color:'white',
-    marginRight:2.5,
-    padding:10,
-    backgroundColor: '#1D1F2A',
-    borderRadius: 5,
-    borderWidth: 1,
-  },
-  icons:{
-    backgroundColor:'#1D1F2A', 
-    borderRadius:5, 
-    textAlign:'center',
-    textAlignVertical:'center',
-    height:50, 
-    width:50, 
-    margin:2.5
-  },
   fixContainer: {
     flexDirection: 'row',
     width: Dimensions.get('window').width-35,
@@ -65,19 +49,7 @@ const styles = StyleSheet.create({
     height:30,
     width:100,
     borderRadius: 4,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    paddingVertical: 2,
-  },
-  subtitle: {
-    color: 'gray',
+    marginTop:5
   },
   pagination:{
     width:5,
@@ -100,8 +72,9 @@ class CraftsmanHomeScreen extends React.Component
   inReviewFixes: Array<FixesModel>,
   completedFixes: Array<FixesModel>,
   terminatedFixes: Array<FixesModel>,
+  suggestedTags:any,
+  averageRating:number,
 }> 
-
 {
   constructor(props: any) {
     super(props);
@@ -118,16 +91,20 @@ class CraftsmanHomeScreen extends React.Component
       inReviewFixes: store.getState().fixes.inReviewFixes,
       completedFixes: store.getState().fixes.completedFixes,
       terminatedFixes: store.getState().fixes.terminatedFixes,
+      averageRating:store.getState().ratings.averageRating,
+      suggestedTags:[""]
     };
   }
 
   async componentDidMount() {
+    
     const newFixResponse = await fixesService.getNewFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const pendingFixResponse = await fixesService.getPendingFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const inProgresFixResponse = await fixesService.getInProgressFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const inReviewFixResponse = await fixesService.getInReviewFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const completedFixResponse = await fixesService.getCompletedFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const terminatedFixResponse = await fixesService.getTerminatedFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
+    const responseRatings = await ratingsService.getUserRatingsAverage('858e2783-b80b-48e6-b895-3c88bf0808a9');
     this.setState({
       newFixes: newFixResponse,
       pendingFixes: pendingFixResponse,
@@ -135,7 +112,22 @@ class CraftsmanHomeScreen extends React.Component
       inReviewFixes: inReviewFixResponse,
       completedFixes: completedFixResponse,
       terminatedFixes: terminatedFixResponse,
+      averageRating: responseRatings.ratings.averageRating,
     });
+
+    let suggestedTags = [""];
+    axios
+      .get("https://fixit-dev-fms-api.azurewebsites.net/api/tags/5")
+      .then((res) => {
+        var i;
+        for (i = 0; i < res.data.length; i++) {
+          suggestedTags.push(res.data[i].name);
+        }
+        if (i > -1) {
+          suggestedTags.splice(0, 1);
+        }
+        this.setState({ suggestedTags });
+      });
   }
 
 renderOngoingFixes = ({ item }: any): JSX.Element =>  (
@@ -149,16 +141,14 @@ renderOngoingFixes = ({ item }: any): JSX.Element =>  (
                   textColor='dark'
         />
       </View>   
-      <View style={{ width: 200, paddingVertical: 5, margin:7 }}>
-        <Text>
-          {item.assignedToCraftsman == null
-            ? 'Not assigned'
-            : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`
-          }
-        </Text>       
+      <View style={{ width: 200, paddingVertical: 5, margin:7 }}>   
         <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
-        <Text style={{ color: '#8B8B8B' }}>{item.details[0].category}</Text>
-        <TouchableOpacity>
+        <View style={{flexDirection:'row', flexWrap:'wrap'}}>
+          <Text style={{ color: '#8B8B8B' }}>Started {new Date(item.schedule[0].startTimestampUtc).toDateString()} for </Text>
+          <Text style={{ color: '#8B8B8B', textDecorationLine:'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
+        </View>
+        
+        <TouchableOpacity onPress={()=>null}>
           <View style={styles.detail}>
             <Text style={{color: '#FFD14A', alignSelf:'center', marginTop:3}}>See Details</Text>
           </View>
@@ -167,28 +157,27 @@ renderOngoingFixes = ({ item }: any): JSX.Element =>  (
     </View>
   );
 
-renderUpcomingFixes = ({ item }: any): JSX.Element =>  (
+renderFixRequests = ({ item }: any): JSX.Element =>  (
     <View style={styles.fixContainer}>
-      <View style={{ padding:10}}>
+      <View>
         <ImageBackground
           source={image}
+          imageStyle={{
+            borderTopLeftRadius:10,
+            borderBottomLeftRadius:10
+          }}
           style={{
-            width:75,
-            height:75,
-            margin:10
+            width:120,
+            height:141,
+            justifyContent:'flex-start'
           }}
         />
       </View>   
-      <View style={{ width: 200, paddingVertical: 5, margin:7 }}>
-        <Text>
-          {item.assignedToCraftsman == null
-            ? 'Not assigned'
-            : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`
-          }
-        </Text>       
-        <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
-        <Text style={{ color: '#8B8B8B' }}>{item.details[0].category}</Text>
-        <TouchableOpacity>
+      <View style={{ width: 200, paddingVertical: 5, margin:7 }}>     
+        <Text style={{ fontWeight: 'bold', fontSize:15 }}>{item.details[0].name}</Text>
+        <Text >{new Date(item.schedule[0].startTimestampUtc*1000).toDateString()} - {new Date(item.schedule[0].endTimestampUtc).toDateString()}</Text>
+        <Text style={{ color: '#8B8B8B', textDecorationLine:'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
+        <TouchableOpacity onPress={()=>null}>
           <View style={styles.detail}>
             <Text style={{color: '#FFD14A', alignSelf:'center', marginTop:3}}>See Details</Text>
           </View>
@@ -202,40 +191,79 @@ render() {
       <SafeAreaView style={styles.container}>
       {console.log(this.state)}
       <View style={styles.topContainer}>
-        <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
-          <Icon library='AntDesign' name='back' size={30} />
-        </Button>
-        <NotificationBell
-          notifications={this.props.unseenNotificationsNumber}
-          onPress={() => this.props.navigation.navigate('Notifications')}
-        />
+        <View style={{flexDirection:'column'}}>
+          <View style={{flexDirection:'row'}}>
+            <View style={{flexDirection:'column'}}>
+            <Text style={{marginTop:15, marginLeft:15, marginRight: 262, fontSize:15}}>Hello,</Text>
+            <View style={{flexDirection:'row'}}>
+              <Text style={{marginLeft:15, fontSize:25, fontWeight:'bold'}}>José</Text>
+              <TouchableOpacity onPress={() => this.props.navigation.navigate('Ratings')}>
+                <Rating 
+                  style={{marginLeft:15, marginTop:10}}
+                  type='custom'
+                  ratingColor={'white'}
+                  ratingBackgroundColor={'gray'}
+                  tintColor={'#FFD14A'}
+                  readonly={true}
+                  startingValue={this.state.averageRating}
+                  ratingCount={5}
+                  imageSize={20}
+                />
+              </TouchableOpacity>            
+            </View>
+            </View>
+            <NotificationBell
+              notifications={this.props.unseenNotificationsNumber}
+              onPress={() => this.props.navigation.navigate('Notifications')}
+            />
+          </View> 
+        
+        <View style={{flexDirection: 'row'}}>     
+                           
+          </View>
+          </View>
       </View>
       <View style={styles.bodyContainer}>
-            <ImageBackground
-          source={bgImage}
-          imageStyle={{
-            borderTopLeftRadius:20,
-            borderTopRightRadius:20
-          }}
-          style={{
-            width: '100%',
-            height: '100%',
-            flex:1,
-            flexGrow:100,
-          }}
-        >
-            <View style={{flexDirection: 'row'}}>
-              <Text style={{marginTop:15, marginLeft: 15}}>Your rating:</Text>
-              <Rating 
-                style={{marginTop:15, marginLeft:15}}
-                type='star'
-                ratingColor={'#FFD14A'}
-                readonly={true}
-                ratingCount={5}
-                imageSize={20}
-              />
+          <ImageBackground
+            source={bgImage}
+            imageStyle={{
+              borderTopLeftRadius:20,
+              borderTopRightRadius:20
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              flex:1,
+              flexGrow:100,
+            }}
+          >         
+            <ScrollView>         
+            <View style={{flexDirection:'row'}}>
+              <Text style={{marginTop:15, marginLeft: 15}}>Your Fix Requests</Text>
+              <TouchableOpacity onPress={()=>this.props.navigation.navigate('Fixes')}>
+                <Text style={{marginTop:15, marginLeft:195, color:'grey'}}>See All</Text>
+              </TouchableOpacity>
+            </View>  
+            <View style={{marginLeft:15, marginRight: 15}}>
+                  {/* body of each section */}
+                  <SwiperFlatList
+                    style={{marginBottom:25}}
+                    showPagination
+                    paginationActiveColor='black'
+                    paginationStyleItem={styles.pagination}
+                    nestedScrollEnabled={true}
+                    data={this.state.newFixes}
+                    renderItem={this.renderFixRequests}  
+                    keyExtractor={(item) => item.id}
+                  />
             </View>
-            <Text style={{marginTop:15, marginLeft: 15}}>Your Ongoing Fixes</Text>
+            <View style={{flexDirection:'row'}}>
+              <Text style={{marginTop:15, marginLeft:15}}>Your Ongoing Fixes</Text>
+              <TouchableOpacity onPress={()=>this.props.navigation.navigate('Fixes')}>
+                <Text style={{marginTop:15, marginLeft:195, color:'grey'}}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            
             <View style={{marginLeft:15, marginRight: 15}}>
                   {/* body of each section */}
                   <SwiperFlatList
@@ -249,10 +277,10 @@ render() {
                     keyExtractor={(item) => item.id}
                   />
               </View>
-              <Text style={{ marginLeft: 15}}>Your Upcoming Fixes</Text>
-              <View style={{marginLeft:15, marginRight: 15}}>
+              {/* <Text style={{ marginLeft: 15}}>Your Upcoming Fixes</Text> */}
+              {/* <View style={{marginLeft:15, marginRight: 15}}>
                   {/* body of each section */}
-                  <SwiperFlatList
+                  {/* <SwiperFlatList
                     style={{marginBottom:25}}      
                     showPagination      
                     nestedScrollEnabled={true}
@@ -262,8 +290,37 @@ render() {
                     renderItem={this.renderUpcomingFixes}
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={(item) => item.id}
-                  />
+                  /> */}
+              {/* </View> */}
+              <Text style={{ marginLeft: 15}}>Your Availabilities</Text>
+              <View style={{margin:15}}>
+                <Calendar
+                    startDate={new Date(1617823188*1000)}        
+                    endDate = {new Date(1619551189*1000)}           
+                    canUpdate={true}
+                />
               </View>
+              <Text style={{ marginLeft:15, marginTop:15}}>Your Tags</Text>
+              <View style={{flexDirection:'row', flexWrap:'wrap', marginLeft:15}}>
+              {this.state.suggestedTags.map((tag: any) =>
+                    tag ? (
+                      <View
+                        key={tag}
+                        style={{
+                          flexGrow: 0,
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                          <Tag backgroundColor={"dark"} textColor={"light"}>
+                            {tag}
+                          </Tag>
+                      </View>
+                    ) : null
+                  )}
+              </View>
+              </ScrollView>
               </ImageBackground>
       </View>
       </SafeAreaView>
