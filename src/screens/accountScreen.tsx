@@ -2,14 +2,17 @@ import React from 'react';
 import {
   SafeAreaView, Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
-import { Icon, NotificationBell } from 'fixit-common-ui';
+import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import {
   store, ProfileService, RatingsService, ConfigFactory, PersistentState, connect,
 } from 'fixit-common-data-store';
 import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
+import NativeAuthService from '../services/nativeAuthService';
+import { b2cConfig } from '../config/msalConfig';
 
 const profileService = new ProfileService(new ConfigFactory(), store);
 const ratingsService = new RatingsService(new ConfigFactory(), store);
+const b2cClient = new NativeAuthService(b2cConfig);
 
 const styles = StyleSheet.create({
   container: {
@@ -121,9 +124,15 @@ class AccountScreen extends React.Component
   render() {
     return (
       <SafeAreaView style={styles.container}>
+        <View style={{ position: 'absolute', left: 0, margin: 5 }}>
+          <Button onPress={async () => b2cClient.signOut()} width={100}>
+            Sign out
+          </Button>
+        </View>
         <View style={{ position: 'absolute', right: 0 }}>
           <NotificationBell
             notifications={this.props.unseenNotificationsNumber}
+            // TODO: Extract the navigate string into an enum, same elsewhere
             onPress={() => this.props.navigation.navigate('Notifications')}
           />
         </View>

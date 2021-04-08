@@ -322,7 +322,15 @@ class FixesScreen extends React.Component<any, {
   }
 
   renderItem = ({ item } : any) : JSX.Element => (
-    <TouchableOpacity onPress={() => undefined} style={styles.fixContainer}>
+    <TouchableOpacity
+      onPress={() => {
+        if (item.status !== 0) { // Not Fix Request
+          // TODO: Extract the navigate string into an enum, same elsewhere
+          this.props.navigation.navigate('FixOverview', { fix: item });
+        }
+      }}
+      style={styles.fixContainer}
+    >
       <View style={[styles.statusBar, this.getStatusColor(item.status)]}></View>
       <View style={{ width: 200, paddingVertical: 5 }}>
         <Text>

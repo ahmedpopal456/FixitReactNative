@@ -24,7 +24,11 @@
     "axios": "^0.21.1",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
+<<<<<<< HEAD
     "fixit-common-data-store": "^1.0.42-alpha",
+=======
+    "fixit-common-data-store": "^1.0.44-alpha",
+>>>>>>> 9a2e5f0b2e22c29659a1befd01ec57ca146f803d
     "fixit-common-ui": "^1.0.4-alpha",
     "jwt-decode": "^3.1.2",
     "react": "16.13.1",

@@ -14,6 +14,7 @@ class HomeScreen extends React.Component<any> {
       return (
         <View style={{ justifyContent: 'center' }}>
           <Text>Home client</Text>
+          {/* TODO: Extract the navigate string into an enum, same elsewhere */}
           <Button onPress={() => this.props.navigation.navigate('SearchResultsScreen')}>Search</Button>
         </View>
       );

@@ -6,6 +6,7 @@ import { Provider, store } from 'fixit-common-data-store';
 import BottomBarNavigator from '../src/navigators/bottomBarNavigator';
 
 jest.mock('../src/screens/accountScreen');
+jest.mock('../src/services/nativeAuthService');
 jest.useFakeTimers();
 it('renders correctly', async () => {
   shallow(

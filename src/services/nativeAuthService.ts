@@ -74,7 +74,9 @@ export default class NativeAuthService {
           response.data.id,
           response.data.firstName,
           response.data.lastName,
-          response.data.role, response.data.status,
+          response.data.userPrincipalName,
+          response.data.role,
+          response.data.status,
         ));
       });
     return msalResult;
@@ -113,7 +115,9 @@ export default class NativeAuthService {
             response.data.id,
             response.data.firstName,
             response.data.lastName,
-            response.data.role, response.data.status,
+            response.data.userPrincipalName,
+            response.data.role,
+            response.data.status,
           ));
           return response;
         });

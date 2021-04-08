@@ -84,7 +84,6 @@ class ProfileScreen extends React.Component
   //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
     const response = await profileService.getUserProfile('858e2783-b80b-48e6-b895-3c88bf0808a9');
-    console.log('response = ', response);
     this.setState({
       firstName: response.firstName,
       lastName: response.lastName,
@@ -96,13 +95,13 @@ class ProfileScreen extends React.Component
   render() : JSX.Element {
     return (
       <SafeAreaView style={styles.container}>
-        {console.log(this.state)}
         <View style={styles.topContainer}>
           <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
           <NotificationBell
             notifications={this.props.unseenNotificationsNumber}
+            // TODO: Extract the navigate string into an enum, same elsewhere
             onPress={() => this.props.navigation.navigate('Notifications')}
           />
         </View>
