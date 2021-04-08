@@ -5,8 +5,9 @@ import {
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  persistentStore, persistentActions, PersistentState, connect,
+  persistentStore, persistentActions, PersistentState, connect, NotificationModel,
 } from 'fixit-common-data-store';
+import NotificationActions from '../models/notifications/notificationActionsEnum';
 
 const styles = StyleSheet.create({
   container: {
@@ -57,7 +58,7 @@ class NotificationsScreen extends React.Component
   onPressNotification = (item: {
     visited: boolean; messageId: number; requestSummary: { Action: number; };
   }) => {
-    const notifications: any[] = [...this.props.notifications];
+    const notifications: NotificationModel[] = [...this.props.notifications];
     const index = notifications.findIndex((el) => el.messageId === item.messageId);
     if (!item.visited) {
       notifications[index] = { ...notifications[index], visited: true };
@@ -67,21 +68,22 @@ class NotificationsScreen extends React.Component
       ));
     }
 
+    // TODO: Navigate to proper screens
     switch (item.requestSummary.Action) {
-      case 0: { // FixClientRequest
+      case NotificationActions.FIX_CLIENT_REQUEST: {
         return this.props.navigation.navigate('Test1', notifications[index]);
       }
-      case 1: { // FixCraftsmanResponse
+      case NotificationActions.FIX_CRAFTSMAN_RESPONSE: {
         return this.props.navigation.navigate('Test2', notifications[index]);
       }
-      case 2: { // FixPlanUpdate
+      case NotificationActions.FIX_PLAN_UPDATE: {
         return this.props.navigation.navigate('Test3', notifications[index]);
       }
-      case 3: // FixProgressUpdate
+      case NotificationActions.FIX_PROGRESS_UPDATE:
         return null;
-      case 4: // MessageEntry
+      case NotificationActions.MESSAGE_ENTRY:
         return null;
-      case 5: // RatingUpdate
+      case NotificationActions.RATING_UPDATE:
         return null;
       default:
         return null;
@@ -108,7 +110,6 @@ class NotificationsScreen extends React.Component
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        {console.log('notif = ', this.props)}
         <Button onPress={() => this.props.navigation.goBack()} color='accent'>
           <Icon library='AntDesign' name='back' />
         </Button>

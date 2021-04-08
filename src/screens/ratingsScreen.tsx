@@ -93,7 +93,7 @@ class RatingsScreen extends React.Component
     this.setState({
       ratingsId: response.ratings.id,
       averageRating: response.ratings.averageRating,
-      ratings: response.ratings,
+      ratings: response.ratings.ratings,
       ratingsOfUser: response.ratings.ratingsOfUser,
     });
   }
