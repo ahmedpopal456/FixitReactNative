@@ -162,10 +162,6 @@ class SecurityScreen extends React.Component
               />
             </View>
             <View style={styles.infoContainer}>
-              <Text style={styles.text}>Date of Birth</Text>
-              <Text style={styles.input}>Get Date of Birth here</Text>
-            </View>
-            <View style={styles.infoContainer}>
               <Text style={styles.text}>Location</Text>
               <TextInput
                 style={styles.input}

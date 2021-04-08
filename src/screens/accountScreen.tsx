@@ -125,7 +125,7 @@ class AccountScreen extends React.Component
     return (
       <SafeAreaView style={styles.container}>
         <View style={{ position: 'absolute', left: 0, margin: 5 }}>
-          <Button onPress={async () => b2cClient.signOut()} width={100}>
+          <Button testID='signOutBtn' onPress={async () => b2cClient.signOut()} width={100}>
             Sign out
           </Button>
         </View>
@@ -147,23 +147,23 @@ class AccountScreen extends React.Component
             <Text>{`${this.state.averageRating}`}</Text>
           </View>
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.buttonFirst} onPress={() => this.props.navigation.navigate('Profile')}>
+            <TouchableOpacity testID='profileBtn' style={styles.buttonFirst} onPress={() => this.props.navigation.navigate('Profile')}>
               <Text>My Profile</Text>
               <Icon library='AntDesign' name='caretright' />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('Security')}>
+            <TouchableOpacity testID='loginSecurityBtn' style={styles.button} onPress={() => this.props.navigation.navigate('Security')}>
               <Text>Login & Security</Text>
               <Icon library='AntDesign' name='caretright' />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => undefined}>
+            <TouchableOpacity testID='paymentBtn' style={styles.button} onPress={() => undefined}>
               <Text>Payments</Text>
               <Icon library='AntDesign' name='caretright' />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('Ratings')}>
+            <TouchableOpacity testID='ratingsBtn' style={styles.button} onPress={() => this.props.navigation.navigate('Ratings')}>
               <Text>Ratings</Text>
               <Icon library='AntDesign' name='caretright' />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.buttonLast} onPress={() => undefined}>
+            <TouchableOpacity testID='addressBtn' style={styles.buttonLast} onPress={() => undefined}>
               <Text>Your Addresses</Text>
               <Icon library='AntDesign' name='caretright' />
             </TouchableOpacity>

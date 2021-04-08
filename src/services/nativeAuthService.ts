@@ -57,13 +57,7 @@ export default class NativeAuthService {
       authority,
     });
     persistentStore.dispatch(
-      persistentActions.default.setAuthStatus(
-        true,
-        msalResult.accessToken,
-        msalResult.tenantId!,
-        msalResult.account.claims?.given_name,
-        msalResult.account.claims?.family_name,
-      ),
+      persistentActions.default.setAuthStatus(true, msalResult.accessToken),
     );
     // TODO: Make this api call in FixitCommonDataStore
     // TODO: Use the commented line when user in cosmosdb is fixed
@@ -98,13 +92,7 @@ export default class NativeAuthService {
         b2cSignInUpParams,
       );
       persistentStore.dispatch(
-        persistentActions.default.setAuthStatus(
-          true,
-          msalResult.accessToken,
-          msalResult.tenantId!,
-          msalResult.account.claims?.given_name,
-          msalResult.account.claims?.family_name,
-        ),
+        persistentActions.default.setAuthStatus(true, msalResult.accessToken),
       );
       // TODO: Make this api call in FixitCommonDataStore
       // TODO: Use the commented line when user in cosmosdb is fixed
@@ -170,7 +158,7 @@ export default class NativeAuthService {
     );
     await Promise.all(signOutPromises);
     persistentStore.dispatch(
-      persistentActions.default.setAuthStatus(false, '', '', '', ''),
+      persistentActions.default.setAuthStatus(false, ''),
     );
     return true;
   }
