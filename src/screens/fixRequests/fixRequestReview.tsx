@@ -53,7 +53,7 @@ class FixRequestReview extends
             textHeight={30}
             backFunction={this.goBack}/>
           <StyledPageWrapper>
-            <StyledScrollView>
+            <StyledScrollView testID='styledScrollView'>
               <StyledContentWrapper>
                 <View style={{
                   display: 'flex',

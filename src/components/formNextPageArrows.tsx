@@ -51,6 +51,7 @@ export default class FormNextPageArrows extends
                 onClick: () => void
               }) => (
                 <TouchableOpacity key={clickOption.label}
+                  testID='fixTemplateNextBtn'
                   style={{
                     padding: 8,
                     marginTop: 10,
@@ -84,6 +85,7 @@ export default class FormNextPageArrows extends
               borderRadius: 100,
               backgroundColor: colors.primary,
             }}
+            testID='fixTemplateNextOptionsBtn'
             onPress={this.showNextStepsOptions}>
               <Icon library="FontAwesome5" name="arrow-right" color={'accent'} />
             </TouchableOpacity>
@@ -101,6 +103,7 @@ export default class FormNextPageArrows extends
             borderRadius: 100,
             backgroundColor: colors.primary,
           }}
+          testID='fixTemplateNextBtn'
           onPress={this.handleMainClick}>
             <Icon library="FontAwesome5" name="arrow-right" color={'accent'} />
           </TouchableOpacity>

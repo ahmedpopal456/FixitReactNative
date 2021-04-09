@@ -1,6 +1,7 @@
 import React from 'react';
 import { ImageBackground, View } from 'react-native';
 import { Button } from 'fixit-common-ui';
+import { persistentStore, persistentActions } from 'fixit-common-data-store';
 import NativeAuthService from '../services/nativeAuthService';
 import { b2cConfig, b2cScopes as scopes } from '../config/msalConfig';
 import bgImage from '../assets/fixitRegisterBg.png';
@@ -42,6 +43,24 @@ export default class RegisterScreen extends
           height: '100%',
         }}
       >
+        {/* Skip used for E2E testing. Remove when you are not testing. */}
+        {/* <Button
+          testID='skip'
+          onPress={() => {
+            persistentStore.dispatch(
+              persistentActions.default.setAuthStatus(true, 'someToken'),
+            );
+            persistentStore.dispatch(
+              persistentActions.default.setUserInfo(
+                'userId', 'Po', 'Tato', 'someEmail', 0, { status: 1, lastSeenTimestampUtc: 1 },
+              ),
+            );
+          }}
+          width={125}
+          color="accent"
+        >
+          Skip (temp)
+        </Button> */}
         <View
           style={{
             flexDirection: 'row',
@@ -53,10 +72,10 @@ export default class RegisterScreen extends
             borderRadius: 7,
           }}
         >
-          <Button onPress={this.handleSignInPress} width={125}>
+          <Button testID='loginButton' onPress={this.handleSignInPress} width={125}>
             Log In
           </Button>
-          <Button onPress={this.handleSignUpPress} width={125} color="accent">
+          <Button testID='signupButton' onPress={this.handleSignUpPress} width={125} color="accent">
             Sign Up
           </Button>
         </View>

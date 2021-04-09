@@ -88,6 +88,7 @@ export default class SearchResultsScreen extends
           </StyledScrollView>
         </StyledPageWrapper>
         <Button
+          testID='startFixTemplateBtn'
           onPress={() => this.props.navigation.navigate('FixRequestMetaStep')}
           style={FixRequestStyles.searchResultsContinueBtn}>
             Start with a blank fix template

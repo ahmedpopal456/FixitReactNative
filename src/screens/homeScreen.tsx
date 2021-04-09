@@ -40,6 +40,7 @@ function mapStateToProps(state: PersistentState) {
     lastName: state.user.lastName,
     role: state.user.role,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
+    status: state.user.status,
   };
 }
 
