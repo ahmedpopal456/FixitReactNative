@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground } from 'react-native';
-import { Button, Icon, NotificationBell, DonutChart, Tag } from 'fixit-common-ui';
+import { NotificationBell, DonutChart, Tag } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, FixesService, ConfigFactory, FixesModel, PersistentState, connect, RatingsService } from 'fixit-common-data-store';
+import { store, FixesService, ConfigFactory, FixesModel, PersistentState, connect, RatingsService, ProfileService } from 'fixit-common-data-store';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import bgImage from '../assets/background-right.png';
 import image from '../assets/bedroom.png';
@@ -10,9 +10,11 @@ import {Rating} from 'react-native-ratings';
 import { ScrollView } from 'react-native-gesture-handler';
 import Calendar from '../components/calendar';
 import axios from "axios";
+import { AvailabilityModel } from 'fixit-common-data-store/src/models/profile/profileModel';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
 const ratingsService = new RatingsService(new ConfigFactory(), store);
+//const profileService = new ProfileService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   container: {
@@ -74,6 +76,7 @@ class CraftsmanHomeScreen extends React.Component
   terminatedFixes: Array<FixesModel>,
   suggestedTags:any,
   averageRating:number,
+  availability: AvailabilityModel
 }> 
 {
   constructor(props: any) {
@@ -92,6 +95,7 @@ class CraftsmanHomeScreen extends React.Component
       completedFixes: store.getState().fixes.completedFixes,
       terminatedFixes: store.getState().fixes.terminatedFixes,
       averageRating:store.getState().ratings.averageRating,
+      availability: store.getState().profile.availability,
       suggestedTags:[""]
     };
   }
@@ -105,6 +109,7 @@ class CraftsmanHomeScreen extends React.Component
     const completedFixResponse = await fixesService.getCompletedFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const terminatedFixResponse = await fixesService.getTerminatedFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const responseRatings = await ratingsService.getUserRatingsAverage('858e2783-b80b-48e6-b895-3c88bf0808a9');
+    //const availabilityResponse = await profileService.getUserProfile('b3212972-c5b1-4292-b213-0d55ff8aafc6');
     this.setState({
       newFixes: newFixResponse,
       pendingFixes: pendingFixResponse,
@@ -113,6 +118,7 @@ class CraftsmanHomeScreen extends React.Component
       completedFixes: completedFixResponse,
       terminatedFixes: terminatedFixResponse,
       averageRating: responseRatings.ratings.averageRating,
+      //availability: availabilityResponse.availability,
     });
 
     let suggestedTags = [""];
@@ -130,11 +136,19 @@ class CraftsmanHomeScreen extends React.Component
       });
   }
 
+// renderCalendar=({item}:any):JSX.Element =>(
+//   <Calendar
+//     startDate={new Date(item.availability.schedule[0].businessHours.startTimestampUtc)}
+//      endDate={new Date(item.availability.schedule[0].businessHours.endTimestampUtc)}
+//     canUpdate={true}
+//   />
+// )
+
 renderOngoingFixes = ({ item }: any): JSX.Element =>  (
     <View style={styles.fixContainer}>
       <View style={{ padding:10}}>
         <DonutChart
-                  value={50}
+                  value={75}
                   radius={50}
                   strokeWidth={7}                 
                   color='yellow'
@@ -148,7 +162,7 @@ renderOngoingFixes = ({ item }: any): JSX.Element =>  (
           <Text style={{ color: '#8B8B8B', textDecorationLine:'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
         </View>
         
-        <TouchableOpacity onPress={()=>null}>
+        <TouchableOpacity onPress={()=>this.props.navigation.navigate('FixOverview', { fix: item })}>
           <View style={styles.detail}>
             <Text style={{color: '#FFD14A', alignSelf:'center', marginTop:3}}>See Details</Text>
           </View>
@@ -177,7 +191,7 @@ renderFixRequests = ({ item }: any): JSX.Element =>  (
         <Text style={{ fontWeight: 'bold', fontSize:15 }}>{item.details[0].name}</Text>
         <Text >{new Date(item.schedule[0].startTimestampUtc*1000).toDateString()} - {new Date(item.schedule[0].endTimestampUtc).toDateString()}</Text>
         <Text style={{ color: '#8B8B8B', textDecorationLine:'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
-        <TouchableOpacity onPress={()=>null}>
+        <TouchableOpacity onPress={()=>this.props.navigation.navigate('FixOverview', { fix: item })}>
           <View style={styles.detail}>
             <Text style={{color: '#FFD14A', alignSelf:'center', marginTop:3}}>See Details</Text>
           </View>
