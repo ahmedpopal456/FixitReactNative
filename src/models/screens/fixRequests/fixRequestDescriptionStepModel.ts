@@ -1,4 +1,5 @@
 import { StackNavigationProp } from '@react-navigation/stack';
+import { FixRequestObjModel } from 'fixit-common-data-store';
 import { HomeStackNavigatorProps } from '../../navigators/homeStackNavigatorModel';
 
 type FixRequestDescriptionStepNavigationProps = StackNavigationProp<
@@ -8,5 +9,10 @@ type FixRequestDescriptionStepNavigationProps = StackNavigationProp<
 
 export type FixRequestDescriptionStepProps = {
   navigation: FixRequestDescriptionStepNavigationProps;
-  fixDescription: string;
+  fixTemplateId: string,
+  fixRequestObj: FixRequestObjModel,
+  fixStepsDynamicRoutes:{
+    key:string,
+  }[],
+  numberOfSteps: number,
 };

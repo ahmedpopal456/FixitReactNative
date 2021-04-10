@@ -13,21 +13,23 @@ import AppStackNavigator from './navigators/appStackNavigator';
 import SplashScreen from './screens/splashScreen';
 import NotificationDispatcher from './components/notifications/NotificationDispatcher';
 
-const App = (): JSX.Element => (
+const App = (): JSX.Element => {
+  const navigationRef = React.useRef(null);
+  return (
   // @ts-ignore
-  <Provider store={store} context={rootContext}>
-    <Provider store={persistentStore}>
-      <PersistGate
-        loading={<SplashScreen />}
-        persistor={persistentStorePersistor}>
-        <NavigationContainer>
-          <StatusBar />
-          <AppStackNavigator />
-          <NotificationDispatcher />
-        </NavigationContainer>
-      </PersistGate>
+    <Provider store={store} context={rootContext}>
+      <Provider store={persistentStore}>
+        <PersistGate
+          loading={<SplashScreen />}
+          persistor={persistentStorePersistor}>
+          <NavigationContainer ref={navigationRef}>
+            <StatusBar />
+            <AppStackNavigator />
+            <NotificationDispatcher navRef={navigationRef}/>
+          </NavigationContainer>
+        </PersistGate>
+      </Provider>
     </Provider>
-  </Provider>
-);
-
+  );
+};
 export default App;

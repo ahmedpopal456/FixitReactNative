@@ -12,7 +12,6 @@ import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
 import { DeviceInstallationUpsertRequest } from 'src/models/notifications/DeviceInstallationUpsertRequest';
 import jwtDecode from 'jwt-decode';
-import base64 from 'react-native-base64';
 import NotificationService from '../services/notificationService';
 import config from '../config/appConfig';
 
@@ -41,19 +40,29 @@ export default class NotificationHandler {
       return;
     }
     store.dispatch(notificationActions.default.displayNotification(remoteMessage));
-
     const notificationModel : NotificationModel = {
       ...remoteMessage,
-      requestSummary: JSON.parse(base64.decode(remoteMessage.data.message)),
+      requestSummary: remoteMessage.data,
       visited: false,
     };
     const { unseenNotificationsNumber } = persistentStore.getState();
     // type of notification needs to be array instead of notificationModelect of array
     const { notifications } = persistentStore.getState().notificationList;
-    notifications.unshift(notificationModel);
+    let isAlreadyInList = false;
+    if (notifications) {
+      notifications.forEach((notification:any) => {
+        if (notification.messageId === notificationModel.messageId) {
+          isAlreadyInList = true;
+        }
+      });
+
+      if (!isAlreadyInList) {
+        notifications.unshift(notificationModel);
+      }
+    }
     persistentStore.dispatch(persistentActions.default.setNotificationList(
       { notifications },
-      unseenNotificationsNumber + 1,
+      isAlreadyInList ? unseenNotificationsNumber : unseenNotificationsNumber + 1,
     ));
   }
 

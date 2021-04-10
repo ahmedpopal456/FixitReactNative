@@ -83,7 +83,7 @@ class ProfileScreen extends React.Component
   // TODO: Get userId from the store
   //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
-    const response = await profileService.getUserProfile('858e2783-b80b-48e6-b895-3c88bf0808a9');
+    const response = await profileService.getUserProfile(this.props.userId);
     this.setState({
       firstName: response.firstName,
       lastName: response.lastName,

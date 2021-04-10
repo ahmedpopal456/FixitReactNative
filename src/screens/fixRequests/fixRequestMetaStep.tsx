@@ -1,12 +1,13 @@
 import {
   Icon, P, Spacer, H2, Tag,
 } from 'fixit-common-ui';
+import { Picker } from '@react-native-picker/picker';
 import React from 'react';
 import {
   TouchableOpacity, View, Text,
 } from 'react-native';
 import {
-  store, fixRequestActions, connect, StoreState, rootContext,
+  store, fixRequestActions, connect, StoreState, rootContext, FixRequestService,
 } from 'fixit-common-data-store';
 import FormNextPageArrows from '../../components/formNextPageArrows';
 import StyledContentWrapper from '../../components/styledElements/styledContentWrapper';
@@ -29,6 +30,18 @@ class FixRequestMetaStep extends
       // TODO: retrieve this from the backend
       suggestedTags: ['kitchen', 'bathroom', 'fireplace', 'TV room'],
       tagInputText: '',
+      categories: undefined,
+      types: undefined,
+      units: undefined,
+    }
+
+    componentDidMount = async () : Promise<void> => {
+      const serv = new FixRequestService(store);
+      this.setState({
+        categories: await serv.getCategories(),
+        types: await serv.getTypes(),
+        units: await serv.getUnits(),
+      });
     }
 
     handleNextStep = () : void => {
@@ -109,7 +122,11 @@ class FixRequestMetaStep extends
           <FixRequestHeader showBackBtn={true} navigation={this.props.navigation} screenTitle="Create a Fixit Template and your Fixit Request" textHeight={60}/>
           <StyledPageWrapper>
             <StepIndicator
-              numberSteps={this.props.currentStep}
+              numberSteps={
+                this.props.templateId
+                  ? this.props.numberOfSteps + this.props.fixObj.Details[0].Sections.length
+                  : this.props.numberOfSteps
+              }
               currentStep={1} />
             <StyledScrollView keyboardShouldPersistTaps={'handled'}>
               <StyledContentWrapper>
@@ -126,20 +143,60 @@ class FixRequestMetaStep extends
                 <Spacer height="20px" />
                 <H2 style={GlobalStyles.boldTitle}>Category</H2>
                 <Spacer height="5px" />
-                <FormTextInput
-                  onChange={
-                    (text : string) => store
-                      .dispatch(fixRequestActions.setFixTemplateCategory(text))
-                  }
-                  value={this.props.templateCategory} />
+                {this.state.categories
+                  ? <Picker
+                    selectedValue={this.props.templateCategory}
+                    onValueChange={(value) => store
+                      .dispatch(fixRequestActions.setFixTemplateCategory(value))
+                    }>
+                    {this.state.categories.map((category:{
+                      id:string,
+                      name:string,
+                      skills: {
+                        id:string,
+                        name:string
+                      }[]}) => (
+                      <Picker.Item key={category.id} label={category.name} value={category.id} />
+                    ))}
+                  </Picker>
+                  : null
+                }
                 <Spacer height="20px" />
                 <H2 style={GlobalStyles.boldTitle}>Type</H2>
                 <Spacer height="5px" />
-                <FormTextInput
-                  onChange={
-                    (text : string) => store.dispatch(fixRequestActions.setFixTemplateType(text))
-                  }
-                  value={this.props.templateType} />
+                {this.state.types
+                  ? <Picker
+                    selectedValue={this.props.templateType}
+                    onValueChange={(value) => store
+                      .dispatch(fixRequestActions.setFixTemplateType(value))
+                    }>
+                    {this.state.types.map((type:{
+                      id:string,
+                      name:string
+                    }) => (
+                      <Picker.Item key={type.id} label={type.name} value={type.id} />
+                    ))}
+                  </Picker>
+                  : null
+                }
+                <Spacer height="20px" />
+                <H2 style={GlobalStyles.boldTitle}>Unit</H2>
+                <Spacer height="5px" />
+                {this.state.units
+                  ? <Picker
+                    selectedValue={this.props.fixObj.Details[0].Unit}
+                    onValueChange={(value) => store
+                      .dispatch(fixRequestActions.setFixTemplateType(value))
+                    }>
+                    {this.state.units.map((unit:{
+                      id:string,
+                      name:string
+                    }) => (
+                      <Picker.Item key={unit.id} label={unit.name} value={unit.id} />
+                    ))}
+                  </Picker>
+                  : null
+                }
                 <Spacer height="20px" />
                 <View style={GlobalStyles.flexRow}>
                   {/*
@@ -231,7 +288,9 @@ function mapStateToProps(state : StoreState) {
     templateCategory: state.fixRequest.fixRequestObj.Details[0].Category,
     templateType: state.fixRequest.fixRequestObj.Details[0].Type,
     fixTitle: state.fixRequest.fixRequestObj.Details[0].Name,
-    currentStep: state.fixRequest.numberOfSteps,
+    numberOfSteps: state.fixRequest.numberOfSteps,
+    templateId: state.fixRequest.fixTemplateId,
+    fixObj: state.fixRequest.fixRequestObj,
   };
 }
 

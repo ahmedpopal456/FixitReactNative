@@ -3,7 +3,14 @@ import {
   H2, P, Spacer,
 } from 'fixit-common-ui';
 import {
-  connect, fixRequestActions, rootContext, store, StoreState,
+  connect,
+  fixRequestActions,
+  FixRequestService,
+  persistentStore,
+  rootContext,
+  store,
+  StoreState,
+  FixTemplateObjectModel,
 } from 'fixit-common-data-store';
 import StyledContentWrapper from '../../components/styledElements/styledContentWrapper';
 import FixRequestHeader from '../../components/fixRequestHeader';
@@ -34,23 +41,82 @@ class FixRequestDescriptionStep extends
     }
 
     handleContinue = () : void => {
+      const serv = new FixRequestService(store);
+
+      const tags : string[] = [];
+      this.props.fixRequestObj.Tags.forEach((tag: { Id?: string, Name: string, }) : void => {
+        tags.push(tag.Name);
+      });
+
+      const sections: {
+          Name:string,
+          Fields:{
+              Name:string,
+              Values:string[],
+          }[]
+      }[] = [];
+      this.props.fixRequestObj.Details[0].Sections.forEach((section:{
+        Name:string,
+        Details:{
+            Name:string,
+            Value:string,
+        }[] }) : void => {
+        const fields : {
+            Name:string,
+            Values:string[],
+          }[] = [];
+        section.Details.forEach((field: {Name:string, Value:string}) : void => {
+          fields.push({ Name: field.Name, Values: [field.Value] });
+        });
+        sections.push({ Name: section.Name, Fields: fields });
+      });
+
+      const fixTemplateObject : FixTemplateObjectModel = {
+        Status: 'Private',
+        Name: this.props.fixRequestObj.Details[0].Name,
+        WorkTypeId: this.props.fixRequestObj.Details[0].Type,
+        WorkCategoryId: this.props.fixRequestObj.Details[0].Category,
+        FixUnitId: this.props.fixRequestObj.Details[0].Unit,
+        Description: this.props.fixRequestObj.Details[0].Description,
+        CreatedByUserId: persistentStore.getState().user.userId,
+        UpdatedByUserId: persistentStore.getState().user.userId,
+        Tags: tags,
+        Sections: sections,
+      };
+
+      if (this.props.fixTemplateId) {
+        serv.updateFixTemplate(fixTemplateObject, this.props.fixTemplateId);
+      } else {
+        serv.saveFixTemplate(fixTemplateObject);
+      }
       this.props.navigation.navigate('FixRequestImagesLocationStep');
     }
 
     handleAddSection = () : void => {
       store.dispatch(fixRequestActions.setNumberOfSteps(
-        store.getState().fixRequest.numberOfSteps + 1,
+        this.props.numberOfSteps + 1,
       ));
       this.props.navigation.navigate('FixRequestSectionsStep');
     }
 
     generateNextPageOptions = () : {label:string, onClick: () => void}[] => {
       const nextPageOptionsObj = [{
-        label: 'Save Fixit Template & Continue',
+        label: (this.props.fixTemplateId) ? 'Update Fixit Template & Continue' : 'Save Fixit Template & Continue',
         onClick: this.handleContinue,
       }];
-
-      if (store.getState().fixRequest.fixStepsDynamicRoutes[0]) {
+      if (this.props.fixTemplateId
+      && this.props.fixRequestObj.Details[0].Sections.length > 0
+      && !this.props.fixStepsDynamicRoutes[0]) {
+        return [
+          ...nextPageOptionsObj,
+          {
+            label: 'Go to first fix section',
+            onClick: () => {
+              this.props.navigation.navigate('FixRequestSectionsStep');
+            },
+          },
+        ];
+      } if (this.props.fixStepsDynamicRoutes[0]) {
         return [
           ...nextPageOptionsObj,
           {
@@ -58,7 +124,7 @@ class FixRequestDescriptionStep extends
             onClick: () => {
               this.props.navigation.navigate({
                 name: 'FixRequestSectionsStep',
-                key: store.getState().fixRequest.fixStepsDynamicRoutes[0].key,
+                key: this.props.fixStepsDynamicRoutes[0].key,
               });
             },
           },
@@ -72,7 +138,7 @@ class FixRequestDescriptionStep extends
           <FixRequestHeader showBackBtn={true} navigation={this.props.navigation} screenTitle="Create a Fixit Template and your Fixit Request" textHeight={60}/>
           <StyledPageWrapper>
             <StepIndicator
-              numberSteps={store.getState().fixRequest.numberOfSteps}
+              numberSteps={this.props.numberOfSteps}
               currentStep={2} />
             <StyledScrollView>
               <StyledContentWrapper>
@@ -85,7 +151,7 @@ class FixRequestDescriptionStep extends
                   onChange={
                     (text : string) => store.dispatch(fixRequestActions.setFixDescription(text))
                   }
-                  value={this.props.fixDescription} />
+                  value={this.props.fixRequestObj.Details[0].Description} />
               </StyledContentWrapper>
             </StyledScrollView>
           </StyledPageWrapper>
@@ -97,7 +163,12 @@ class FixRequestDescriptionStep extends
 }
 
 function mapStateToProps(state : StoreState) {
-  return { fixDescription: state.fixRequest.fixRequestObj.Details[0].Description };
+  return {
+    fixTemplateId: state.fixRequest.fixTemplateId,
+    fixRequestObj: state.fixRequest.fixRequestObj,
+    fixStepsDynamicRoutes: state.fixRequest.fixStepsDynamicRoutes,
+    numberOfSteps: state.fixRequest.numberOfSteps,
+  };
 }
 
 export default connect(

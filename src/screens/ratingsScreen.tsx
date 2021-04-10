@@ -88,7 +88,7 @@ class RatingsScreen extends React.Component
   //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
     const response = await ratingsService.getUserRatingsAverage(
-      '858e2783-b80b-48e6-b895-3c88bf0808a9',
+      this.props.userId,
     );
     this.setState({
       ratingsId: response.ratings.id,

@@ -8,4 +8,5 @@ type SearchResultsScreenNavigationProps = StackNavigationProp<
 
 export type SearchResultsScreenProps = {
   navigation: SearchResultsScreenNavigationProps;
+  tags: string[];
 };

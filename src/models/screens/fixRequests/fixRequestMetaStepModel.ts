@@ -1,4 +1,5 @@
 import { StackNavigationProp } from '@react-navigation/stack';
+import { FixRequestObjModel } from 'fixit-common-data-store';
 import { HomeStackNavigatorProps } from '../../navigators/homeStackNavigatorModel';
 
 type FixRequestMetaStepScreenNavigationProps = StackNavigationProp<
@@ -15,7 +16,9 @@ export type FixRequestMetaStepScreenProps = {
   templateCategory: string;
   templateType: string;
   fixTitle: string;
-  currentStep: number;
+  numberOfSteps: number;
+  templateId: string;
+  fixObj: FixRequestObjModel;
 };
 
 export type FixRequestMetaStepScreenState = {
@@ -24,4 +27,7 @@ export type FixRequestMetaStepScreenState = {
   tagSuggestionsVisible: boolean;
   suggestedTags: string[];
   tagInputText: string;
+  categories?: {id: string, name: string, skills: {id:string, name:string}[]}[];
+  types?: {id:string, name:string}[];
+  units?: {id:string, name:string}[];
 }

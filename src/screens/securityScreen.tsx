@@ -8,7 +8,6 @@ import {
   store, ProfileService, ConfigFactory, PersistentState, connect,
 } from 'fixit-common-data-store';
 import axios from 'axios';
-import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
 
 const profileService = new ProfileService(new ConfigFactory(), store);
 
@@ -69,7 +68,7 @@ class SecurityScreen extends React.Component
 <any, {
   firstName: string,
   lastName: string,
-  address: AddressModel,
+  address: any,
   profilePictureUrl: string,
   email: string,
 }> {
@@ -87,7 +86,7 @@ class SecurityScreen extends React.Component
   // TODO: Get userId from the store
   //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
-    const response = await profileService.getUserProfile('858e2783-b80b-48e6-b895-3c88bf0808a9');
+    const response = await profileService.getUserProfile(this.props.userId);
     this.setState({
       firstName: response.firstName,
       lastName: response.lastName,
@@ -99,7 +98,7 @@ class SecurityScreen extends React.Component
   // TODO: Get userId from the store
   //       Replace userId string with : this.props.userId
   updateRequest() : void {
-    axios.put('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile', {
+    axios.put(`https://fixit-dev-ums-api.azurewebsites.net/api/${this.props.userId}/account/profile`, {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       address: this.state.address,

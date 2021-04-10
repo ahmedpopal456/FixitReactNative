@@ -16,11 +16,11 @@ class NotificationDispatcher extends React.Component<any> {
   private buildChildProps(): NotificationProps {
     const message = this.props.messages[this.props.messages?.length - 1];
     const notificationType = +message?.data?.type;
-
     return {
       message,
       type: notificationType,
       onDismissNotification: this.props.onDismissNotification,
+      navRef: this.props.navRef,
     };
   }
 }

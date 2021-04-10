@@ -1,6 +1,7 @@
 import PublicClientApplication from 'react-native-msal';
 import { persistentStore, persistentActions } from 'fixit-common-data-store';
 import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 import * as constants from './constants/authConstants';
 import {
   B2CConfiguration,
@@ -56,13 +57,15 @@ export default class NativeAuthService {
       ...rest,
       authority,
     });
+
+    const decodedAuthToken: {sub: string} = jwtDecode(msalResult.accessToken);
+    const userId = decodedAuthToken.sub;
+
     persistentStore.dispatch(
       persistentActions.default.setAuthStatus(true, msalResult.accessToken),
     );
     // TODO: Make this api call in FixitCommonDataStore
-    // TODO: Use the commented line when user in cosmosdb is fixed
-    // axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${msalResult.tenantId}/account/profile/summary`)
-    axios.get('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile/summary')
+    axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${userId}/account/profile/summary`)
       .then((response) => {
         persistentStore.dispatch(persistentActions.default.setUserInfo(
           response.data.id,
@@ -91,13 +94,15 @@ export default class NativeAuthService {
       const msalResult = await this.publicClientApplication.acquireToken(
         b2cSignInUpParams,
       );
+
+      const decodedAuthToken: {sub: string} = jwtDecode(msalResult.accessToken);
+      const userId = decodedAuthToken.sub;
       persistentStore.dispatch(
         persistentActions.default.setAuthStatus(true, msalResult.accessToken),
       );
+
       // TODO: Make this api call in FixitCommonDataStore
-      // TODO: Use the commented line when user in cosmosdb is fixed
-      // axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${msalResult.tenantId}/account/profile/summary`)
-      axios.get('https://fixit-dev-ums-api.azurewebsites.net/api/858e2783-b80b-48e6-b895-3c88bf0808a9/account/profile/summary')
+      axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${userId}/account/profile/summary`)
         .then((response) => {
           persistentStore.dispatch(persistentActions.default.setUserInfo(
             response.data.id,

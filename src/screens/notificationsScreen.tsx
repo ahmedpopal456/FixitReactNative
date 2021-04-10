@@ -8,6 +8,7 @@ import {
   persistentStore, persistentActions, PersistentState, connect, NotificationModel,
 } from 'fixit-common-data-store';
 import NotificationActions from '../models/notifications/notificationActionsEnum';
+import notificationHandler from '../handlers/notificationHandler';
 
 const styles = StyleSheet.create({
   container: {
@@ -55,9 +56,7 @@ const styles = StyleSheet.create({
 
 class NotificationsScreen extends React.Component
 <any> {
-  onPressNotification = (item: {
-    visited: boolean; messageId: number; requestSummary: { Action: number; };
-  }) => {
+  onPressNotification = (item: any) => {
     const notifications: NotificationModel[] = [...this.props.notifications];
     const index = notifications.findIndex((el) => el.messageId === item.messageId);
     if (!item.visited) {
@@ -67,27 +66,8 @@ class NotificationsScreen extends React.Component
         { notifications }, this.props.unseenNotificationsNumber - 1,
       ));
     }
-
-    // TODO: Navigate to proper screens
-    switch (item.requestSummary.Action) {
-      case NotificationActions.FIX_CLIENT_REQUEST: {
-        return this.props.navigation.navigate('Test1', notifications[index]);
-      }
-      case NotificationActions.FIX_CRAFTSMAN_RESPONSE: {
-        return this.props.navigation.navigate('Test2', notifications[index]);
-      }
-      case NotificationActions.FIX_PLAN_UPDATE: {
-        return this.props.navigation.navigate('Test3', notifications[index]);
-      }
-      case NotificationActions.FIX_PROGRESS_UPDATE:
-        return null;
-      case NotificationActions.MESSAGE_ENTRY:
-        return null;
-      case NotificationActions.RATING_UPDATE:
-        return null;
-      default:
-        return null;
-    }
+    this.props.navigation.navigate('Home');
+    notificationHandler.getInstance().displayNotification(item);
   };
 
   renderItem = ({ item }: any) : JSX.Element => (

@@ -1,5 +1,5 @@
 import { StackNavigationProp } from '@react-navigation/stack';
-import { FixRequestObjModel } from 'fixit-common-data-store';
+import { FixesModel, FixRequestObjModel } from 'fixit-common-data-store';
 import { HomeStackNavigatorProps } from '../../navigators/homeStackNavigatorModel';
 
 type FixRequestReviewNavigationProps = StackNavigationProp<
@@ -10,4 +10,6 @@ type FixRequestReviewNavigationProps = StackNavigationProp<
 export type FixRequestReviewProps = {
   navigation: FixRequestReviewNavigationProps;
   fixRequestObj: FixRequestObjModel;
+  passedFix?: FixesModel;
+  isFixCraftsmanResponseNotification?: boolean;
 };

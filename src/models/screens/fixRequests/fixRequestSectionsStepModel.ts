@@ -1,4 +1,5 @@
 import { StackNavigationProp } from '@react-navigation/stack';
+import { FixRequestObjModel } from 'fixit-common-data-store';
 import { HomeStackNavigatorProps } from '../../navigators/homeStackNavigatorModel';
 
 type FixRequestSectionsStepNavigationProps = StackNavigationProp<
@@ -8,10 +9,11 @@ type FixRequestSectionsStepNavigationProps = StackNavigationProp<
 
 export type FixRequestSectionsStepProps = {
   navigation: FixRequestSectionsStepNavigationProps;
+  fixRequest: FixRequestObjModel;
+  fixStepsDynamicRoutes: {
+    key:string,
+  }[],
+  numberOfSteps: number;
+  fixStepsCurrentRouteIndex: number;
+  fixTemplateId:string;
 };
-
-export type FixRequestSectionsStepScreenState = {
-  fixSectionDetails: { name: string, value: string }[],
-  fixSectionTitle: string,
-  screenFields: { key: string, name: string, value: string }[],
-}

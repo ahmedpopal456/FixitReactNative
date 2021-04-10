@@ -1,2 +1,2 @@
-export { default as FixClientRequestNotification } from './fixClientRequestNotification';
-export { default as FixCraftsmanResponseNotification } from './fixCraftsmanResponseNotification';
+export { default as FixCraftsmanResponse } from './fixCraftsmanResponse';
+export { default as FixClientRequest } from './fixClientRequest';

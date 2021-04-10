@@ -110,14 +110,14 @@ class AccountScreen extends React.Component
   // TODO: Get userId from the store
   //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
-    const responseProfile = await profileService.getUserProfile('858e2783-b80b-48e6-b895-3c88bf0808a9');
-    const responseRatings = await ratingsService.getUserRatingsAverage('858e2783-b80b-48e6-b895-3c88bf0808a9');
+    const responseProfile = await profileService.getUserProfile(this.props.userId);
+    // const responseRatings = await ratingsService.getUserRatingsAverage(this.props.userId);
     this.setState({
       firstName: responseProfile.firstName,
       lastName: responseProfile.lastName,
       address: responseProfile.address,
       profilePictureUrl: responseProfile.profilePictureUrl,
-      averageRating: responseRatings.ratings.averageRating,
+      // averageRating: responseRatings.ratings.averageRating,
     });
   }
 

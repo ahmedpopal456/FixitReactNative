@@ -5,7 +5,16 @@ import {
   Divider,
   H2, Icon, P, Spacer,
 } from 'fixit-common-ui';
-import { fixRequestActions, store } from 'fixit-common-data-store';
+import {
+  connect,
+  fixRequestActions,
+  store,
+  StoreState,
+  rootContext,
+  FixRequestService,
+  FixTemplateObjectModel,
+  persistentStore,
+} from 'fixit-common-data-store';
 import StyledContentWrapper from '../../components/styledElements/styledContentWrapper';
 import FixRequestHeader from '../../components/fixRequestHeader';
 import StyledScrollView from '../../components/styledElements/styledScrollView';
@@ -13,28 +22,20 @@ import StepIndicator from '../../components/stepIndicator';
 import StyledPageWrapper from '../../components/styledElements/styledPageWrapper';
 import FormTextInput from '../../components/formTextInput';
 import FormNextPageArrows from '../../components/formNextPageArrows';
-import { FixRequestSectionsStepProps, FixRequestSectionsStepScreenState } from '../../models/screens/fixRequests/fixRequestSectionsStepModel';
+import { FixRequestSectionsStepProps } from '../../models/screens/fixRequests/fixRequestSectionsStepModel';
 
-export default class FixRequestSectionsStep extends
+class FixRequestSectionsStep extends
   React.Component<FixRequestSectionsStepProps> {
     unsubscribe: (() => void) | undefined;
 
     generateKey = (pre:string) : string => `${pre}_${new Date().getTime()}`
 
-    state={
-      fixSectionDetails: [{ name: '', value: '' }],
-      fixSectionTitle: '',
-      screenFields: [{ key: this.generateKey('field_'), name: '', value: '' }],
-    }
-
     componentDidMount = () : void => {
       const navState = this.props.navigation.dangerouslyGetState();
       const currentRouteKey = navState.routes[navState.index].key;
       let routeKeyIsInState = false;
-      let fixStepsDynamicRoutesList = store.getState()
-        .fixRequest.fixStepsDynamicRoutes;
-      for (let i = 0; i < fixStepsDynamicRoutesList.length; i += 1) {
-        if (fixStepsDynamicRoutesList[i].key === currentRouteKey) {
+      for (let i = 0; i < this.props.fixStepsDynamicRoutes.length; i += 1) {
+        if (this.props.fixStepsDynamicRoutes[i].key === currentRouteKey) {
           routeKeyIsInState = true;
         }
       }
@@ -49,9 +50,7 @@ export default class FixRequestSectionsStep extends
         'focus',
         () => {
           this.forceUpdate();
-          fixStepsDynamicRoutesList = store.getState()
-            .fixRequest.fixStepsDynamicRoutes;
-          fixStepsDynamicRoutesList.forEach((element, index) => {
+          this.props.fixStepsDynamicRoutes.forEach((element, index) => {
             if (element.key === currentRouteKey) {
               store.dispatch(
                 fixRequestActions.setCurrentFixStepsRouteIndex(
@@ -72,12 +71,20 @@ export default class FixRequestSectionsStep extends
 
     generateNextPageOptions = () : {label:string, onClick: () => void}[] => {
       const nextPageOptionsObj = [{
-        label: 'Save Fixit Template & Continue',
+        label: (this.props.fixTemplateId) ? 'Update Fixit Template & Continue' : 'Save Fixit Template & Continue',
         onClick: this.handleContinue,
       }];
-      const currentRouteIndex = store.getState()
-        .fixRequest.fixStepsCurrentRouteIndex;
-      if (store.getState().fixRequest.fixStepsDynamicRoutes[currentRouteIndex + 1]) {
+      if (this.props.fixTemplateId
+      && this.props.fixRequest.Details[0].Sections[this.props.fixStepsCurrentRouteIndex + 1]
+      && !this.props.fixStepsDynamicRoutes[this.props.fixStepsCurrentRouteIndex + 1]) {
+        return [
+          ...nextPageOptionsObj,
+          {
+            label: 'Go to the next fix section',
+            onClick: this.handleAddSection,
+          },
+        ];
+      } if (this.props.fixStepsDynamicRoutes[this.props.fixStepsCurrentRouteIndex + 1]) {
         return [
           ...nextPageOptionsObj,
           {
@@ -85,8 +92,7 @@ export default class FixRequestSectionsStep extends
             onClick: () => {
               this.props.navigation.navigate({
                 name: 'FixRequestSectionsStep',
-                key: store.getState()
-                  .fixRequest.fixStepsDynamicRoutes[currentRouteIndex + 1].key,
+                key: this.props.fixStepsDynamicRoutes[this.props.fixStepsCurrentRouteIndex + 1].key,
               });
             },
           },
@@ -95,75 +101,121 @@ export default class FixRequestSectionsStep extends
     }
 
     handleContinue = () : void => {
+      const serv = new FixRequestService(store);
+
+      const tags : string[] = [];
+      this.props.fixRequest.Tags.forEach((tag: { Id?: string, Name: string, }) : void => {
+        tags.push(tag.Name);
+      });
+
+      const sections: {
+          Name:string,
+          Fields:{
+              Name:string,
+              Values:string[],
+          }[]
+      }[] = [];
+      this.props.fixRequest.Details[0].Sections.forEach((section:{
+        Name:string,
+        Details:{
+            Name:string,
+            Value:string,
+        }[] }) : void => {
+        const fields : {
+            Name:string,
+            Values:string[],
+          }[] = [];
+        section.Details.forEach((field: {Name:string, Value:string}) : void => {
+          fields.push({ Name: field.Name, Values: [field.Value] });
+        });
+        sections.push({ Name: section.Name, Fields: fields });
+      });
+
+      const fixTemplateObject : FixTemplateObjectModel = {
+        Status: 'Private',
+        Name: this.props.fixRequest.Details[0].Name,
+        WorkTypeId: this.props.fixRequest.Details[0].Type,
+        WorkCategoryId: this.props.fixRequest.Details[0].Category,
+        FixUnitId: this.props.fixRequest.Details[0].Unit,
+        Description: this.props.fixRequest.Details[0].Description,
+        CreatedByUserId: persistentStore.getState().user.userId,
+        UpdatedByUserId: persistentStore.getState().user.userId,
+        Tags: tags,
+        Sections: sections,
+      };
+
+      if (this.props.fixTemplateId) {
+        serv.updateFixTemplate(fixTemplateObject, this.props.fixTemplateId);
+      } else {
+        serv.saveFixTemplate(fixTemplateObject);
+      }
       this.props.navigation.navigate('FixRequestImagesLocationStep');
     }
 
     handleAddSection = () : void => {
       store.dispatch(fixRequestActions.setNumberOfSteps(
-        store.getState().fixRequest.numberOfSteps + 1,
+        this.props.numberOfSteps + 1,
       ));
+      const newIndex = this.props.fixStepsCurrentRouteIndex + 1;
+      store.dispatch(
+        fixRequestActions.setCurrentFixStepsRouteIndex(newIndex),
+      );
+      if (this.props.fixRequest.Details[0].Sections[newIndex]) {
+        store.dispatch(fixRequestActions.setFixSectionDetails(
+          this.props.fixRequest.Details[0].Sections[newIndex].Details,
+          newIndex,
+        ));
+      } else {
+        store.dispatch(fixRequestActions.setFixSectionDetails(
+          [{
+            Name: '',
+            Value: '',
+          }],
+          newIndex,
+        ));
+      }
       this.props.navigation.push('FixRequestSectionsStep');
     }
 
     handleAddFields = () : void => {
-      this.setState((prevState:FixRequestSectionsStepScreenState) => ({
-        screenFields: [...prevState.screenFields, { key: this.generateKey('field_'), name: '', value: '' }],
-        fixSectionDetails: [...prevState.fixSectionDetails, { name: '', value: '' }],
-      }));
-    }
-
-    moveFields = (from:number, to:number) : void => {
-      const currScreenFields = [...this.state.screenFields];
-      currScreenFields.splice(to, 0, currScreenFields.splice(from, 1)[0]);
-      const currSectionDetails = [...this.state.fixSectionDetails];
-      currSectionDetails.splice(to, 0, currSectionDetails.splice(from, 1)[0]);
-      this.setState(() => ({
-        screenFields: currScreenFields,
-        fixSectionDetails: currSectionDetails,
-      }));
-
-      const currentSectionIndex = store.getState().fixRequest.fixStepsCurrentRouteIndex;
+      const index = this.props.fixStepsCurrentRouteIndex;
+      const details = [...this.props.fixRequest.Details[0].Sections[index].Details, { Name: '', Value: '' }];
       store.dispatch(
-        fixRequestActions.setFixSectionDetails(currSectionDetails, currentSectionIndex),
+        fixRequestActions.setFixSectionDetails(details, index),
       );
     }
 
-    setFixSectionTitle = (text:string) : void => {
-      this.setState({ fixSectionTitle: text });
-      const index = store.getState().fixRequest.fixStepsCurrentRouteIndex;
+    moveFields = (from:number, to:number) : void => {
+      const index = this.props.fixStepsCurrentRouteIndex;
+      const currSectionDetails = [...this.props.fixRequest.Details[0].Sections[index].Details];
+      currSectionDetails.splice(to, 0, currSectionDetails.splice(from, 1)[0]);
+      store.dispatch(
+        fixRequestActions.setFixSectionDetails(currSectionDetails, index),
+      );
+    }
+
+    setFixSectionTitle = (
+      text:string,
+      index:number = this.props.fixStepsCurrentRouteIndex,
+    ) : void => {
       store.dispatch(fixRequestActions.setFixSectionTitle(text, index));
     }
 
     setFixSectionDetails = (updateType:string, inputText:string, index:number) : void => {
-      const details = this.state.fixSectionDetails;
-      const updatedScreenFields = this.state.screenFields;
+      const sectionIndex = this.props.fixStepsCurrentRouteIndex;
+      const details = [...this.props.fixRequest.Details[0].Sections[sectionIndex].Details];
       if (updateType === 'name') {
         details[index] = {
-          name: inputText,
-          value: details[index].value,
-        };
-        updatedScreenFields[index] = {
-          key: updatedScreenFields[index].key,
-          name: inputText,
-          value: updatedScreenFields[index].value,
+          Name: inputText,
+          Value: details[index].Value,
         };
       } else {
         details[index] = {
-          name: details[index].name,
-          value: inputText,
-        };
-        updatedScreenFields[index] = {
-          key: updatedScreenFields[index].key,
-          name: updatedScreenFields[index].name,
-          value: inputText,
+          Name: details[index].Name,
+          Value: inputText,
         };
       }
-      this.setState({
-        fixSectionDetails: details,
-        screenFields: updatedScreenFields,
-      });
-      const currentSectionIndex = store.getState().fixRequest.fixStepsCurrentRouteIndex;
-      store.dispatch(fixRequestActions.setFixSectionDetails(details, currentSectionIndex));
+      store.dispatch(fixRequestActions.setFixSectionDetails(details, sectionIndex));
     }
 
     render() : JSX.Element {
@@ -176,9 +228,8 @@ export default class FixRequestSectionsStep extends
             textHeight={60}/>
           <StyledPageWrapper>
             <StepIndicator
-              numberSteps={store.getState().fixRequest.numberOfSteps}
-              currentStep={3 + store.getState()
-                .fixRequest.fixStepsCurrentRouteIndex} />
+              numberSteps={this.props.numberOfSteps}
+              currentStep={3 + this.props.fixStepsCurrentRouteIndex} />
             <StyledScrollView>
               <StyledContentWrapper>
                 <P>You can save your FixitTemplate and continue, or add more information.
@@ -188,7 +239,10 @@ export default class FixRequestSectionsStep extends
                 <Spacer height="5px" />
                 <FormTextInput
                   onChange={(text : string) => this.setFixSectionTitle(text)}
-                  value={this.state.fixSectionTitle} />
+                  value={
+                    this.props.fixRequest.Details[0]
+                      .Sections[this.props.fixStepsCurrentRouteIndex].Name
+                  } />
                 <Spacer height="20px" />
                 <View style={{
                   flexDirection: 'row',
@@ -211,56 +265,61 @@ export default class FixRequestSectionsStep extends
                   </TouchableOpacity>
                 </View>
                 <Divider />
-                {this.state.screenFields.map((f:{
-                  key:string,
-                  name:string,
-                  value:string
+                {this.props.fixRequest.Details[0]
+                  .Sections[this.props.fixStepsCurrentRouteIndex]
+                  .Details.map((f:{
+                  Name:string,
+                  Value:string
                 }, index:number) => (
-                  <View key={f.key}>
-                    <View style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                    }}>
-                      <View>
-                        {(index !== 0)
-                          ? <TouchableOpacity style={{
-                            flexGrow: 0,
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                          }}
-                          onPress={() => this.moveFields(index, index - 1)}>
-                            <Icon library="FontAwesome5" name="arrow-up" />
-                          </TouchableOpacity>
-                          : <></>}
-                        {(this.state.fixSectionDetails[index + 1])
-                          ? <TouchableOpacity style={{
-                            flexGrow: 0,
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                          }}
-                          onPress={() => this.moveFields(index, index + 1)}>
-                            <Icon library="FontAwesome5" name="arrow-down" />
-                          </TouchableOpacity>
-                          : <></>}
-                      </View>
+                    <View key={`${f.Name}_k`}>
                       <View style={{
-                        flexGrow: 1,
-                        marginLeft: 20,
+                        display: 'flex',
+                        flexDirection: 'row',
                       }}>
-                        <FormTextInput
-                          title={'Field Title'}
-                          value={f.name}
-                          onChange={(text : string) => this.setFixSectionDetails('name', text, index)}/>
-                        <Spacer height="20px" />
-                        <FormTextInput
-                          title={'Field Information'}
-                          value={f.value}
-                          onChange={(text : string) => this.setFixSectionDetails('value', text, index)}/>
+                        <View>
+                          {(index !== 0)
+                            ? <TouchableOpacity style={{
+                              flexGrow: 0,
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                            }}
+                            onPress={() => this.moveFields(index, index - 1)}>
+                              <Icon library="FontAwesome5" name="arrow-up" />
+                            </TouchableOpacity>
+                            : <></>}
+                          {(this.props.fixRequest.Details[0]
+                            .Sections[this.props.fixStepsCurrentRouteIndex]
+                            .Details[index + 1])
+                            ? <TouchableOpacity style={{
+                              flexGrow: 0,
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                            }}
+                            onPress={() => this.moveFields(index, index + 1)}>
+                              <Icon library="FontAwesome5" name="arrow-down" />
+                            </TouchableOpacity>
+                            : <></>}
+                        </View>
+                        <View style={{
+                          flexGrow: 1,
+                          marginLeft: 20,
+                        }}>
+                          <FormTextInput
+                            title={'Field Title'}
+                            value={f.Name}
+                            onChange={(text : string) => this.setFixSectionDetails('name', text, index)}/>
+                          <Spacer height="20px" />
+                          <FormTextInput
+                            title={'Field Information'}
+                            value={f.Value}
+                            onChange={(text : string) => this.setFixSectionDetails('value', text, index)}/>
+                        </View>
                       </View>
+                      {(this.props.fixRequest.Details[0]
+                        .Sections[this.props.fixStepsCurrentRouteIndex]
+                        .Details[index + 1]) ? <Divider faded/> : <></>}
                     </View>
-                    {(this.state.fixSectionDetails[index + 1]) ? <Divider faded/> : <></>}
-                  </View>
-                ))}
+                  ))}
               </StyledContentWrapper>
             </StyledScrollView>
           </StyledPageWrapper>
@@ -269,3 +328,21 @@ export default class FixRequestSectionsStep extends
       );
     }
 }
+
+function mapStateToProps(state : StoreState) {
+  return {
+    fixRequest: {
+      ...state.fixRequest.fixRequestObj,
+    },
+    fixStepsCurrentRouteIndex: state.fixRequest.fixStepsCurrentRouteIndex,
+    numberOfSteps: state.fixRequest.numberOfSteps,
+    fixStepsDynamicRoutes: state.fixRequest.fixStepsDynamicRoutes,
+    fixTemplateId: state.fixRequest.fixTemplateId,
+  };
+}
+
+export default connect(
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  mapStateToProps, null, null, { context: rootContext },
+)(FixRequestSectionsStep);
