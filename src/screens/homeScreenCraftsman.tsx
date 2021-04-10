@@ -106,7 +106,7 @@ class HomeScreenCraftsman extends React.Component
     const inReviewFixResponse = await fixesService.getInReviewFixes(this.props.userId);
     const completedFixResponse = await fixesService.getCompletedFixes(this.props.userId);
     const terminatedFixResponse = await fixesService.getTerminatedFixes(this.props.userId);
-    const responseRatings = await ratingsService.getUserRatingsAverage('858e2783-b80b-48e6-b895-3c88bf0808a9');
+    const responseRatings = await ratingsService.getUserRatingsAverage(this.props.userId);
     this.setState({
       newFixes: newFixResponse,
       pendingFixes: pendingFixResponse,
@@ -226,9 +226,7 @@ render() {
             </View>
             <NotificationBell
               notifications={this.props.unseenNotificationsNumber}
-              onPress={() => this.props.navigation.navigate('Fixes', {
-                screen: 'Notifications',
-              })}
+              onPress={() => this.props.navigation.navigate('Notifications')}
             />
           </View>
 

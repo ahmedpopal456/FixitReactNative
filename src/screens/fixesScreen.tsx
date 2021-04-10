@@ -114,14 +114,13 @@ class FixesScreen extends React.Component<any, {
     };
   }
 
-  // TODO: Get userId from store
   async componentDidMount() : Promise<void> {
-    const newFixResponse = await fixesService.getNewFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
-    const pendingFixResponse = await fixesService.getPendingFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
-    const inProgresFixResponse = await fixesService.getInProgressFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
-    const inReviewFixResponse = await fixesService.getInReviewFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
-    const completedFixResponse = await fixesService.getCompletedFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
-    const terminatedFixResponse = await fixesService.getTerminatedFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
+    const newFixResponse = await fixesService.getNewFixes(this.props.userId);
+    const pendingFixResponse = await fixesService.getPendingFixes(this.props.userId);
+    const inProgresFixResponse = await fixesService.getInProgressFixes(this.props.userId);
+    const inReviewFixResponse = await fixesService.getInReviewFixes(this.props.userId);
+    const completedFixResponse = await fixesService.getCompletedFixes(this.props.userId);
+    const terminatedFixResponse = await fixesService.getTerminatedFixes(this.props.userId);
     this.setState({
       newFixes: newFixResponse,
       pendingFixes: pendingFixResponse,
@@ -431,6 +430,7 @@ class FixesScreen extends React.Component<any, {
 
 function mapStateToProps(state: PersistentState) {
   return {
+    userId: state.user.userId,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
   };
 }

@@ -1,14 +1,16 @@
 import React from 'react';
 import {
-  Text, View, StyleSheet, TouchableOpacity, Dimensions, FlatList,
+  Text, View, StyleSheet, TouchableOpacity, Dimensions, FlatList, Image,
 } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   persistentStore, persistentActions, PersistentState, connect, NotificationModel,
 } from 'fixit-common-data-store';
+import { Rating } from 'react-native-ratings';
 import NotificationActions from '../models/notifications/notificationActionsEnum';
 import notificationHandler from '../handlers/notificationHandler';
+import defaultProfilePic from '../assets/defaultProfileIcon.png';
 
 const styles = StyleSheet.create({
   container: {
@@ -28,6 +30,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 10,
     borderBottomWidth: 1,
+    alignItems: 'center',
   },
   textContainer: {
     width: '80%',
@@ -38,9 +41,11 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   seenNotif: {
+    fontSize: 18,
     fontWeight: 'normal',
   },
   unseenNotif: {
+    fontSize: 18,
     fontWeight: 'bold',
   },
   image: {
@@ -75,13 +80,12 @@ class NotificationsScreen extends React.Component
       onPress={() => { this.onPressNotification(item); }}
       style={styles.notificationItem}
     >
-      <View style={styles.image} />
+      <View style={[styles.image, { marginRight: 10 }]}>
+        <Image source={defaultProfilePic} style={styles.image} />
+      </View>
       <View style={styles.textContainer}>
         <Text style={item.visited ? styles.seenNotif : styles.unseenNotif}>
           {item.notification.title}
-        </Text>
-        <Text style={{ color: 'gray' }}>
-          {item.body}
         </Text>
       </View>
     </TouchableOpacity>
@@ -95,11 +99,16 @@ class NotificationsScreen extends React.Component
         </Button>
         <Text style={styles.title}>Notifications</Text>
         <View style={styles.bodyContainer}>
-          <FlatList
-            data={this.props.notifications}
-            renderItem={this.renderItem}
-            keyExtractor={(item: any) => item.messageId}
-          />
+          {this.props.notifications.length === 0
+            ? <View style={{ flex: 1, justifyContent: 'center', alignSelf: 'center' }}>
+              <Text>You have no notification</Text>
+            </View>
+            : <FlatList
+              data={this.props.notifications}
+              renderItem={this.renderItem}
+              keyExtractor={(item: any) => item.messageId}
+            />
+          }
         </View>
       </SafeAreaView>
     );

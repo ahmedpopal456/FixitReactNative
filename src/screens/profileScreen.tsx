@@ -8,6 +8,7 @@ import {
   store, ProfileService, ConfigFactory, PersistentState, connect,
 } from 'fixit-common-data-store';
 import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
+import defaultProfilePic from '../assets/defaultProfileIcon.png';
 
 const profileService = new ProfileService(new ConfigFactory(), store);
 
@@ -27,6 +28,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'white',
     flexGrow: 100,
+    alignContent: 'center',
     alignItems: 'center',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -41,8 +43,7 @@ const styles = StyleSheet.create({
   },
   valueContainer: {
     width: 300,
-    height: 40,
-    paddingLeft: 10,
+    padding: 10,
     borderWidth: 1,
     borderColor: '#C0C0C0',
     justifyContent: 'center',
@@ -67,7 +68,6 @@ class ProfileScreen extends React.Component
   lastName: string,
   address: AddressModel,
   profilePictureUrl: string,
-  email: string,
 }> {
   constructor(props: any) {
     super(props);
@@ -76,12 +76,9 @@ class ProfileScreen extends React.Component
       lastName: store.getState().profile.lastName,
       address: store.getState().profile.address,
       profilePictureUrl: store.getState().profile.profilePictureUrl,
-      email: '',
     };
   }
 
-  // TODO: Get userId from the store
-  //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
     const response = await profileService.getUserProfile(this.props.userId);
     this.setState({
@@ -108,7 +105,7 @@ class ProfileScreen extends React.Component
         <Text style={styles.title}>My Profile</Text>
 
         <View style={styles.bodyContainer}>
-          <ScrollView keyboardDismissMode='interactive'>
+          <ScrollView keyboardDismissMode='interactive' contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
             {this.state.profilePictureUrl
               ? <View style={styles.image}>
                 <Image
@@ -117,26 +114,29 @@ class ProfileScreen extends React.Component
                 />
               </View>
               : <View style={styles.image}>
-                <Text>Image not found</Text>
+                <Image source={defaultProfilePic} style={styles.image} />
               </View>
             }
 
             <View style={styles.infoContainer}>
               <Text style={styles.text}>Name</Text>
               <View style={styles.valueContainer}>
-                <Text>{this.state.firstName} {this.state.lastName}</Text>
+                <Text>{this.props.firstName} {this.props.lastName}</Text>
               </View>
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.text}>Email</Text>
               <View style={styles.valueContainer}>
-                <Text>{this.state.email}</Text>
+                <Text>{this.props.email}</Text>
               </View>
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.text}>Location</Text>
-              <View style={styles.valueContainer}>
-                <Text>{this.state.address.address}</Text>
+              <View style={[styles.valueContainer, { flexDirection: 'row', justifyContent: 'flex-start' }]}>
+                <Text>{this.state.address.address},</Text>
+                <Text> {this.state.address.city},</Text>
+                <Text> {this.state.address.province},</Text>
+                <Text> {this.state.address.country}</Text>
               </View>
             </View>
           </ScrollView>
@@ -151,6 +151,7 @@ function mapStateToProps(state: PersistentState) {
     userId: state.user.userId,
     firstName: state.user.firstName,
     lastName: state.user.lastName,
+    email: state.user.email,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
   };
 }

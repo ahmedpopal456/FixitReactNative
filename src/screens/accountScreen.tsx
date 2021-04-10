@@ -1,14 +1,16 @@
 import React from 'react';
 import {
-  SafeAreaView, Text, View, StyleSheet, TouchableOpacity,
+  SafeAreaView, Text, View, StyleSheet, TouchableOpacity, Image,
 } from 'react-native';
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import {
   store, ProfileService, RatingsService, ConfigFactory, PersistentState, connect,
 } from 'fixit-common-data-store';
 import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
+import { Rating } from 'react-native-ratings';
 import NativeAuthService from '../services/nativeAuthService';
 import { b2cConfig } from '../config/msalConfig';
+import defaultProfilePic from '../assets/defaultProfileIcon.png';
 
 const profileService = new ProfileService(new ConfigFactory(), store);
 const ratingsService = new RatingsService(new ConfigFactory(), store);
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     position: 'absolute',
     top: -15,
-    width: 100,
+    width: 130,
     height: 30,
     backgroundColor: 'white',
     borderRadius: 5,
@@ -84,7 +86,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 100 / 2,
-    backgroundColor: 'tomato', // remove this later
   },
 });
 
@@ -107,17 +108,15 @@ class AccountScreen extends React.Component
     };
   }
 
-  // TODO: Get userId from the store
-  //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
     const responseProfile = await profileService.getUserProfile(this.props.userId);
-    // const responseRatings = await ratingsService.getUserRatingsAverage(this.props.userId);
+    const responseRatings = await ratingsService.getUserRatingsAverage(this.props.userId);
     this.setState({
       firstName: responseProfile.firstName,
       lastName: responseProfile.lastName,
       address: responseProfile.address,
       profilePictureUrl: responseProfile.profilePictureUrl,
-      // averageRating: responseRatings.ratings.averageRating,
+      averageRating: responseRatings.ratings.averageRating,
     });
   }
 
@@ -125,7 +124,13 @@ class AccountScreen extends React.Component
     return (
       <SafeAreaView style={styles.container}>
         <View style={{ position: 'absolute', left: 0, margin: 5 }}>
-          <Button testID='signOutBtn' onPress={async () => b2cClient.signOut()} width={100}>
+          <Button
+            testID='signOutBtn'
+            onPress={async () => b2cClient.signOut()}
+            width={100}
+            shape='circle'
+            padding={0}
+          >
             Sign out
           </Button>
         </View>
@@ -137,14 +142,25 @@ class AccountScreen extends React.Component
           />
         </View>
         <View style={styles.imageContainer}>
-          <View style={styles.circle}>
-          </View>
-          <Text>{this.props.firstName} {this.props.lastName}</Text>
+          {this.state.profilePictureUrl
+            ? <Image source={{ uri: this.state.profilePictureUrl }} style={styles.circle} />
+            : <Image source={defaultProfilePic} style={styles.circle} />
+          }
+          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{this.props.firstName} {this.props.lastName}</Text>
         </View>
 
         <View style={styles.bodyContainer}>
           <View style={styles.ratingContainer}>
-            <Text>{`${this.state.averageRating}`}</Text>
+            <Rating
+              type='custom'
+              ratingColor={'#FFD14A'}
+              ratingBackgroundColor={'gray'}
+              tintColor={'white'}
+              readonly={true}
+              startingValue={this.state.averageRating}
+              ratingCount={5}
+              imageSize={23}
+            />
           </View>
           <View style={styles.buttonsContainer}>
             <TouchableOpacity testID='profileBtn' style={styles.buttonFirst} onPress={() => this.props.navigation.navigate('Profile')}>

@@ -13,6 +13,7 @@ import FixSuggestChanges from '../screens/fixRequests/fixSuggestChanges';
 import FixSuggestChangesReview from '../screens/fixRequests/fixSuggestChangesReview';
 import UserRoles from '../models/users/userRolesEnum';
 import HomeScreenCraftsman from '../screens/homeScreenCraftsman';
+import NotificationsScreen from '../screens/notificationsScreen';
 
 const Stack = createStackNavigator();
 
@@ -49,6 +50,7 @@ class HomeStackNavigator extends React.Component<any> {
         <Stack.Screen name="FixSuggestChangesReview" component={FixSuggestChangesReview} options={{
           animationEnabled: false,
         }} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
       </Stack.Navigator>
     );
   }

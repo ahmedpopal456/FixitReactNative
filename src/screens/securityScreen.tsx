@@ -5,7 +5,8 @@ import {
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, ProfileService, ConfigFactory, PersistentState, connect,
+  store, ProfileService, ConfigFactory,
+  PersistentState, connect, persistentStore, persistentActions,
 } from 'fixit-common-data-store';
 import axios from 'axios';
 
@@ -37,6 +38,7 @@ const styles = StyleSheet.create({
   nameContainer: {
     padding: 5,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   title: {
     paddingLeft: 10,
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   nameInputContainer: {
-    width: 150,
+    width: 140,
     height: 40,
     paddingLeft: 10,
     borderWidth: 1,
@@ -71,6 +73,7 @@ class SecurityScreen extends React.Component
   address: any,
   profilePictureUrl: string,
   email: string,
+  availability: any,
 }> {
   constructor(props: any) {
     super(props);
@@ -80,11 +83,10 @@ class SecurityScreen extends React.Component
       address: store.getState().profile.address,
       profilePictureUrl: store.getState().profile.profilePictureUrl,
       email: '',
+      availability: {},
     };
   }
 
-  // TODO: Get userId from the store
-  //       Replace userId string with : this.props.userId
   async componentDidMount() : Promise<void> {
     const response = await profileService.getUserProfile(this.props.userId);
     this.setState({
@@ -92,22 +94,28 @@ class SecurityScreen extends React.Component
       lastName: response.lastName,
       address: response.address,
       profilePictureUrl: response.profilePictureUrl,
+      availability: response.availability,
     });
   }
 
-  // TODO: Get userId from the store
-  //       Replace userId string with : this.props.userId
   updateRequest() : void {
-    axios.put(`https://fixit-dev-ums-api.azurewebsites.net/api/${this.props.userId}/account/profile`, {
-      firstName: this.state.firstName,
-      lastName: this.state.lastName,
-      address: this.state.address,
-      profilePictureUrl: this.state.profilePictureUrl,
-    }, { headers: { 'Content-Type': 'application/json' } })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => console.error(error));
+    axios.put(`https://fixit-dev-ums-api.azurewebsites.net/api/${this.props.userId}/account/profile`,
+      {
+        FirstName: this.state.firstName,
+        LastName: this.state.lastName,
+        address: this.state.address,
+        profilePictureUrl: this.state.profilePictureUrl,
+        Availability: this.state.availability,
+      }, { headers: { 'Content-Type': 'application/json' } });
+
+    persistentStore.dispatch(persistentActions.default.setUserInfo(
+      this.props.userId,
+      this.state.firstName,
+      this.state.lastName,
+      this.props.email,
+      this.props.role,
+      this.props.status,
+    ));
   }
 
   render() : JSX.Element {
@@ -124,7 +132,7 @@ class SecurityScreen extends React.Component
         </View>
         <Text style={styles.title}>Login & Security</Text>
         <View style={styles.bodyContainer}>
-          <ScrollView keyboardDismissMode='interactive'>
+          <ScrollView keyboardDismissMode='interactive' contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
             <View style={styles.nameContainer}>
               <View>
                 <Text style={styles.text}>First Name</Text>
@@ -145,7 +153,7 @@ class SecurityScreen extends React.Component
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.text}>Email</Text>
-              <Text style={styles.input}>{this.state.email}</Text>
+              <Text style={styles.input}>{this.props.email}</Text>
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.text}>Phone Number</Text>
@@ -174,7 +182,15 @@ class SecurityScreen extends React.Component
               />
             </View>
           </ScrollView>
-          <Button onPress={() => this.updateRequest()} width={125} style={{ alignSelf: 'center' }} caps>Update</Button>
+          <Button
+            onPress={() => this.updateRequest()}
+            width={125}
+            style={{ alignSelf: 'center' }}
+            caps
+            shape='circle'
+          >
+            Update
+          </Button>
         </View>
       </SafeAreaView>
     );
@@ -186,6 +202,9 @@ function mapStateToProps(state: PersistentState) {
     userId: state.user.userId,
     firstName: state.user.firstName,
     lastName: state.user.lastName,
+    email: state.user.email,
+    role: state.user.role,
+    status: state.user.status,
     unseenNotificationsNumber: state.unseenNotificationsNumber,
   };
 }

@@ -1,9 +1,11 @@
 import React from 'react';
 import {
-  Text, View, StyleSheet, SafeAreaView, Dimensions,
+  Text, View, StyleSheet, SafeAreaView, Dimensions, Image,
 } from 'react-native';
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { connect, PersistentState } from 'fixit-common-data-store';
+import { Rating } from 'react-native-ratings';
+import defaultProfilePic from '../assets/defaultProfileIcon.png';
 
 const styles = StyleSheet.create({
   container: {
@@ -25,10 +27,9 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     padding: 5,
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   ratingContainer: {
-    flex: 1,
     padding: 5,
   },
   title: {
@@ -37,6 +38,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   textName: {
+    fontSize: 16,
     fontWeight: 'bold',
   },
   image: {
@@ -78,13 +80,27 @@ const RatingItemScreen = (props: {
     <Text style={styles.title}>Your Ratings</Text>
     <View style={styles.bodyContainer}>
       <View style={styles.infoContainer}>
-        <View style={styles.image} />
-        <View style={styles.ratingContainer}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={[styles.image, { marginRight: 10 }]}>
+            <Image source={defaultProfilePic} style={styles.image} />
+          </View>
           <Text style={styles.textName}>
             {props.route.params.firstName} {props.route.params.lastName}
           </Text>
-          <Text>{props.route.params.score}</Text>
-          <Text>{props.route.params.comment}</Text>
+        </View>
+        <View style={styles.ratingContainer}>
+          <Rating
+            style={{ alignSelf: 'flex-start', marginVertical: 5, marginLeft: -5 }}
+            type='custom'
+            ratingColor={'#FFD14A'}
+            ratingBackgroundColor={'gray'}
+            tintColor={'white'}
+            readonly={true}
+            startingValue={props.route.params.score}
+            ratingCount={5}
+            imageSize={20}
+          />
+          <Text style={{ marginVertical: 10 }}>{props.route.params.comment}</Text>
         </View>
       </View>
     </View>
