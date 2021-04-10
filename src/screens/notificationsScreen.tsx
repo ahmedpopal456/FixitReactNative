@@ -71,7 +71,13 @@ class NotificationsScreen extends React.Component
         { notifications }, this.props.unseenNotificationsNumber - 1,
       ));
     }
-    this.props.navigation.navigate('Home');
+    console.log(item);
+    if (item?.data?.action == 'NewMessage') {
+      this.props.navigation.navigate('Chat');
+    }
+    else {
+      this.props.navigation.navigate('Home');
+    }
     notificationHandler.getInstance().displayNotification(item);
   };
 

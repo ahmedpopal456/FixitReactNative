@@ -6,7 +6,7 @@ import {
   Avatar, Button, Icon, NotificationBell, colors,
 } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { persistentStore, store } from 'fixit-common-data-store';
+import { PersistentState, persistentStore, connect } from 'fixit-common-data-store';
 // import { Widget } from 'react-chat-widget';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { ConversationModel, MessageModel, ParticipantModel } from '../models/chat/chatModel';
@@ -118,7 +118,7 @@ function toCamel(o: any) {
   return newO;
 }
 
-export default class ChatMessagingScreen extends React.Component
+class ChatMessagingScreen extends React.Component
 <any, {
   conversation: ConversationModel,
   messages: MessageModel[],
@@ -242,7 +242,12 @@ export default class ChatMessagingScreen extends React.Component
           <Button onPress={this.props.navigation.goBack} color='transparent'>
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
-          <NotificationBell notifications={0} onPress={() => undefined} />
+          <NotificationBell
+                notifications={this.props.unseenNotificationsNumber}
+                onPress={() => this.props.navigation.navigate('Fixes', {
+                  screen: 'Notifications',
+                })}
+              />
         </View>
         <View style={styles.bodyContainer}>
           <View style={styles.headerContainer}>
@@ -255,7 +260,7 @@ export default class ChatMessagingScreen extends React.Component
             </View>
           </View>
 
-          <ScrollView style={{ marginBottom: 50 }} ref="_scrollView" onContentSizeChange={() => { setTimeout(() => { this.refs._scrollView.scrollToEnd({ animated: false }); }); console.log('size change'); }}>
+          <ScrollView style={{ marginBottom: 50 }} ref="_scrollView" onContentSizeChange={() => { setTimeout(() => { this.refs._scrollView.scrollToEnd({ animated: false }); });}}>
             {this.state.messages.length != 0
               ? this.renderMessages()
               : this.renderNoMessage(this.otherParticipant.user.firstName, this.otherParticipant.user.lastName)}
@@ -267,10 +272,10 @@ export default class ChatMessagingScreen extends React.Component
             <TextInput style={styles.input} placeholderTextColor='white' placeholder="Enter your message..." onChangeText={(text) => this.setState({ message: text })} value={this.state.message}
               onSubmitEditing={() => { this.signalRService.sendMessage(this.selfParticipant.user, this.otherParticipant.user, this.state.message); this.setState({ message: '' }); }}></TextInput>
             <Button style={styles.buttons} onPress={() => {}}>
-              <Icon library='FontAwesome' name='image' color='accent'/>
+              <Icon library='FontAwesome' name='image' color='accent' size={20}/>
             </Button>
             <Button style={styles.buttons} onPress={() => { this.signalRService.sendMessage(this.selfParticipant.user, this.otherParticipant.user, this.state.message); this.setState({ message: '' }); }}>
-              <Icon library='FontAwesome' name='send' color='accent'/>
+              <Icon library='FontAwesome' name='send' color='accent' size={20}/>
             </Button>
           </View>
 
@@ -279,3 +284,13 @@ export default class ChatMessagingScreen extends React.Component
     );
   }
 }
+
+function mapStateToProps(state: PersistentState) {
+  return {
+    unseenNotificationsNumber: state.unseenNotificationsNumber,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export default connect(mapStateToProps)(ChatMessagingScreen);

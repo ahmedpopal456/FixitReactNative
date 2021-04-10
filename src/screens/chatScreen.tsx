@@ -7,7 +7,7 @@ import {
 } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import { persistentStore } from 'fixit-common-data-store';
+import { PersistentState, persistentStore, connect } from 'fixit-common-data-store';
 import ChatService from '../services/chatService';
 import { ConversationModel } from '../models/chat/chatModel';
 
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class ChatScreen extends React.Component
+class ChatScreen extends React.Component
 <any, {
   activeSelected: boolean,
   activeConversations: ConversationModel[],
@@ -97,6 +97,12 @@ export default class ChatScreen extends React.Component
     await this.fetchConversations();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.unseenNotificationsNumber != this.props.unseenNotificationsNumber) {
+      this.fetchConversations();
+    }
+  }
+
   onRefresh() {
     this.setState({ refreshing: true });
     this.fetchConversations().then(() => {
@@ -107,7 +113,11 @@ export default class ChatScreen extends React.Component
   renderActiveConversations() {
     return (
       <ScrollView refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)} />}>
-        {this.state.activeConversations.map((conversation) => {
+        {this.state.activeConversations.length == 0
+        ? <>
+          <Text style={{ marginTop: 50, color: colors.grey, textAlign: 'center' }}>There are currently no active conversations</Text>
+        </>
+        : <>{this.state.activeConversations.map((conversation) => {
           const otherUser = conversation.participants.find((participant) => participant.user.id != this.userId)?.user;
           const { lastMessage } = conversation;
           const date = new Date(lastMessage.createdTimestampsUtc * 1000);
@@ -119,7 +129,7 @@ export default class ChatScreen extends React.Component
             lastMessageTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
           }
           return (
-            <TouchableOpacity key={conversation.id} onPress={() => this.props.navigation.navigate('ChatMessage', { conversation })}>
+            <TouchableOpacity key={conversation.id} onPress={() => this.props.navigation.navigate('ChatMessage', { conversation: conversation })}>
               <View style={styles.messageContainer}>
                 <View style={{ flex: 2.2 }}>
                   <Avatar image={otherUser?.profilePictureUrl}></Avatar>
@@ -136,20 +146,10 @@ export default class ChatScreen extends React.Component
                   <Icon library='MaterialCommunityIcons' name='chevron-right' color='grey' />
                 </View>
               </View>
-              <View style={{ flexDirection: 'column', flex: 5 }}>
-                <Text style={{ fontWeight: 'bold', flex: 1 }}>
-                  <Icon library='MaterialCommunityIcons' name='chat-processing' color='orange' size={15}/>
-                  {' '}{otherUser?.firstName} {otherUser?.lastName} sent you a message
-                </Text>
-                <Text style={{ color: 'gray', flex: 1 }} numberOfLines={2}>{lastMessage.message}</Text>
-              </View>
-              <View style={{ flexDirection: 'row', flex: 3, justifyContent: 'flex-end' }}>
-                <Text style={{ color: 'gray', fontSize: 16 }}>{lastMessageTime}</Text>
-                <Icon library='MaterialCommunityIcons' name='chevron-right' color='grey' />
-              </View>
             </TouchableOpacity>
           );
         })}
+        </>}
       </ScrollView>
     );
   }
@@ -162,7 +162,7 @@ export default class ChatScreen extends React.Component
           const date = new Date(conversation.createdTimestampsUtc * 1000);
           const createdTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
           return (
-            <TouchableOpacity key={conversation.id} onPress={() => this.props.navigation.navigate('ChatMessage', { conversation, userId: this.userId })}>
+            <TouchableOpacity key={conversation.id} onPress={() => this.props.navigation.navigate('ChatMessage', { conversation })}>
               <View style={styles.messageContainer}>
                 <TouchableOpacity onPress={() => this.props.navigation.navigate('ChatProfile')} style={{ flex: 2.2 }}>
                   <Avatar image={otherUser?.profilePictureUrl}></Avatar>
@@ -191,7 +191,12 @@ export default class ChatScreen extends React.Component
           <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
-          <NotificationBell notifications={0} onPress={() => undefined} />
+          <NotificationBell
+                notifications={this.props.unseenNotificationsNumber}
+                onPress={() => this.props.navigation.navigate('Fixes', {
+                  screen: 'Notifications',
+                })}
+              />
         </View>
         <Text style={styles.title}>Chats</Text>
         <View style = {styles.bodyContainer}>
@@ -224,3 +229,13 @@ export default class ChatScreen extends React.Component
     );
   }
 }
+
+function mapStateToProps(state: PersistentState) {
+  return {
+    unseenNotificationsNumber: state.unseenNotificationsNumber,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export default connect(mapStateToProps)(ChatScreen);
