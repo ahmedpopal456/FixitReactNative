@@ -35,7 +35,11 @@ class SearchResultsScreen extends
     }
 
     search = (keywords : string) : void => {
-      axios.get(`https://fixit-dev-fms-search.azurewebsites.net/api/search-template?keywords=${keywords}`)
+      let searchTearms = keywords;
+      if (keywords[0] === ',') {
+        searchTearms = searchTearms.substring(1);
+      }
+      axios.get(`https://fixit-dev-fms-search.azurewebsites.net/api/search-template?keywords=${searchTearms}`)
         .then((response) => this.setState({ fixes: response.data }))
         .catch(() => this.setState({ fixes: [] }));
     }

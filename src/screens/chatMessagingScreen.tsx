@@ -243,11 +243,11 @@ class ChatMessagingScreen extends React.Component
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
           <NotificationBell
-                notifications={this.props.unseenNotificationsNumber}
-                onPress={() => this.props.navigation.navigate('Fixes', {
-                  screen: 'Notifications',
-                })}
-              />
+            notifications={this.props.unseenNotificationsNumber}
+            onPress={() => this.props.navigation.navigate('Fixes', {
+              screen: 'Notifications',
+            })}
+          />
         </View>
         <View style={styles.bodyContainer}>
           <View style={styles.headerContainer}>
@@ -260,7 +260,7 @@ class ChatMessagingScreen extends React.Component
             </View>
           </View>
 
-          <ScrollView style={{ marginBottom: 50 }} ref="_scrollView" onContentSizeChange={() => { setTimeout(() => { this.refs._scrollView.scrollToEnd({ animated: false }); });}}>
+          <ScrollView style={{ marginBottom: 50 }} ref="_scrollView" onContentSizeChange={() => { setTimeout(() => { this.refs._scrollView.scrollToEnd({ animated: false }); }); }}>
             {this.state.messages.length != 0
               ? this.renderMessages()
               : this.renderNoMessage(this.otherParticipant.user.firstName, this.otherParticipant.user.lastName)}

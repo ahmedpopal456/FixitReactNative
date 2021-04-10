@@ -72,7 +72,7 @@ class FixRequestDescriptionStep extends
       });
 
       const fixTemplateObject : FixTemplateObjectModel = {
-        Status: 'Private',
+        Status: 'Public',
         Name: this.props.fixRequestObj.Details[0].Name,
         WorkTypeId: this.props.fixRequestObj.Details[0].Type,
         WorkCategoryId: this.props.fixRequestObj.Details[0].Category,
@@ -85,6 +85,7 @@ class FixRequestDescriptionStep extends
       };
 
       if (this.props.fixTemplateId) {
+        console.log(fixTemplateObject);
         serv.updateFixTemplate(fixTemplateObject, this.props.fixTemplateId);
       } else {
         serv.saveFixTemplate(fixTemplateObject);

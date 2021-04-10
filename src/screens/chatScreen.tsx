@@ -114,42 +114,42 @@ class ChatScreen extends React.Component
     return (
       <ScrollView refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)} />}>
         {this.state.activeConversations.length == 0
-        ? <>
-          <Text style={{ marginTop: 50, color: colors.grey, textAlign: 'center' }}>There are currently no active conversations</Text>
-        </>
-        : <>{this.state.activeConversations.map((conversation) => {
-          const otherUser = conversation.participants.find((participant) => participant.user.id != this.userId)?.user;
-          const { lastMessage } = conversation;
-          const date = new Date(lastMessage.createdTimestampsUtc * 1000);
-          const today = new Date();
-          let lastMessageTime;
-          if (date.getDate() == today.getDate() && date.getMonth() == today.getMonth() && date.getFullYear() == today.getFullYear()) {
-            lastMessageTime = 'Today';
-          } else {
-            lastMessageTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-          }
-          return (
-            <TouchableOpacity key={conversation.id} onPress={() => this.props.navigation.navigate('ChatMessage', { conversation: conversation })}>
-              <View style={styles.messageContainer}>
-                <View style={{ flex: 2.2 }}>
-                  <Avatar image={otherUser?.profilePictureUrl}></Avatar>
+          ? <>
+            <Text style={{ marginTop: 50, color: colors.grey, textAlign: 'center' }}>There are currently no active conversations</Text>
+          </>
+          : <>{this.state.activeConversations.map((conversation) => {
+            const otherUser = conversation.participants.find((participant) => participant.user.id != this.userId)?.user;
+            const { lastMessage } = conversation;
+            const date = new Date(lastMessage.createdTimestampsUtc * 1000);
+            const today = new Date();
+            let lastMessageTime;
+            if (date.getDate() == today.getDate() && date.getMonth() == today.getMonth() && date.getFullYear() == today.getFullYear()) {
+              lastMessageTime = 'Today';
+            } else {
+              lastMessageTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+            }
+            return (
+              <TouchableOpacity key={conversation.id} onPress={() => this.props.navigation.navigate('ChatMessage', { conversation })}>
+                <View style={styles.messageContainer}>
+                  <View style={{ flex: 2.2 }}>
+                    <Avatar image={otherUser?.profilePictureUrl}></Avatar>
+                  </View>
+                  <View style={{ flexDirection: 'column', flex: 5 }}>
+                    <Text style={{ fontWeight: 'bold', flex: 1 }}>
+                      <Icon library='MaterialCommunityIcons' name='chat-processing' color='orange' size={15}/>
+                      {' '}{otherUser?.firstName} {otherUser?.lastName} sent you a message
+                    </Text>
+                    <Text style={{ color: 'gray', flex: 1 }} numberOfLines={2}>{lastMessage.message}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', flex: 3, justifyContent: 'flex-end' }}>
+                    <Text style={{ color: 'gray', fontSize: 16 }}>{lastMessageTime}</Text>
+                    <Icon library='MaterialCommunityIcons' name='chevron-right' color='grey' />
+                  </View>
                 </View>
-                <View style={{ flexDirection: 'column', flex: 5 }}>
-                  <Text style={{ fontWeight: 'bold', flex: 1 }}>
-                    <Icon library='MaterialCommunityIcons' name='chat-processing' color='orange' size={15}/>
-                    {' '}{otherUser?.firstName} {otherUser?.lastName} sent you a message
-                  </Text>
-                  <Text style={{ color: 'gray', flex: 1 }} numberOfLines={2}>{lastMessage.message}</Text>
-                </View>
-                <View style={{ flexDirection: 'row', flex: 3, justifyContent: 'flex-end' }}>
-                  <Text style={{ color: 'gray', fontSize: 16 }}>{lastMessageTime}</Text>
-                  <Icon library='MaterialCommunityIcons' name='chevron-right' color='grey' />
-                </View>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-        </>}
+              </TouchableOpacity>
+            );
+          })}
+          </>}
       </ScrollView>
     );
   }
@@ -192,11 +192,11 @@ class ChatScreen extends React.Component
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
           <NotificationBell
-                notifications={this.props.unseenNotificationsNumber}
-                onPress={() => this.props.navigation.navigate('Fixes', {
-                  screen: 'Notifications',
-                })}
-              />
+            notifications={this.props.unseenNotificationsNumber}
+            onPress={() => this.props.navigation.navigate('Fixes', {
+              screen: 'Notifications',
+            })}
+          />
         </View>
         <Text style={styles.title}>Chats</Text>
         <View style = {styles.bodyContainer}>

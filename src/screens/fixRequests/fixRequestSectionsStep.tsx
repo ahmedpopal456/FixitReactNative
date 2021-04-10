@@ -132,7 +132,7 @@ class FixRequestSectionsStep extends
       });
 
       const fixTemplateObject : FixTemplateObjectModel = {
-        Status: 'Private',
+        Status: 'Public',
         Name: this.props.fixRequest.Details[0].Name,
         WorkTypeId: this.props.fixRequest.Details[0].Type,
         WorkCategoryId: this.props.fixRequest.Details[0].Category,
