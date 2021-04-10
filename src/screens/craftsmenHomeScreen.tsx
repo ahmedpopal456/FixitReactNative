@@ -97,7 +97,7 @@ class CraftsmanHomeScreen extends React.Component
   }
 
   async componentDidMount() {
-    
+    // TODO: Get userId from store
     const newFixResponse = await fixesService.getNewFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const pendingFixResponse = await fixesService.getPendingFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
     const inProgresFixResponse = await fixesService.getInProgressFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
@@ -189,7 +189,6 @@ renderFixRequests = ({ item }: any): JSX.Element =>  (
 render() {
     return (
       <SafeAreaView style={styles.container}>
-      {console.log(this.state)}
       <View style={styles.topContainer}>
         <View style={{flexDirection:'column'}}>
           <View style={{flexDirection:'row'}}>
