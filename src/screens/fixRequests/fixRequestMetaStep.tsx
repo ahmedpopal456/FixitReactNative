@@ -156,7 +156,7 @@ class FixRequestMetaStep extends
                         id:string,
                         name:string
                       }[]}) => (
-                      <Picker.Item key={category.id} label={category.name} value={category.id} />
+                      <Picker.Item key={category.id} label={category.name} value={category.name} />
                     ))}
                   </Picker>
                   : null
@@ -174,7 +174,7 @@ class FixRequestMetaStep extends
                       id:string,
                       name:string
                     }) => (
-                      <Picker.Item key={type.id} label={type.name} value={type.id} />
+                      <Picker.Item key={type.id} label={type.name} value={type.name} />
                     ))}
                   </Picker>
                   : null
@@ -192,7 +192,7 @@ class FixRequestMetaStep extends
                       id:string,
                       name:string
                     }) => (
-                      <Picker.Item key={unit.id} label={unit.name} value={unit.id} />
+                      <Picker.Item key={unit.id} label={unit.name} value={unit.name} />
                     ))}
                   </Picker>
                   : null

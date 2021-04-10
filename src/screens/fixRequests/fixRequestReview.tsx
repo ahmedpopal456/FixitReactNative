@@ -29,15 +29,15 @@ class FixRequestReview extends
       workType: '',
     }
 
-    componentDidMount() : void {
-      if (this.props.passedFix) {
-        this.getCategory(this.props.passedFix.details[0].category);
-        this.getType(this.props.passedFix.details[0].type);
-      } else {
-        this.getCategory(this.props.fixRequestObj.Details[0].Category);
-        this.getType(this.props.fixRequestObj.Details[0].Type);
-      }
-    }
+    // componentDidMount() : void {
+    //   if (this.props.passedFix) {
+    //     this.getCategory(this.props.passedFix.details[0].category);
+    //     this.getType(this.props.passedFix.details[0].type);
+    //   } else {
+    //     this.getCategory(this.props.fixRequestObj.Details[0].Category);
+    //     this.getType(this.props.fixRequestObj.Details[0].Type);
+    //   }
+    // }
 
     handleConfirm = () : void => {
       const serv = new FixRequestService(store);
@@ -157,13 +157,21 @@ class FixRequestReview extends
                     flexGrow: 1,
                   }}>
                     <H3 style={globalStyles.boldTitle}>Category</H3>
-                    <P>{this.state.workCategory}</P>
+                    <P>{
+                      this.props.passedFix
+                        ? this.props.passedFix.details[0].category
+                        : this.props.fixRequestObj.Details[0].Category
+                    }</P>
                   </View>
                   <View style={{
                     flexGrow: 1,
                   }}>
                     <H3 style={globalStyles.boldTitle}>Type</H3>
-                    <P>{this.state.workType}</P>
+                    <P>{
+                      this.props.passedFix
+                        ? this.props.passedFix.details[0].type
+                        : this.props.fixRequestObj.Details[0].Type
+                    }</P>
                   </View>
                 </View>
                 <Divider />
