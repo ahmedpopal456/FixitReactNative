@@ -8,6 +8,7 @@ import ProfileStackNavigator from './profileStackNavigator';
 import animator from '../animators';
 import HomeStackNavigator from './homeStackNavigator';
 import FixesStackNavigator from './fixesStackNavigator';
+import ChatStackNavigator from './chatStackNavigator';
 
 // TODO: remove this when real screens are implemented
 const DummyScreen = (props: { text: React.ReactNode; }) => (
@@ -134,7 +135,7 @@ function BottomBarNavigator() : JSX.Element {
           },
         }}
       >
-        {(props) => <DummyScreen {...props} text={'chat'} />}
+        {(props) => <ChatStackNavigator />}
       </BottomBarNav.Screen>
     </BottomBarNav.Navigator>
   );

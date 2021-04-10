@@ -105,6 +105,31 @@ class FixRequestReview extends
         .catch((error) => console.error(error));
     }
 
+    matchWithCraftsman = () : void => {
+      axios.put(
+        `https://fixit-dev-fms-api.azurewebsites.net/api/fixes/${this.props.passedFix?.id}/users/${this.props.passedFix?.assignedToCraftsman.Id}/assign`,
+        {
+          assignedToCraftsman: {
+            ...this.props.passedFix?.assignedToCraftsman,
+          },
+          ClientEstimatedCost: {
+            ...this.props.passedFix?.clientEstimatedCost,
+          },
+          systemCalculatedCost: this.props.passedFix?.systemCalculatedCost,
+          CraftsmanEstimatedCost: {
+            ...this.props.passedFix?.craftsmanEstimatedCost,
+          },
+          UpdatedByUser: {
+            Id: persistentStore.getState().user.userId,
+            FirstName: persistentStore.getState().user.firstName,
+            LastName: persistentStore.getState().user.lastName,
+          },
+        },
+      )
+        .then(() => this.setState({ acceptCraftsmanModalOpen: true }))
+        .catch((error) => console.error(error));
+    }
+
     render() : JSX.Element {
       return (
         <>
@@ -268,7 +293,7 @@ class FixRequestReview extends
                           style={{
                             marginRight: 5,
                           }}/>
-                        <Text>{this.props.passedFix.craftsmanEstimatedCost}</Text>
+                        <Text>{this.props.passedFix.craftsmanEstimatedCost.cost}</Text>
                       </>
                       : <>
                         <Icon
@@ -347,7 +372,7 @@ class FixRequestReview extends
                         <Button onPress={() => this.props.navigation.navigate('HomeScreen')} width={150}>
                         Reject
                         </Button>
-                        <Button onPress={() => this.setState({ acceptCraftsmanModalOpen: true })} width={150} color="accent">
+                        <Button onPress={() => this.matchWithCraftsman()} width={150} color="accent">
                         Accept
                         </Button>
                       </View>

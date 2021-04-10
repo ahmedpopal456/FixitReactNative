@@ -6,7 +6,6 @@ import {
   Button, colors, H1, Icon, Tag,
 } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
-import base64 from 'react-native-base64';
 import { ConfigFactory, FixesService, store } from 'fixit-common-data-store';
 import { StackActions } from '@react-navigation/native';
 import { NotificationProps } from '../../models/notifications/NotificationProps';
@@ -79,6 +78,9 @@ export default class FixCraftsmanResponse extends React.Component<NotificationPr
   state={
     craftsmanName: '',
     craftsmanRating: '',
+    craftsmanFirstName: '',
+    craftsmanLastName: '',
+    craftsmanId: '',
     fixTitle: '',
     tags: [],
     scheduleStart: 0,
@@ -108,6 +110,9 @@ export default class FixCraftsmanResponse extends React.Component<NotificationPr
       const fix = await this.fixesService.getFix(decodedMessage.Id);
       this.setState({
         craftsmanName: `${decodedMessage.AssignedToCraftsman.FirstName} ${decodedMessage.AssignedToCraftsman.LastName}`,
+        craftsmanFirstName: decodedMessage.AssignedToCraftsman.FirstName,
+        craftsmanLastName: decodedMessage.AssignedToCraftsman.LastName,
+        craftsmanId: decodedMessage.AssignedToCraftsman.Id,
         craftsmanRating: '',
         fixTitle: fix.details[0].name,
         tags: fix.tags,
@@ -133,7 +138,16 @@ export default class FixCraftsmanResponse extends React.Component<NotificationPr
         startTimestampUtc: this.state.scheduleStart,
         endTimestampUtc: this.state.scheduleEnd,
       };
-      fix.craftsmanEstimatedCost = this.state.budget;
+      fix.craftsmanEstimatedCost = {
+        cost: this.state.budget,
+        comment: this.state.craftsmanComments,
+      };
+      fix.assignedToCraftsman = {
+        ...fix.assignedToCraftsman,
+        Id: this.state.craftsmanId,
+        FirstName: this.state.craftsmanFirstName,
+        LastName: this.state.craftsmanLastName,
+      };
       this.props.navRef.current?.dispatch(StackActions.push('FixRequestReview', {
         passedFix: fix,
         isFixCraftsmanResponseNotification: true,
