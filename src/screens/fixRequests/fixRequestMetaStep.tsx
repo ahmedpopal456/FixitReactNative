@@ -167,9 +167,11 @@ class FixRequestMetaStep extends
                 {this.state.types
                   ? <Picker
                     selectedValue={this.props.templateType}
-                    onValueChange={(value) => store
-                      .dispatch(fixRequestActions.setFixTemplateType(value))
-                    }>
+                    onValueChange={(value) => {
+                      console.log(value);
+                      store
+                        .dispatch(fixRequestActions.setFixTemplateType(value));
+                    }}>
                     {this.state.types.map((type:{
                       id:string,
                       name:string

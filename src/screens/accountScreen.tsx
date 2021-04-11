@@ -123,17 +123,6 @@ class AccountScreen extends React.Component
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={{ position: 'absolute', left: 0, margin: 5 }}>
-          <Button
-            testID='signOutBtn'
-            onPress={async () => b2cClient.signOut()}
-            width={100}
-            shape='circle'
-            padding={0}
-          >
-            Sign out
-          </Button>
-        </View>
         <View style={{ position: 'absolute', right: 0 }}>
           <NotificationBell
             notifications={this.props.unseenNotificationsNumber}
@@ -183,6 +172,23 @@ class AccountScreen extends React.Component
               <Text>Your Addresses</Text>
               <Icon library='AntDesign' name='caretright' />
             </TouchableOpacity>
+            <View style={{
+              display: 'flex',
+              alignItems: 'center',
+              alignContent: 'center',
+              alignSelf: 'center',
+              margin: 30,
+            }}>
+              <Button
+                testID='signOutBtn'
+                onPress={async () => b2cClient.signOut()}
+                width={100}
+                shape='circle'
+                padding={0}
+              >
+            Sign out
+              </Button>
+            </View>
           </View>
         </View>
       </SafeAreaView>

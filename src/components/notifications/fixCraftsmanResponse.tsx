@@ -6,9 +6,13 @@ import {
   Button, colors, H1, Icon, Tag,
 } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
-import { ConfigFactory, FixesService, store } from 'fixit-common-data-store';
+import {
+  ConfigFactory, FixesService, RatingsService, store,
+} from 'fixit-common-data-store';
 import { StackActions } from '@react-navigation/native';
 import { NotificationProps } from '../../models/notifications/NotificationProps';
+
+const ratingsService = new RatingsService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -23,7 +27,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    padding: 35,
+    padding: 15,
     paddingTop: 20,
     marginTop: '15%',
     alignItems: 'flex-start',
@@ -108,12 +112,15 @@ export default class FixCraftsmanResponse extends React.Component<NotificationPr
     if (this.props.message && this.props.message.data) {
       const decodedMessage = JSON.parse(this.props.message.data.fixitdata);
       const fix = await this.fixesService.getFix(decodedMessage.Id);
+      const responseRatings = await ratingsService
+        .getUserRatingsAverage(decodedMessage.AssignedToCraftsman.Id);
+      console.log(responseRatings);
       this.setState({
         craftsmanName: `${decodedMessage.AssignedToCraftsman.FirstName} ${decodedMessage.AssignedToCraftsman.LastName}`,
         craftsmanFirstName: decodedMessage.AssignedToCraftsman.FirstName,
         craftsmanLastName: decodedMessage.AssignedToCraftsman.LastName,
         craftsmanId: decodedMessage.AssignedToCraftsman.Id,
-        craftsmanRating: '',
+        craftsmanRating: responseRatings.ratings.averageRating,
         fixTitle: fix.details[0].name,
         tags: fix.tags,
         scheduleStart: decodedMessage.Schedule[0].startTimestampUtc,
@@ -214,7 +221,7 @@ export default class FixCraftsmanResponse extends React.Component<NotificationPr
                     textTransform: 'uppercase',
                     fontWeight: 'bold',
                   }}>{this.state.craftsmanName}</Text>
-                  <Tag textColor={'accent'}>{this.state.craftsmanRating}</Tag>
+                  <Tag textColor={'accent'}>{this.state.craftsmanRating.toString()}</Tag>
                 </View>
               </View>
               <Text style={styles.modalTextTitle}>

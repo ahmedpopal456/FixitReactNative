@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    padding: 35,
+    padding: 15,
     paddingTop: 20,
     marginTop: '15%',
     alignItems: 'flex-start',
