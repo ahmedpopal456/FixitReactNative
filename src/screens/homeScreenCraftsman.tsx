@@ -146,7 +146,7 @@ renderOngoingFixes = ({ item }: any): JSX.Element => (
     <View style={{ width: 200, paddingVertical: 5, margin: 7 }}>
       <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-        <Text style={{ color: '#8B8B8B' }}>Started {new Date(item.schedule[0].startTimestampUtc).toDateString()} for </Text>
+        <Text style={{ color: '#8B8B8B' }}>Started {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()} for </Text>
         <Text style={{ color: '#8B8B8B', textDecorationLine: 'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
       </View>
 
@@ -183,7 +183,7 @@ renderFixRequests = ({ item }: any): JSX.Element => (
       <Text >
         {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()}
         -
-        {new Date(item.schedule[0].endTimestampUtc).toDateString()}</Text>
+        {new Date(item.schedule[0].endTimestampUtc * 1000).toDateString()}</Text>
       <Text style={{ color: '#8B8B8B', textDecorationLine: 'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
       <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
         screen: 'FixOverview',
