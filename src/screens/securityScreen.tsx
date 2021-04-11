@@ -89,6 +89,7 @@ class SecurityScreen extends React.Component
 
   async componentDidMount() : Promise<void> {
     const response = await profileService.getUserProfile(this.props.userId);
+    console.log('address obj = ', response.address);
     this.setState({
       firstName: response.firstName,
       lastName: response.lastName,
@@ -165,20 +166,72 @@ class SecurityScreen extends React.Component
                     phoneNumber: phone,
                   },
                 })}
-                value={this.state.address.phoneNumber}
+                value={this.state.address && this.state.address.phoneNumber}
               />
             </View>
             <View style={styles.infoContainer}>
-              <Text style={styles.text}>Location</Text>
+              <Text style={styles.text}>Street</Text>
               <TextInput
                 style={styles.input}
-                onChangeText={(location) => this.setState({
+                onChangeText={(street) => this.setState({
                   address: {
                     ...this.state.address,
-                    address: location,
+                    address: street,
                   },
                 })}
-                value={this.state.address.address}
+                value={this.state.address && this.state.address.address}
+              />
+            </View>
+            <View style={styles.infoContainer}>
+              <Text style={styles.text}>City</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={(city) => this.setState({
+                  address: {
+                    ...this.state.address,
+                    city,
+                  },
+                })}
+                value={this.state.address && this.state.address.city}
+              />
+            </View>
+            <View style={styles.infoContainer}>
+              <Text style={styles.text}>Province</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={(province) => this.setState({
+                  address: {
+                    ...this.state.address,
+                    province,
+                  },
+                })}
+                value={this.state.address && this.state.address.province}
+              />
+            </View>
+            <View style={styles.infoContainer}>
+              <Text style={styles.text}>Postal Code</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={(postalCode) => this.setState({
+                  address: {
+                    ...this.state.address,
+                    postalCode,
+                  },
+                })}
+                value={this.state.address && this.state.address.postalCode}
+              />
+            </View>
+            <View style={styles.infoContainer}>
+              <Text style={styles.text}>Country</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={(country) => this.setState({
+                  address: {
+                    ...this.state.address,
+                    country,
+                  },
+                })}
+                value={this.state.address && this.state.address.country}
               />
             </View>
           </ScrollView>

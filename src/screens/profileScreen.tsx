@@ -132,11 +132,14 @@ class ProfileScreen extends React.Component
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.text}>Location</Text>
-              <View style={[styles.valueContainer, { flexDirection: 'row', justifyContent: 'flex-start' }]}>
-                <Text>{this.state.address.address},</Text>
-                <Text> {this.state.address.city},</Text>
-                <Text> {this.state.address.province},</Text>
-                <Text> {this.state.address.country}</Text>
+              <View style={[styles.valueContainer, { flexDirection: 'row' }]}>
+                <Text>
+                  {this.state.address && this.state.address.address},{' '}
+                  {this.state.address && this.state.address.city},{' '}
+                  {this.state.address && this.state.address.province},{' '}
+                  {this.state.address && this.state.address.postalCode},{' '}
+                  {this.state.address && this.state.address.country}{' '}
+                </Text>
               </View>
             </View>
           </ScrollView>
