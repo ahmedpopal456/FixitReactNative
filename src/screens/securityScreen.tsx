@@ -123,7 +123,7 @@ class SecurityScreen extends React.Component
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.topContainer}>
-          <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
+          <Button testID='backBtn' onPress={() => this.props.navigation.goBack()} color='transparent'>
             <Icon library='AntDesign' name='back' size={30} />
           </Button>
           <NotificationBell
@@ -160,6 +160,7 @@ class SecurityScreen extends React.Component
               <Text style={styles.text}>Phone Number</Text>
               <TextInput
                 style={styles.input}
+                testID='securityPhoneInput'
                 onChangeText={(phone) => this.setState({
                   address: {
                     ...this.state.address,
@@ -236,6 +237,7 @@ class SecurityScreen extends React.Component
             </View>
           </ScrollView>
           <Button
+            testID='updateBtn'
             onPress={() => this.updateRequest()}
             width={125}
             style={{ alignSelf: 'center' }}

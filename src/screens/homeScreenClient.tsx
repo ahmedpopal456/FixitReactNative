@@ -191,6 +191,7 @@ class HomeScreenClient extends React.Component<any> {
                 }}
               >
                 <Button
+                  testID='searchBtn'
                   onPress={this.search}
                   color="primary"
                   width={50}

@@ -88,7 +88,7 @@ const RatingItemScreen = (props: {
             {props.route.params.firstName} {props.route.params.lastName}
           </Text>
         </View>
-        <View style={styles.ratingContainer}>
+        <View testID='ratingItemDetails' style={styles.ratingContainer}>
           <Rating
             style={{ alignSelf: 'flex-start', marginVertical: 5, marginLeft: -5 }}
             type='custom'

@@ -190,13 +190,13 @@ export default class FixOverviewScreen extends React.Component<any, any> {
             height: '100%',
           }}
         >
-          <ScrollView>
+          <ScrollView testID='fixOverviewScroll'>
             <View style={styles.topContainer}>
               <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
                 <Icon library='AntDesign' name='back' size={30} />
               </Button>
             </View>
-            <View style={styles.infoContainer}>
+            <View testID='fixInfo' style={styles.infoContainer}>
               <DonutChart
                 value={75}
                 radius={50}
@@ -229,7 +229,7 @@ export default class FixOverviewScreen extends React.Component<any, any> {
               </View>
             </View>
             <Text style={[styles.title, { alignSelf: 'center', marginTop: 20 }]}>Phase {this.state.phase}</Text>
-            <View style={styles.phaseContainer}>
+            <View testID='fixOverviewPhase' style={styles.phaseContainer}>
               <View style={{
                 backgroundColor: this.state.isPhaseOne ? '#DDDDDF' : colors.accent,
                 borderTopLeftRadius: 30,
@@ -297,7 +297,7 @@ export default class FixOverviewScreen extends React.Component<any, any> {
             </View>
             <View style={styles.scheduleContainer}>
               <Text style={[styles.title, { alignSelf: 'center' }]}>Schedule</Text>
-              <View >
+              <View testID='calendar'>
                 <Calendar
                   startDate={
                     new Date(this.props.route.params.fix.schedule[0].startTimestampUtc * 1000)

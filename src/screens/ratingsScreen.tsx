@@ -107,6 +107,7 @@ class RatingsScreen extends React.Component
         score: item.score,
         comment: item.comment,
       })}
+      testID='ratingItem'
       style={styles.ratingItem}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <View style={[styles.image, { marginRight: 10 }]}>

@@ -361,6 +361,7 @@ class FixesScreen extends React.Component<any, {
         </View>
         <View style={styles.topCycleContainer}>
           <Button // fixSelected = true
+            testID='fixesBtn'
             onPress={() => this.setState({ fixSelected: true })}
             width={100}
             shape='circle'
@@ -377,6 +378,7 @@ class FixesScreen extends React.Component<any, {
             </Text>
           </Button>
           <Button // fixSelected = false
+            testID='fixRequestsBtn'
             onPress={() => this.setState({ fixSelected: false })}
             width={150}
             shape='circle'

@@ -33,7 +33,7 @@ class FixRequestScheduleStep extends
             <StepIndicator
               numberSteps={this.props.numberOfSteps}
               currentStep={4 + this.props.fixStepsDynamicRoutes.length} />
-            <StyledScrollView>
+            <StyledScrollView testID='styledScrollView'>
               <StyledContentWrapper>
                 <H2 style={FixRequestStyles.titleWithAction}>Availability</H2>
                 <Calendar

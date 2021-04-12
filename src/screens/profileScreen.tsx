@@ -107,13 +107,13 @@ class ProfileScreen extends React.Component
         <View style={styles.bodyContainer}>
           <ScrollView keyboardDismissMode='interactive' contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
             {this.state.profilePictureUrl
-              ? <View style={styles.image}>
+              ? <View testID='profilePhoto' style={styles.image}>
                 <Image
                   style={styles.image}
                   source={{ uri: this.state.profilePictureUrl }}
                 />
               </View>
-              : <View style={styles.image}>
+              : <View testID='profilePhoto' style={styles.image}>
                 <Image source={defaultProfilePic} style={styles.image} />
               </View>
             }

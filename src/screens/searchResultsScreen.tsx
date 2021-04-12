@@ -240,6 +240,7 @@ class SearchResultsScreen extends
             </StyledScrollView>
           </StyledPageWrapper>
           <Button
+            testID='startBlankFixTemplateBtn'
             onPress={() => this.handleBlankFixTemplate()}
             style={FixRequestStyles.searchResultsContinueBtn}>
             Start with a blank fix template

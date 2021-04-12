@@ -128,7 +128,7 @@ class FixRequestMetaStep extends
                   : this.props.numberOfSteps
               }
               currentStep={1} />
-            <StyledScrollView keyboardShouldPersistTaps={'handled'}>
+            <StyledScrollView testID='styledScrollView' keyboardShouldPersistTaps={'handled'}>
               <StyledContentWrapper>
                 <P>This section will be part of your new Fixit Template.
                 You can fill in the fields with your requirement.</P>

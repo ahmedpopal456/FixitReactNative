@@ -202,6 +202,7 @@ class ChatScreen extends React.Component
         <View style = {styles.bodyContainer}>
           <View style= {styles.titleContainer}>
             <Button
+              testID='activeMsg'
               style = {{ backgroundColor: this.state.activeSelected ? colors.dark : colors.white, borderTopLeftRadius: 20, flex: 1 }}
               onPress={() => this.setState({ activeSelected: true })}
               outline={!this.state.activeSelected}
@@ -211,6 +212,7 @@ class ChatScreen extends React.Component
               </Text>
             </Button>
             <Button
+              testID='matchedMsg'
               style = {{ backgroundColor: this.state.activeSelected ? colors.white : colors.dark, borderTopRightRadius: 20, flex: 1 }}
               onPress={() => this.setState({ activeSelected: false })}
               outline={!!this.state.activeSelected}
