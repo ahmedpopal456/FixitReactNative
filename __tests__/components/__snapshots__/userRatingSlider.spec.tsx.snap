@@ -1,0 +1,116 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User Rating Slider renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "display": "flex",
+      "flexDirection": "row",
+      "marginBottom": 20,
+      "marginTop": -15,
+    }
+  }
+>
+  <View>
+    <Text
+      allowFontScaling={false}
+      library="FontAwesome5"
+      style={
+        Array [
+          Object {
+            "color": "#33343E",
+            "fontSize": 15,
+          },
+          Object {
+            "color": "#D4675A",
+            "marginLeft": 4.05,
+          },
+          Object {
+            "fontFamily": "FontAwesome5Free-Solid",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          Object {
+            "fontWeight": "900",
+          },
+        ]
+      }
+    >
+      
+    </Text>
+    <View
+      style={
+        Object {
+          "display": "flex",
+          "flexDirection": "row",
+        }
+      }
+    >
+      <View
+        style={
+          Object {
+            "backgroundColor": "#D4675A",
+            "borderRadius": 2,
+            "height": 4,
+            "width": 45,
+          }
+        }
+      />
+      <View
+        style={
+          Object {
+            "backgroundColor": "#E58346",
+            "borderRadius": 2,
+            "height": 4,
+            "marginLeft": -2,
+            "width": 30,
+          }
+        }
+      />
+      <View
+        style={
+          Object {
+            "backgroundColor": "#F5D23E",
+            "borderRadius": 2,
+            "height": 4,
+            "marginLeft": -2,
+            "width": 25,
+          }
+        }
+      />
+      <View
+        style={
+          Object {
+            "backgroundColor": "#5690FA",
+            "borderRadius": 2,
+            "height": 4,
+            "marginLeft": -2,
+            "width": 25,
+          }
+        }
+      />
+      <View
+        style={
+          Object {
+            "backgroundColor": "#8ED698",
+            "borderRadius": 2,
+            "height": 4,
+            "marginLeft": -2,
+            "width": 25,
+          }
+        }
+      />
+    </View>
+  </View>
+  <Text
+    style={
+      Object {
+        "marginLeft": 10,
+        "marginTop": 8,
+      }
+    }
+  >
+    3
+  </Text>
+</View>
+`;

@@ -1,0 +1,275 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Chat profile screen renders correctly 1`] = `
+<RNCSafeAreaView
+  style={
+    Object {
+      "backgroundColor": "#FFD14A",
+      "flex": 1,
+      "height": 1239,
+      "width": "100%",
+    }
+  }
+>
+  <View
+    style={
+      Object {
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+      }
+    }
+  >
+    <View
+      accessible={true}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        Object {
+          "alignItems": "center",
+          "alignSelf": "flex-start",
+          "backgroundColor": "#00000000",
+          "flexDirection": "row",
+          "justifyContent": "center",
+          "marginBottom": 5,
+          "marginLeft": 5,
+          "marginRight": 5,
+          "marginTop": 5,
+          "opacity": 1,
+          "paddingBottom": 7,
+          "paddingLeft": 7,
+          "paddingRight": 7,
+          "paddingTop": 7,
+        }
+      }
+    >
+      <View
+        style={
+          Array [
+            Object {
+              "paddingBottom": 8,
+              "paddingLeft": 8,
+              "paddingRight": 8,
+              "paddingTop": 8,
+            },
+          ]
+        }
+      >
+        <Text
+          allowFontScaling={false}
+          library="AntDesign"
+          style={
+            Array [
+              Object {
+                "color": "#33343E",
+                "fontSize": 30,
+              },
+              undefined,
+              Object {
+                "fontFamily": "anticon",
+                "fontStyle": "normal",
+                "fontWeight": "normal",
+              },
+              Object {},
+            ]
+          }
+        >
+          
+        </Text>
+      </View>
+    </View>
+    <View
+      notifications={0}
+      onPress={[Function]}
+      style={
+        Array [
+          Object {
+            "height": 80,
+            "width": 80,
+          },
+        ]
+      }
+    >
+      <View
+        accessible={true}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          Object {
+            "alignItems": "center",
+            "alignSelf": "flex-start",
+            "backgroundColor": "#00000000",
+            "flexDirection": "row",
+            "justifyContent": "center",
+            "marginBottom": 5,
+            "marginLeft": 5,
+            "marginRight": 5,
+            "marginTop": 5,
+            "opacity": 1,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0,
+            "paddingTop": 0,
+          }
+        }
+      >
+        <View
+          style={
+            Array [
+              Object {
+                "paddingBottom": 8,
+                "paddingLeft": 8,
+                "paddingRight": 8,
+                "paddingTop": 8,
+              },
+            ]
+          }
+        >
+          <Text
+            allowFontScaling={false}
+            library="Ionicons"
+            notifications={0}
+            style={
+              Array [
+                Object {
+                  "color": "#33343E",
+                  "fontSize": 45,
+                },
+                Array [
+                  Object {},
+                ],
+                Object {
+                  "fontFamily": "Ionicons",
+                  "fontStyle": "normal",
+                  "fontWeight": "normal",
+                },
+                Object {},
+              ]
+            }
+          >
+            
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+  <View
+    style={
+      Object {
+        "alignContent": "center",
+        "backgroundColor": "white",
+        "borderTopLeftRadius": 20,
+        "borderTopRightRadius": 20,
+        "flex": 1,
+        "flexDirection": "column",
+        "flexGrow": 100,
+      }
+    }
+  >
+    <Text
+      style={
+        Object {
+          "alignSelf": "center",
+          "color": "gray",
+          "marginTop": 15,
+        }
+      }
+    >
+      last seen today at 10:33
+    </Text>
+    <View
+      style={
+        Object {
+          "alignSelf": "center",
+          "borderRadius": 100,
+          "borderWidth": 1,
+          "height": 200,
+          "justifyContent": "center",
+          "marginBottom": 30,
+          "marginTop": 50,
+          "overflow": "hidden",
+          "width": 200,
+        }
+      }
+    >
+      <Text>
+        Image not found
+      </Text>
+    </View>
+    <Text
+      style={
+        Object {
+          "alignSelf": "center",
+          "color": "gray",
+          "marginBottom": 10,
+        }
+      }
+    >
+      Andy
+    </Text>
+    <Text
+      style={
+        Object {
+          "alignSelf": "center",
+          "color": "gray",
+          "marginBottom": 10,
+        }
+      }
+    >
+      Info
+    </Text>
+    <Text
+      style={
+        Object {
+          "alignSelf": "flex-start",
+          "color": "gray",
+          "marginLeft": 50,
+          "marginTop": 10,
+        }
+      }
+    >
+      Your fixes with Andy:
+    </Text>
+    <View>
+      <RCTScrollView
+        data={Array []}
+        disableVirtualization={false}
+        getItem={[Function]}
+        getItemCount={[Function]}
+        horizontal={false}
+        initialNumToRender={10}
+        keyExtractor={[Function]}
+        maxToRenderPerBatch={10}
+        nestedScrollEnabled={true}
+        onContentSizeChange={[Function]}
+        onEndReachedThreshold={2}
+        onLayout={[Function]}
+        onMomentumScrollEnd={[Function]}
+        onScroll={[Function]}
+        onScrollBeginDrag={[Function]}
+        onScrollEndDrag={[Function]}
+        removeClippedSubviews={false}
+        renderItem={[Function]}
+        scrollEventThrottle={50}
+        stickyHeaderIndices={Array []}
+        updateCellsBatchingPeriod={50}
+        viewabilityConfigCallbackPairs={Array []}
+        windowSize={21}
+      >
+        <View />
+      </RCTScrollView>
+    </View>
+  </View>
+</RNCSafeAreaView>
+`;

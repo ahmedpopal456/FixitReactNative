@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Step Indicator renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "backgroundColor": "#fff",
+      "borderTopLeftRadius": 12,
+      "borderTopRightRadius": 12,
+      "flex": 1,
+      "flexDirection": "row",
+      "height": 20,
+      "left": 0,
+      "padding": 10,
+      "paddingLeft": 18,
+      "paddingRight": 18,
+      "position": "absolute",
+      "right": 0,
+      "top": 0,
+    }
+  }
+>
+  <View
+    style={
+      Object {
+        "backgroundColor": "#FFD14A",
+        "flexGrow": 1,
+        "height": 2,
+        "margin": 2,
+      }
+    }
+  />
+  <View
+    style={
+      Object {
+        "backgroundColor": "#8B8B8B",
+        "flexGrow": 1,
+        "height": 2,
+        "margin": 2,
+      }
+    }
+  />
+  <View
+    style={
+      Object {
+        "backgroundColor": "#8B8B8B",
+        "flexGrow": 1,
+        "height": 2,
+        "margin": 2,
+      }
+    }
+  />
+</View>
+`;
