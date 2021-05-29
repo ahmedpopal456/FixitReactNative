@@ -11,9 +11,9 @@ import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import { Rating } from 'react-native-ratings';
 import { ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
-import bgImage from '../assets/background-right.png';
-import image from '../assets/bedroom.jpg';
-import Calendar from '../components/calendar';
+import bgImage from '../common/assets/background-right.png';
+import Calendar from '../components/calendar/calendar';
+import image from '../common/assets/bedroom.jpg';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
 const ratingsService = new RatingsService(new ConfigFactory(), store);
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
   },
   bodyContainer: {
     flex: 1,
@@ -63,22 +63,22 @@ const styles = StyleSheet.create({
 });
 
 class HomeScreenCraftsman extends React.Component
-<any, {
-  fixSelected: boolean,
-  showPending: boolean,
-  showProgress: boolean,
-  showReview: boolean,
-  showCompleted: boolean,
-  showTerminated: boolean,
-  newFixes: Array<FixesModel>,
-  pendingFixes: Array<FixesModel>,
-  inProgressFixes: Array<FixesModel>,
-  inReviewFixes: Array<FixesModel>,
-  completedFixes: Array<FixesModel>,
-  terminatedFixes: Array<FixesModel>,
-  suggestedTags:any,
-  averageRating:number
-}> {
+  <any, {
+    fixSelected: boolean,
+    showPending: boolean,
+    showProgress: boolean,
+    showReview: boolean,
+    showCompleted: boolean,
+    showTerminated: boolean,
+    newFixes: Array<FixesModel>,
+    pendingFixes: Array<FixesModel>,
+    inProgressFixes: Array<FixesModel>,
+    inReviewFixes: Array<FixesModel>,
+    completedFixes: Array<FixesModel>,
+    terminatedFixes: Array<FixesModel>,
+    suggestedTags: any,
+    averageRating: number
+  }> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -132,199 +132,226 @@ class HomeScreenCraftsman extends React.Component
       });
   }
 
-renderOngoingFixes = ({ item }: any): JSX.Element => (
-  <View style={styles.fixContainer}>
-    <View style={{ padding: 10 }}>
-      <DonutChart
-        value={75}
-        radius={50}
-        strokeWidth={7}
-        color='yellow'
-        textColor='dark'
-      />
-    </View>
-    <View style={{ width: 200, paddingVertical: 5, margin: 7 }}>
-      <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-        <Text style={{ color: '#8B8B8B' }}>Started {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()} for </Text>
-        <Text style={{ color: '#8B8B8B', textDecorationLine: 'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
+  renderPendingFixItems = ({ item }: any): JSX.Element => (
+    <View style={styles.fixContainer}>
+      <View style={{ padding: 10 }}>
+        <DonutChart
+          value={75}
+          radius={50}
+          strokeWidth={7}
+          color='yellow'
+          textColor='dark'
+        />
       </View>
-
-      <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
-        screen: 'FixOverview',
-        params: { fix: item },
-      })}>
-        <View style={styles.detail}>
-          <Text style={{ color: '#FFD14A', alignSelf: 'center', marginTop: 3 }}>See Details</Text>
+      <View style={{ width: 200, paddingVertical: 5, margin: 7 }}>
+        <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+          <Text
+            style={{ color: '#8B8B8B' }}>
+              Started {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()} for
+          </Text>
+          <Text
+            style={{ color: '#8B8B8B', textDecorationLine: 'underline' }}>
+            {item.createdByClient.firstName} {item.createdByClient.lastName}
+          </Text>
         </View>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
 
-renderFixRequests = ({ item }: any): JSX.Element => (
-  <View style={styles.fixContainer}>
-    <View>
-      <ImageBackground
-        source={image}
-        imageStyle={{
-          borderTopLeftRadius: 10,
-          borderBottomLeftRadius: 10,
-        }}
-        style={{
-          width: 120,
-          height: 141,
-          justifyContent: 'flex-start',
-        }}
-      />
-    </View>
-    <View style={{ width: 200, paddingVertical: 5, margin: 7 }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.details[0].name}</Text>
-      <Text >
-        {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()}
-        -
-        {new Date(item.schedule[0].endTimestampUtc * 1000).toDateString()}</Text>
-      <Text style={{ color: '#8B8B8B', textDecorationLine: 'underline' }}>{item.createdByClient.firstName} {item.createdByClient.lastName}</Text>
-      <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
-        screen: 'FixOverview',
-        params: { fix: item },
-      })}>
-        <View style={styles.detail}>
-          <Text style={{ color: '#FFD14A', alignSelf: 'center', marginTop: 3 }}>See Details</Text>
-        </View>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
-render() {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.topContainer}>
-        <View style={{ flexDirection: 'column' }}>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={{ flexDirection: 'column' }}>
-              <Text style={{
-                marginTop: 15, marginLeft: 15, marginRight: 262, fontSize: 15,
-              }}>Hello,</Text>
-              <View style={{ flexDirection: 'row' }}>
-                <Text style={{ marginLeft: 15, fontSize: 25, fontWeight: 'bold' }}>{this.props.firstName}</Text>
-                <TouchableOpacity onPress={() => this.props.navigation.navigate('Ratings')}>
-                  <Rating
-                    style={{ marginLeft: 15, marginTop: 10 }}
-                    type='custom'
-                    ratingColor={'white'}
-                    ratingBackgroundColor={'gray'}
-                    tintColor={'#FFD14A'}
-                    readonly={true}
-                    startingValue={this.state.averageRating}
-                    ratingCount={5}
-                    imageSize={20}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <NotificationBell
-              notifications={this.props.unseenNotificationsNumber}
-              onPress={() => this.props.navigation.navigate('Notifications')}
-            />
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
+          screen: 'FixOverview',
+          params: { fix: item },
+        })}>
+          <View style={styles.detail}>
+            <Text style={{ color: '#FFD14A', alignSelf: 'center', marginTop: 3 }}>See Details</Text>
           </View>
-
-          <View style={{ flexDirection: 'row' }}>
-
-          </View>
-        </View>
+        </TouchableOpacity>
       </View>
-      <View style={styles.bodyContainer}>
+    </View>
+  );
+
+  renderFixRequestItems = ({ item }: any): JSX.Element => (
+    <View style={styles.fixContainer}>
+      <View>
         <ImageBackground
-          source={bgImage}
+          source={image}
           imageStyle={{
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
+            borderTopLeftRadius: 10,
+            borderBottomLeftRadius: 10,
           }}
           style={{
-            width: '100%',
-            height: '100%',
-            flex: 1,
-            flexGrow: 100,
+            width: 120,
+            height: 141,
+            justifyContent: 'flex-start',
           }}
-        >
-          <ScrollView>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={{ marginTop: 15, marginLeft: 15 }}>Your Fix Requests</Text>
-              <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
-                screen: 'Fixes',
-              })}>
-                <Text style={{ marginTop: 15, marginLeft: 195, color: 'grey' }}>See All</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={{ marginLeft: 15, marginRight: 15 }}>
-              {/* body of each section */}
-              <SwiperFlatList
-                style={{ marginBottom: 25 }}
-                showPagination
-                paginationActiveColor='black'
-                paginationStyleItem={styles.pagination}
-                nestedScrollEnabled={true}
-                data={this.state.newFixes}
-                renderItem={this.renderFixRequests}
-                keyExtractor={(item:any) => item.id}
-              />
-            </View>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={{ marginTop: 15, marginLeft: 15 }}>Your Ongoing Fixes</Text>
-              <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
-                screen: 'Fixes',
-              })}>
-                <Text style={{ marginTop: 15, marginLeft: 195, color: 'grey' }}>See All</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ marginLeft: 15, marginRight: 15 }}>
-              {/* body of each section */}
-              <SwiperFlatList
-                style={{ marginBottom: 25 }}
-                showPagination
-                paginationActiveColor='black'
-                paginationStyleItem={styles.pagination}
-                nestedScrollEnabled={true}
-                data={this.state.pendingFixes}
-                renderItem={this.renderOngoingFixes}
-                keyExtractor={(item:any) => item.id}
-              />
-            </View>
-            <Text style={{ marginLeft: 15 }}>Your Availabilities</Text>
-            <View style={{ margin: 15 }}>
-              <Calendar
-                startDate={new Date(1617823188 * 1000)}
-                endDate = {new Date(1619551189 * 1000)}
-                canUpdate={false}
-              />
-            </View>
-            <Text style={{ marginLeft: 15, marginTop: 15 }}>Your Tags</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 15 }}>
-              {this.state.suggestedTags.map((tag: any) => (tag ? (
-                <View
-                  key={tag}
-                  style={{
-                    flexGrow: 0,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Tag backgroundColor={'dark'} textColor={'light'}>
-                    {tag}
-                  </Tag>
-                </View>
-              ) : null))}
-            </View>
-          </ScrollView>
-        </ImageBackground>
+        />
       </View>
-    </SafeAreaView>
-  );
-}
+      <View style={{ width: 200, paddingVertical: 5, margin: 7 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.details[0].name}</Text>
+        <Text >
+          {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()}
+           - {new Date(item.schedule[0].endTimestampUtc * 1000).toDateString()}
+        </Text>
+        <Text
+          style={{ color: '#8B8B8B', textDecorationLine: 'underline' }}>
+          {item.createdByClient.firstName} {item.createdByClient.lastName}
+        </Text>
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
+          screen: 'FixOverview',
+          params: { fix: item },
+        })}>
+          <View style={styles.detail}>
+            <Text style={{ color: '#FFD14A', alignSelf: 'center', marginTop: 3 }}>See Details</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>);
+
+  renderPendingFixRequests() {
+    if (this.state.pendingFixes.length > 0) {
+      return (
+        <View>
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={{ marginTop: 15, marginLeft: 15 }}>Your Ongoing Fixes</Text>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
+              screen: 'Fixes',
+            })}>
+              <Text style={{ marginTop: 15, marginLeft: 195, color: 'grey' }}>See All</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ marginLeft: 15, marginRight: 15 }}>
+            {/* body of each section */}
+            <SwiperFlatList
+              style={{ marginBottom: 25 }}
+              showPagination
+              paginationActiveColor='black'
+              paginationStyleItem={styles.pagination}
+              nestedScrollEnabled={true}
+              data={this.state.pendingFixes}
+              renderItem={this.renderPendingFixItems}
+              keyExtractor={(item: any) => item.id}
+            />
+          </View>
+        </View>);
+    }
+
+    return null;
+  }
+
+  renderFixRequests() {
+    if (this.state.newFixes.length > 0) {
+      return (
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ marginTop: 15, marginLeft: 15 }}>Your Fix Requests</Text>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
+            screen: 'Fixes',
+          })}>
+            <Text style={{ marginTop: 15, marginLeft: 195, color: 'grey' }}>See All</Text>
+          </TouchableOpacity>
+          <View style={{ marginLeft: 15, marginRight: 15 }}>
+            {/* body of each section */}
+            <SwiperFlatList
+              style={{ marginBottom: 25 }}
+              showPagination
+              paginationActiveColor='black'
+              paginationStyleItem={styles.pagination}
+              nestedScrollEnabled={true}
+              data={this.state.newFixes}
+              renderItem={this.renderFixRequestItems}
+              keyExtractor={(item: any) => item.id}
+            />
+          </View>
+        </View>);
+    }
+
+    return null;
+  }
+
+  render() {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.topContainer}>
+          <View style={{ flexDirection: 'column' }}>
+            <View style={{ flexDirection: 'row' }}>
+              <View>
+                <Text style={{
+                  marginTop: 15, marginLeft: 15, marginRight: 262, fontSize: 15,
+                }}>Hello,</Text>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={{ marginLeft: 15, fontSize: 25, fontWeight: 'bold' }}>{this.props.firstName}</Text>
+                  <TouchableOpacity onPress={() => this.props.navigation.navigate('Ratings')}>
+                    <Rating
+                      style={{ marginLeft: 15, marginTop: 10 }}
+                      type='custom'
+                      ratingColor={'white'}
+                      ratingBackgroundColor={'gray'}
+                      tintColor={'#FFD14A'}
+                      readonly={true}
+                      startingValue={this.state.averageRating}
+                      ratingCount={5}
+                      imageSize={20}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <NotificationBell
+                notifications={this.props.unseenNotificationsNumber}
+                onPress={() => this.props.navigation.navigate('Notifications')}
+              />
+            </View>
+          </View>
+        </View>
+        <View style={styles.bodyContainer}>
+          <ImageBackground
+            source={bgImage}
+            imageStyle={{
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              flex: 1,
+              flexGrow: 100,
+            }}
+          >
+            <ScrollView>
+
+              {this.renderFixRequests()}
+
+              {this.renderPendingFixRequests()}
+
+              <Text style={{ marginLeft: 15 }}>Your Availabilities</Text>
+              <View style={{ margin: 15 }}>
+                <Calendar
+                  startDate={new Date(1617823188 * 1000)}
+                  endDate={new Date(1619551189 * 1000)}
+                  canUpdate={false}
+                />
+              </View>
+              <Text style={{ marginLeft: 15, marginTop: 15 }}>Your Tags</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 15 }}>
+                {this.state.suggestedTags.map((tag: any) => (tag ? (
+                  <View
+                    key={tag}
+                    style={{
+                      flexGrow: 0,
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Tag backgroundColor={'dark'} textColor={'light'}>
+                      {tag}
+                    </Tag>
+                  </View>
+                ) : null))}
+              </View>
+            </ScrollView>
+          </ImageBackground>
+        </View>
+      </SafeAreaView>
+    );
+  }
 }
 
 function mapStateToProps(state: PersistentState) {

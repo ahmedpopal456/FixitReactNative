@@ -9,9 +9,9 @@ import {
   rootContext,
   persistentStore,
 } from 'fixit-common-data-store';
-import AppStackNavigator from './navigators/appStackNavigator';
+import RootStackNavigator from './core/navigators/rootStackNavigator';
 import SplashScreen from './screens/splashScreen';
-import NotificationDispatcher from './components/notifications/NotificationDispatcher';
+import NotificationRenderer from './components/notifications/notificationRenderer';
 
 const App = (): JSX.Element => {
   const navigationRef = React.useRef(null);
@@ -24,12 +24,11 @@ const App = (): JSX.Element => {
           persistor={persistentStorePersistor}>
           <NavigationContainer ref={navigationRef}>
             <StatusBar />
-            <AppStackNavigator />
-            <NotificationDispatcher navRef={navigationRef}/>
+            <NotificationRenderer navRef={navigationRef}/>
+            <RootStackNavigator />
           </NavigationContainer>
         </PersistGate>
       </Provider>
-    </Provider>
-  );
+    </Provider>);
 };
 export default App;

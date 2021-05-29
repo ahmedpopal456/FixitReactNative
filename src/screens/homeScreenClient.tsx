@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Text, View, StyleSheet, ScrollView, SafeAreaView, Image, TouchableOpacity,
+  Text, View, ScrollView, Image, TouchableOpacity,
 } from 'react-native';
 import {
   PersistentState, connect,

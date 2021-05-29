@@ -10,7 +10,7 @@ import {
   ConfigFactory, FixesService, RatingsService, store,
 } from 'fixit-common-data-store';
 import { StackActions } from '@react-navigation/native';
-import { NotificationProps } from '../../models/notifications/NotificationProps';
+import { NotificationProps } from '../../common/models/notifications/notificationProps';
 
 const ratingsService = new RatingsService(new ConfigFactory(), store);
 

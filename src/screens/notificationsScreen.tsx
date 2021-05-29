@@ -7,10 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   persistentStore, persistentActions, PersistentState, connect, NotificationModel,
 } from 'fixit-common-data-store';
-import { Rating } from 'react-native-ratings';
-import NotificationActions from '../models/notifications/notificationActionsEnum';
-import notificationHandler from '../handlers/notificationHandler';
-import defaultProfilePic from '../assets/defaultProfileIcon.png';
+import NotificationHandler from '../core/handlers/notificationHandler';
+import defaultProfilePic from '../common/assets/defaultProfileIcon.png';
 
 const styles = StyleSheet.create({
   container: {
@@ -59,8 +57,7 @@ const styles = StyleSheet.create({
   },
 });
 
-class NotificationsScreen extends React.Component
-<any> {
+class NotificationsScreen extends React.Component<any> {
   onPressNotification = (item: any) => {
     const notifications: NotificationModel[] = [...this.props.notifications];
     const index = notifications.findIndex((el) => el.messageId === item.messageId);
@@ -71,13 +68,14 @@ class NotificationsScreen extends React.Component
         { notifications }, this.props.unseenNotificationsNumber - 1,
       ));
     }
-    var action = item?.data?.action;
-    if (action == 'NewMessage' || action == 'NewConversation') {
+    const action = item?.data?.action;
+    if (action === 'NewMessage' || action === 'NewConversation') {
       this.props.navigation.navigate('Chat');
     } else {
       this.props.navigation.navigate('Home');
     }
-    notificationHandler.getInstance().displayNotification(item);
+
+    NotificationHandler.getInstance().displayNotification(item);
   };
 
   renderItem = ({ item }: any) : JSX.Element => (

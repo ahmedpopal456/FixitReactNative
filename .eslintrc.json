@@ -15,6 +15,7 @@
       "sourceType": "module"
     },
     "rules": {
+      "max-len": ["error", { "code": 120 }],
       "quotes": ["error", "single"],
       "semi": ["error", "always"],
       "indent": ["error", 2, { "SwitchCase": 1 }],

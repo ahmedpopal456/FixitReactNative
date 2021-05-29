@@ -47,7 +47,7 @@
   },
   "include": [
     "./src/**/*"
-  ],
+, "src/features/userprofile/navigators/profileStackNavigator.tsx"  ],
   "exclude": [
     "node_modules", "babel.config.js", "metro.config.js", "jest.config.js"
   ]

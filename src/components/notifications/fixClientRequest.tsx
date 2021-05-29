@@ -6,11 +6,10 @@ import {
   Button, colors, H1, Icon,
 } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
-import base64 from 'react-native-base64';
 import { ConfigFactory, FixesService, store } from 'fixit-common-data-store';
 import { StackActions } from '@react-navigation/native';
-import { NotificationProps } from '../../models/notifications/NotificationProps';
-import UserRatingSlider from '../userRatingSlider';
+import { NotificationProps } from '../../common/models/notifications/notificationProps';
+import RatingsSlider from '../ratings/ratingsSlider';
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -157,7 +156,7 @@ export default class FixClientRequest extends React.Component<NotificationProps>
               <Text style={styles.modalText}>
                 {this.state.clientName}
               </Text>
-              <UserRatingSlider score={95} />
+              <RatingsSlider score={95} />
               <Text style={styles.smallerTitle}>
                 Expected Delivery Date
               </Text>

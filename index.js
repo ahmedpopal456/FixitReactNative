@@ -4,17 +4,16 @@ import React from 'react';
 import messaging from '@react-native-firebase/messaging';
 import App from './src/App';
 import { name as appName } from './app.json';
-import NotificationHandler from './src/handlers/notificationHandler';
+import NotificationHandler from './src/core/handlers/notificationHandler';
 
-const notificationHandler = NotificationHandler.getInstance();
+const notificationSetup = NotificationHandler.getInstance();
 
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-  notificationHandler.onBackgroundNotification(remoteMessage);
+  // TODO: Add BackgroundMessageHandler
 });
 
 const HeadlessCheck = ({ isHeadless }) => {
   if (isHeadless) {
-    // App has been launched in the background by iOS, ignore
     return null;
   }
 
