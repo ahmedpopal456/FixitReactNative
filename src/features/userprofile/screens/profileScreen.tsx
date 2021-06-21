@@ -5,9 +5,8 @@ import {
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, ProfileService, ConfigFactory, PersistentState, connect,
+  store, ProfileService, ConfigFactory, connect, StoreState, AddressModel,
 } from 'fixit-common-data-store';
-import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
 import defaultProfilePic from '../../../common/assets/defaultProfileIcon.png';
 
 interface ProfileScreenState {
@@ -151,13 +150,13 @@ class ProfileScreen extends React.Component<any, ProfileScreenState> {
   }
 }
 
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
     userId: state.user.userId,
     firstName: state.user.firstName,
     lastName: state.user.lastName,
     email: state.user.email,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

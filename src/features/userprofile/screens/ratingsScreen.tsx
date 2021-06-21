@@ -11,9 +11,8 @@ import {
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, RatingsService, ConfigFactory, connect, PersistentState,
+  store, RatingsService, ConfigFactory, connect, UserSummaryModel, StoreState, RatingsModel,
 } from 'fixit-common-data-store';
-import { RatingsOfUserModel } from 'fixit-common-data-store/src/models/ratings/ratingsModel';
 import { Rating } from 'react-native-ratings';
 import defaultProfilePic from '../../../common/assets/defaultProfileIcon.png';
 
@@ -71,12 +70,7 @@ const styles = StyleSheet.create({
 });
 
 class RatingsScreen extends React.Component
-<any, {
-  ratingsId: string;
-  averageRating: number;
-  ratings: [];
-  ratingsOfUser: RatingsOfUserModel,
-}> {
+<any, RatingsModel> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -92,10 +86,11 @@ class RatingsScreen extends React.Component
       this.props.userId,
     );
     this.setState({
-      ratingsId: response.ratings.id,
-      averageRating: response.ratings.averageRating,
-      ratings: response.ratings.ratings,
-      ratingsOfUser: response.ratings.ratingsOfUser,
+      // TODO: this is probably not good
+      ratingsId: response.ratingsId,
+      averageRating: response.averageRating,
+      ratings: response.ratings,
+      ratingsOfUser: response.ratingsOfUser,
     });
   }
 
@@ -163,12 +158,12 @@ class RatingsScreen extends React.Component
   }
 }
 
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
     userId: state.user.userId,
     firstName: state.user.firstName,
     lastName: state.user.lastName,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   H2, H3, P, Spacer, Divider,
 } from 'fixit-common-ui';
 import { TouchableOpacity, View, Text } from 'react-native';
 import {
-  connect, fixRequestActions, store, StoreState, rootContext,
+  connect, fixRequestActions, store, StoreState,
 } from 'fixit-common-data-store';
 
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -74,7 +74,7 @@ class FixRequestImagesLocationStep extends
                 <Spacer height="5px" />
                 <FormTextInput
                   onChange={
-                    (text : string) => store.dispatch(fixRequestActions.setFixAddress(text))
+                    (text : string) => store.dispatch(fixRequestActions.setFixRequestAddress({ address: text }))
                   }
                   value={this.props.fixAddress} />
                 <Spacer height="20px" />
@@ -82,7 +82,7 @@ class FixRequestImagesLocationStep extends
                 <Spacer height="5px" />
                 <FormTextInput
                   onChange={
-                    (text : string) => store.dispatch(fixRequestActions.setFixCity(text))
+                    (text : string) => store.dispatch(fixRequestActions.setFixRequestCity({ city: text }))
                   }
                   value={this.props.fixCity} />
                 <Spacer height="20px" />
@@ -98,7 +98,7 @@ class FixRequestImagesLocationStep extends
                     <Spacer height="5px" />
                     <FormTextInput
                       onChange={
-                        (text : string) => store.dispatch(fixRequestActions.setFixProvince(text))
+                        (text : string) => store.dispatch(fixRequestActions.setFixRequestProvince({ province: text }))
                       }
                       value={this.props.fixProvince} />
                   </View>
@@ -110,7 +110,9 @@ class FixRequestImagesLocationStep extends
                     <Spacer height="5px" />
                     <FormTextInput
                       onChange={
-                        (text : string) => store.dispatch(fixRequestActions.setFixPostalCode(text))
+                        (text : string) => store.dispatch(
+                          fixRequestActions.setFixRequestPostalCode({ postalCode: text }),
+                        )
                       }
                       value={this.props.fixPostalCode} />
                   </View>
@@ -128,17 +130,13 @@ class FixRequestImagesLocationStep extends
 
 function mapStateToProps(state : StoreState) {
   return {
-    fixAddress: state.fixRequest.fixRequestObj.Location.Address,
-    fixCity: state.fixRequest.fixRequestObj.Location.City,
-    fixProvince: state.fixRequest.fixRequestObj.Location.Province,
-    fixPostalCode: state.fixRequest.fixRequestObj.Location.PostalCode,
+    fixAddress: state.fixRequest.fixRequestObj.location.address,
+    fixCity: state.fixRequest.fixRequestObj.location.city,
+    fixProvince: state.fixRequest.fixRequestObj.location.province,
+    fixPostalCode: state.fixRequest.fixRequestObj.location.postalCode,
     numberOfSteps: state.fixRequest.numberOfSteps,
     fixStepsDynamicRoutes: state.fixRequest.fixStepsDynamicRoutes,
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixRequestImagesLocationStep);
+export default connect(mapStateToProps)(FixRequestImagesLocationStep);

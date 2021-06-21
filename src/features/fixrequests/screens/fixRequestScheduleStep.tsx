@@ -6,7 +6,7 @@ import {
 } from 'fixit-common-ui';
 import { View } from 'react-native';
 import {
-  connect, fixRequestActions, store, StoreState, rootContext, FixRequestObjModel,
+  connect, fixRequestActions, store, StoreState, FixRequestModel,
 } from 'fixit-common-data-store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
@@ -28,7 +28,7 @@ export type FixRequestScheduleStepProps = {
   navigation: FixRequestScheduleStepNavigationProps,
   clientMinEstimatedCost: string,
   clientMaxEstimatedCost: string,
-  fixRequestObj: FixRequestObjModel,
+  fixRequestObj: FixRequestModel,
   fixStepsDynamicRoutes: {
     key:string,
   }[],
@@ -58,10 +58,10 @@ class FixRequestScheduleStep extends
                 <H2 style={FixRequestStyles.titleWithAction}>Availability</H2>
                 <Calendar
                   startDate={
-                    new Date(this.props.fixRequestObj.Schedule[0].StartTimestampUtc * 1000)
+                    new Date(this.props.fixRequestObj.schedule[0].startTimestampUtc * 1000)
                   }
                   endDate={
-                    new Date(this.props.fixRequestObj.Schedule[0].EndTimestampUtc * 1000)
+                    new Date(this.props.fixRequestObj.schedule[0].endTimestampUtc * 1000)
                   }
                   canUpdate={true}/>
                 <Spacer height="40px" />
@@ -89,7 +89,9 @@ class FixRequestScheduleStep extends
                       padLeft
                       onChange={
                         (cost : string) => store
-                          .dispatch(fixRequestActions.setClientMinEstimatedCost(parseInt(cost, 10)))
+                          .dispatch(
+                            fixRequestActions.setFixRequestClientMinEstimatedCost({ minimumCost: parseInt(cost, 10) }),
+                          )
                       }
                       value={(this.props.clientMinEstimatedCost === '0') ? '' : this.props.clientMinEstimatedCost} />
                     <Icon library="FontAwesome5" name="dollar-sign" color={'dark'} size={20} style={{
@@ -114,7 +116,9 @@ class FixRequestScheduleStep extends
                       padLeft
                       onChange={
                         (cost : string) => store
-                          .dispatch(fixRequestActions.setClientMaxEstimatedCost(parseInt(cost, 10)))
+                          .dispatch(
+                            fixRequestActions.setFixRequestClientMaxEstimatedCost({ maximumCost: parseInt(cost, 10) }),
+                          )
                       }
                       value={(this.props.clientMaxEstimatedCost === '0') ? '' : this.props.clientMaxEstimatedCost} />
                     <Icon library="FontAwesome5" name="dollar-sign" color={'dark'} size={20} style={{
@@ -136,9 +140,9 @@ class FixRequestScheduleStep extends
 function mapStateToProps(state : StoreState) {
   return {
     clientMinEstimatedCost:
-        state.fixRequest.fixRequestObj.ClientEstimatedCost.MinimumCost.toString(),
+        state.fixRequest.fixRequestObj.clientEstimatedCost.minimumCost.toString(),
     clientMaxEstimatedCost:
-        state.fixRequest.fixRequestObj.ClientEstimatedCost.MaximumCost.toString(),
+        state.fixRequest.fixRequestObj.clientEstimatedCost.maximumCost.toString(),
     fixRequestObj: {
       ...state.fixRequest.fixRequestObj,
     },
@@ -147,8 +151,4 @@ function mapStateToProps(state : StoreState) {
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixRequestScheduleStep);
+export default connect(mapStateToProps)(FixRequestScheduleStep);

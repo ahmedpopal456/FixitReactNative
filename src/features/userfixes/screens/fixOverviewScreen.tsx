@@ -205,7 +205,7 @@ export default class FixOverviewScreen extends React.Component<any, any> {
                 textColor='white'
               />
               <View style={{ flex: 1, margin: 5 }}>
-                <Text style={styles.title}>{this.props.route.params.fix.details[0].name}</Text>
+                <Text style={styles.title}>{this.props.route.params.fix.details.name}</Text>
                 <View style={styles.descriptionContainer}>
                   <Text
                     numberOfLines={this.state.readMore ? 0 : 3}
@@ -213,7 +213,7 @@ export default class FixOverviewScreen extends React.Component<any, any> {
                       displayReadMore: e.nativeEvent.lines.length >= 3,
                     })}
                   >
-                    {this.props.route.params.fix.details[0].description}
+                    {this.props.route.params.fix.details.description}
                   </Text>
                   {this.state.displayReadMore
                     ? <View style={styles.button}>

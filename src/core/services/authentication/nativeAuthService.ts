@@ -1,5 +1,5 @@
 import PublicClientApplication from 'react-native-msal';
-import { persistentStore, persistentActions } from 'fixit-common-data-store';
+import { store, userActions } from 'fixit-common-data-store';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import * as constants from '../constants/authConstants';
@@ -61,20 +61,20 @@ export default class NativeAuthService {
     const decodedAuthToken: {sub: string} = jwtDecode(msalResult.accessToken);
     const userId = decodedAuthToken.sub;
 
-    persistentStore.dispatch(
-      persistentActions.default.setAuthStatus(true, msalResult.accessToken),
+    store.dispatch(
+      userActions.setAuthStatus({ isAuthenticated: true, authToken: msalResult.accessToken }),
     );
     // TODO: Make this api call in FixitCommonDataStore
     axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${userId}/account/profile/summary`)
       .then((response) => {
-        persistentStore.dispatch(persistentActions.default.setUserInfo(
-          response.data.id,
-          response.data.firstName,
-          response.data.lastName,
-          response.data.userPrincipalName,
-          response.data.role,
-          response.data.status,
-        ));
+        store.dispatch(userActions.setUserInfo({
+          userId: response.data.id,
+          firstName: response.data.firstName,
+          lastName: response.data.lastName,
+          email: response.data.userPrincipalName,
+          role: response.data.role,
+          status: response.data.status,
+        }));
       });
     return msalResult;
   }
@@ -97,21 +97,21 @@ export default class NativeAuthService {
 
       const decodedAuthToken: {sub: string} = jwtDecode(msalResult.accessToken);
       const userId = decodedAuthToken.sub;
-      persistentStore.dispatch(
-        persistentActions.default.setAuthStatus(true, msalResult.accessToken),
+      store.dispatch(
+        userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }),
       );
 
       // TODO: Make this api call in FixitCommonDataStore
       axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${userId}/account/profile/summary`)
         .then((response) => {
-          persistentStore.dispatch(persistentActions.default.setUserInfo(
-            response.data.id,
-            response.data.firstName,
-            response.data.lastName,
-            response.data.userPrincipalName,
-            response.data.role,
-            response.data.status,
-          ));
+          store.dispatch(userActions.FETCH_USERINFO_SUCCESS({
+            userId: response.data.id,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+            email: response.data.userPrincipalName,
+            role: response.data.role,
+            status: response.data.status,
+          }));
           return response;
         });
       return msalResult;
@@ -128,7 +128,7 @@ export default class NativeAuthService {
 
   /** Gets a token silently. Will only work if the user is already signed in */
   public acquireTokenSilent(): string {
-    const state = persistentStore.getState();
+    const state = store.getState();
 
     if (this.isSignedIn()) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -141,7 +141,7 @@ export default class NativeAuthService {
   /** Returns true if a user is signed in, false if not */
   // eslint-disable-next-line class-methods-use-this
   public isSignedIn(): boolean {
-    const state = persistentStore.getState();
+    const state = store.getState();
 
     if (state.user.isAuthenticated && state.user.authToken) {
       return true;
@@ -162,8 +162,8 @@ export default class NativeAuthService {
       (account) => this.publicClientApplication.signOut({ ...params, account }),
     );
     await Promise.all(signOutPromises);
-    persistentStore.dispatch(
-      persistentActions.default.setAuthStatus(false, ''),
+    store.dispatch(
+      userActions.setAuthStatus({ isAuthenticated: false, authToken: '' }),
     );
     return true;
   }

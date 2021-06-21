@@ -1,7 +1,6 @@
 import {
-  store,
   notificationActions,
-  persistentStore,
+  store,
   persistentActions,
   NotificationModel,
 } from 'fixit-common-data-store';
@@ -9,9 +8,11 @@ import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messag
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
 import jwtDecode from 'jwt-decode';
-import { DeviceInstallationUpsertRequest } from 'src/common/models/notifications/deviceInstallationUpsertRequest';
+import { IAutoExceptionTelemetry } from '@microsoft/applicationinsights-web';
+import { DeviceInstallationUpsertRequest } from '../../common/models/notifications/DeviceInstallationUpsertRequest';
 import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
+import Logger from '../../logger';
 
 export default class NotificationHandler {
   private static instance: NotificationHandler;
@@ -36,7 +37,7 @@ export default class NotificationHandler {
   public async registerDevice() : Promise<void> {
     const token: any = await messaging().getToken();
     const platform = Platform.OS === 'ios' ? 'apns' : 'fcm';
-    const state = persistentStore.getState();
+    const state = store.getState();
     if (this.isTokenOutdated(token) && state.user.authToken) {
       const decodedAuthToken: {sub: string} = jwtDecode(state.user.authToken);
       const userId = decodedAuthToken.sub;
@@ -53,12 +54,17 @@ export default class NotificationHandler {
       this.notificationService
         .installDevice(deviceInstallationUpsertRequest)
         .then((_) => {
-          persistentStore.dispatch(
+          store.dispatch(
             persistentActions.default.setPushChannelToken(token),
           );
         })
         .catch((err) => {
-          console.error('There was an error installing the device.');
+          Logger.instance.trackException({
+            error: new Error('There was an error installing the device.'),
+            exception: {
+              error: err,
+            } as IAutoExceptionTelemetry,
+          });
         });
     }
   }
@@ -67,14 +73,14 @@ export default class NotificationHandler {
     if (!this.notificationCanBeDisplayed(remoteMessage)) {
       return;
     }
-    store.dispatch(notificationActions.default.displayNotification(remoteMessage));
+    store.dispatch(notificationActions.displayNotification({ messages: [remoteMessage] }));
     const notificationModel : NotificationModel = {
       ...remoteMessage,
       requestSummary: remoteMessage,
       visited: false,
     };
-    const { unseenNotificationsNumber } = persistentStore.getState();
-    const { notifications } = persistentStore.getState().notificationList;
+    const { unseenNotificationsNumber } = store.getState().persist;
+    const { notifications } = store.getState().persist.notificationList;
 
     let isAlreadyInList = false;
     if (notifications) {
@@ -88,7 +94,7 @@ export default class NotificationHandler {
         notifications.unshift(notificationModel);
       }
     }
-    persistentStore.dispatch(persistentActions.default.setNotificationList(
+    store.dispatch(persistentActions.default.setNotificationList(
       { notifications },
       isAlreadyInList ? unseenNotificationsNumber : unseenNotificationsNumber + 1,
     ));
@@ -116,13 +122,17 @@ export default class NotificationHandler {
         }
       })
       .catch((err) => {
-        console.log(err);
+        Logger.instance.trackException({
+          exception: {
+            error: err,
+          } as IAutoExceptionTelemetry,
+        });
       });
   }
 
   private isTokenOutdated = (token: string): boolean => {
-    const state = persistentStore.getState();
-    return token !== state.pushChannelToken;
+    const state = store.getState();
+    return token !== state.persist.pushChannelToken;
   };
 
   public requestUserPermission = async (): Promise<boolean> => {

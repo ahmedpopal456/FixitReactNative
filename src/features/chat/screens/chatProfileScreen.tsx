@@ -101,8 +101,8 @@ export default class ChatProfileScreen extends React.Component<any, ChatProfileS
             : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`
           }
         </Text>
-        <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
-        <Text style={{ color: '#8B8B8B' }}>{item.details[0].category}</Text>
+        <Text style={{ fontWeight: 'bold' }}>{item.details.name}</Text>
+        <Text style={{ color: '#8B8B8B' }}>{item.details.category}</Text>
       </View>
       <View style={styles.arrow}>
         <Icon library='AntDesign' name='arrowright' color='accent' />
@@ -113,12 +113,6 @@ export default class ChatProfileScreen extends React.Component<any, ChatProfileS
   render() : JSX.Element {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.topContainer}>
-          <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
-            <Icon library='AntDesign' name='back' size={30} />
-          </Button>
-          <NotificationBell notifications={0} onPress={() => undefined} />
-        </View>
         <View style={styles.bodyContainer}>
           <Text style={{ alignSelf: 'center', marginTop: 15, color: 'gray' }}>last seen today at 10:33</Text>
           {this.state.profilePictureUrl

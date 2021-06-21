@@ -1,19 +1,24 @@
-import React from 'react';
+/* eslint-disable no-nested-ternary */
+import React, {
+  useEffect, useState, FunctionComponent, lazy, Suspense,
+} from 'react';
+import { useNavigation } from '@react-navigation/native';
 import {
   Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground,
 } from 'react-native';
-import { NotificationBell, DonutChart, Tag } from 'fixit-common-ui';
+import { DonutChart, Tag } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, FixesService, ConfigFactory, FixesModel, PersistentState, connect, RatingsService,
+  store, FixesService, ConfigFactory, StoreState, RatingsService, useSelector,
 } from 'fixit-common-data-store';
-import { SwiperFlatList } from 'react-native-swiper-flatlist';
-import { Rating } from 'react-native-ratings';
-import { ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
+import useAsyncEffect from 'use-async-effect';
+import { ScrollView } from 'react-native-gesture-handler';
+import SwipeableFlatList from '../components/listViews/swipeableFlatList';
 import bgImage from '../common/assets/background-right.png';
 import Calendar from '../components/calendar/calendar';
 import image from '../common/assets/bedroom.jpg';
+import SplashScreen from './splashScreen';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
 const ratingsService = new RatingsService(new ConfigFactory(), store);
@@ -21,13 +26,8 @@ const ratingsService = new RatingsService(new ConfigFactory(), store);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: Dimensions.get('window').height - 95,
     width: '100%',
     backgroundColor: '#FFD14A',
-  },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
   },
   bodyContainer: {
     flex: 1,
@@ -55,67 +55,49 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginTop: 5,
   },
-  pagination: {
-    width: 5,
-    height: 5,
-    marginRight: 1,
+  loadingMessage: {
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    lineHeight: 90,
   },
 });
 
-class HomeScreenCraftsman extends React.Component
-  <any, {
-    fixSelected: boolean,
-    showPending: boolean,
-    showProgress: boolean,
-    showReview: boolean,
-    showCompleted: boolean,
-    showTerminated: boolean,
-    newFixes: Array<FixesModel>,
-    pendingFixes: Array<FixesModel>,
-    inProgressFixes: Array<FixesModel>,
-    inReviewFixes: Array<FixesModel>,
-    completedFixes: Array<FixesModel>,
-    terminatedFixes: Array<FixesModel>,
-    suggestedTags: any,
-    averageRating: number
-  }> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      fixSelected: true,
-      showPending: true,
-      showProgress: true,
-      showReview: true,
-      showCompleted: true,
-      showTerminated: true,
-      newFixes: store.getState().fixes.newFixes,
-      pendingFixes: store.getState().fixes.pendingFixes,
-      inProgressFixes: store.getState().fixes.inProgressFixes,
-      inReviewFixes: store.getState().fixes.inReviewFixes,
-      completedFixes: store.getState().fixes.completedFixes,
-      terminatedFixes: store.getState().fixes.terminatedFixes,
-      averageRating: store.getState().ratings.averageRating,
-      suggestedTags: [''],
-    };
-  }
+interface HomeScreenClientState {
+  fixSelected: boolean,
+  showPending: boolean,
+  showProgress: boolean,
+  showReview: boolean,
+  showCompleted: boolean,
+  showTerminated: boolean,
+  suggestedTags: any,
+  isLoading: boolean
+}
 
-  async componentDidMount() {
-    const newFixResponse = await fixesService.getNewFixes(this.props.userId);
-    const pendingFixResponse = await fixesService.getPendingFixes(this.props.userId);
-    const inProgresFixResponse = await fixesService.getInProgressFixes(this.props.userId);
-    const inReviewFixResponse = await fixesService.getInReviewFixes(this.props.userId);
-    const completedFixResponse = await fixesService.getCompletedFixes(this.props.userId);
-    const terminatedFixResponse = await fixesService.getTerminatedFixes(this.props.userId);
-    const responseRatings = await ratingsService.getUserRatingsAverage(this.props.userId);
-    this.setState({
-      newFixes: newFixResponse,
-      pendingFixes: pendingFixResponse,
-      inProgressFixes: inProgresFixResponse,
-      inReviewFixes: inReviewFixResponse,
-      completedFixes: completedFixResponse,
-      terminatedFixes: terminatedFixResponse,
-      averageRating: responseRatings.ratings.averageRating,
-    });
+const initialState : HomeScreenClientState = {
+  fixSelected: true,
+  showPending: true,
+  showProgress: true,
+  showReview: true,
+  showCompleted: true,
+  showTerminated: true,
+  suggestedTags: [''],
+  isLoading: true,
+};
+
+const HomeScreenCraftsman: FunctionComponent = () => {
+  const navigation = useNavigation();
+
+  const [state, setState] = useState<HomeScreenClientState>(initialState);
+
+  const newFixes = useSelector((storeState: StoreState) => storeState.fixes.newFixesState);
+  const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
+
+  const user = useSelector((storeState:StoreState) => storeState.user);
+
+  useAsyncEffect(async () => {
+    await fixesService.getNewFixes(user.userId);
+    await fixesService.getPendingFixes(user.userId);
+    await ratingsService.getUserRatingsAverage(user.userId);
 
     const suggestedTags = [''];
     axios
@@ -128,11 +110,14 @@ class HomeScreenCraftsman extends React.Component
         if (i > -1) {
           suggestedTags.splice(0, 1);
         }
-        this.setState({ suggestedTags });
+        setState((prevState : HomeScreenClientState) => ({
+          ...prevState,
+          suggestedTags,
+        }));
       });
-  }
+  }, []);
 
-  renderPendingFixItems = ({ item }: any): JSX.Element => (
+  const renderPendingFixItems = ({ item }: any): JSX.Element => (
     <View style={styles.fixContainer}>
       <View style={{ padding: 10 }}>
         <DonutChart
@@ -144,7 +129,7 @@ class HomeScreenCraftsman extends React.Component
         />
       </View>
       <View style={{ width: 200, paddingVertical: 5, margin: 7 }}>
-        <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
+        <Text style={{ fontWeight: 'bold' }}>{item.details.name}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
           <Text
             style={{ color: '#8B8B8B' }}>
@@ -156,7 +141,7 @@ class HomeScreenCraftsman extends React.Component
           </Text>
         </View>
 
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
+        <TouchableOpacity onPress={() => navigation.navigate('Fixes', {
           screen: 'FixOverview',
           params: { fix: item },
         })}>
@@ -168,7 +153,7 @@ class HomeScreenCraftsman extends React.Component
     </View>
   );
 
-  renderFixRequestItems = ({ item }: any): JSX.Element => (
+  const renderFixRequestItems = ({ item }: any): JSX.Element => (
     <View style={styles.fixContainer}>
       <View>
         <ImageBackground
@@ -185,7 +170,7 @@ class HomeScreenCraftsman extends React.Component
         />
       </View>
       <View style={{ width: 200, paddingVertical: 5, margin: 7 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.details[0].name}</Text>
+        <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.details.name}</Text>
         <Text >
           {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()}
            - {new Date(item.schedule[0].endTimestampUtc * 1000).toDateString()}
@@ -194,7 +179,7 @@ class HomeScreenCraftsman extends React.Component
           style={{ color: '#8B8B8B', textDecorationLine: 'underline' }}>
           {item.createdByClient.firstName} {item.createdByClient.lastName}
         </Text>
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
+        <TouchableOpacity onPress={() => navigation.navigate('Fixes', {
           screen: 'FixOverview',
           params: { fix: item },
         })}>
@@ -205,101 +190,28 @@ class HomeScreenCraftsman extends React.Component
       </View>
     </View>);
 
-  renderPendingFixRequests() {
-    if (this.state.pendingFixes.length > 0) {
-      return (
-        <View>
-          <View style={{ flexDirection: 'row' }}>
-            <Text style={{ marginTop: 15, marginLeft: 15 }}>Your Ongoing Fixes</Text>
-            <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
-              screen: 'Fixes',
-            })}>
-              <Text style={{ marginTop: 15, marginLeft: 195, color: 'grey' }}>See All</Text>
-            </TouchableOpacity>
-          </View>
+  const render = () : JSX.Element => {
+    const renderFallback = pendingFixes.isLoading || newFixes.isLoading;
+    const isFixesToShowEmpty = pendingFixes.fixes.length <= 0 && newFixes.fixes.length <= 0;
 
-          <View style={{ marginLeft: 15, marginRight: 15 }}>
-            {/* body of each section */}
-            <SwiperFlatList
-              style={{ marginBottom: 25 }}
-              showPagination
-              paginationActiveColor='black'
-              paginationStyleItem={styles.pagination}
-              nestedScrollEnabled={true}
-              data={this.state.pendingFixes}
-              renderItem={this.renderPendingFixItems}
-              keyExtractor={(item: any) => item.id}
-            />
-          </View>
-        </View>);
-    }
+    const showPendingFixes = (pendingFixes.fixes.length > 0
+      ? <SwipeableFlatList
+        title={'Your Pending Requests'}
+        navigationProps ={{ title: 'Fixes', navigation }}
+        data={pendingFixes.fixes}
+        renderItem={renderPendingFixItems}>
+      </SwipeableFlatList> : null);
 
-    return null;
-  }
+    const showNewFixes = (newFixes.fixes.length > 0
+      ? <SwipeableFlatList
+        title={'Your On-Going Fix Requests'}
+        navigationProps ={{ title: 'Fixes', navigation }}
+        data={newFixes.fixes}
+        renderItem={renderFixRequestItems}>
+      </SwipeableFlatList> : null);
 
-  renderFixRequests() {
-    if (this.state.newFixes.length > 0) {
-      return (
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={{ marginTop: 15, marginLeft: 15 }}>Your Fix Requests</Text>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Fixes', {
-            screen: 'Fixes',
-          })}>
-            <Text style={{ marginTop: 15, marginLeft: 195, color: 'grey' }}>See All</Text>
-          </TouchableOpacity>
-          <View style={{ marginLeft: 15, marginRight: 15 }}>
-            {/* body of each section */}
-            <SwiperFlatList
-              style={{ marginBottom: 25 }}
-              showPagination
-              paginationActiveColor='black'
-              paginationStyleItem={styles.pagination}
-              nestedScrollEnabled={true}
-              data={this.state.newFixes}
-              renderItem={this.renderFixRequestItems}
-              keyExtractor={(item: any) => item.id}
-            />
-          </View>
-        </View>);
-    }
-
-    return null;
-  }
-
-  render() {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.topContainer}>
-          <View style={{ flexDirection: 'column' }}>
-            <View style={{ flexDirection: 'row' }}>
-              <View>
-                <Text style={{
-                  marginTop: 15, marginLeft: 15, marginRight: 262, fontSize: 15,
-                }}>Hello,</Text>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text style={{ marginLeft: 15, fontSize: 25, fontWeight: 'bold' }}>{this.props.firstName}</Text>
-                  <TouchableOpacity onPress={() => this.props.navigation.navigate('Ratings')}>
-                    <Rating
-                      style={{ marginLeft: 15, marginTop: 10 }}
-                      type='custom'
-                      ratingColor={'white'}
-                      ratingBackgroundColor={'gray'}
-                      tintColor={'#FFD14A'}
-                      readonly={true}
-                      startingValue={this.state.averageRating}
-                      ratingCount={5}
-                      imageSize={20}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <NotificationBell
-                notifications={this.props.unseenNotificationsNumber}
-                onPress={() => this.props.navigation.navigate('Notifications')}
-              />
-            </View>
-          </View>
-        </View>
         <View style={styles.bodyContainer}>
           <ImageBackground
             source={bgImage}
@@ -315,11 +227,16 @@ class HomeScreenCraftsman extends React.Component
             }}
           >
             <ScrollView>
-
-              {this.renderFixRequests()}
-
-              {this.renderPendingFixRequests()}
-
+              {renderFallback
+                ? <View style={{ height: 100 }}>
+                  <SplashScreen/>
+                </View> : isFixesToShowEmpty
+                  ? <View style={{ height: 100 }}>
+                    <Text style={styles.loadingMessage}> No fix information available...</Text>
+                  </View> : [
+                    showPendingFixes,
+                    showNewFixes,
+                  ]}
               <Text style={{ marginLeft: 15 }}>Your Availabilities</Text>
               <View style={{ margin: 15 }}>
                 <Calendar
@@ -330,7 +247,7 @@ class HomeScreenCraftsman extends React.Component
               </View>
               <Text style={{ marginLeft: 15, marginTop: 15 }}>Your Tags</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 15 }}>
-                {this.state.suggestedTags.map((tag: any) => (tag ? (
+                {state.suggestedTags.map((tag: any) => (tag ? (
                   <View
                     key={tag}
                     style={{
@@ -349,21 +266,9 @@ class HomeScreenCraftsman extends React.Component
             </ScrollView>
           </ImageBackground>
         </View>
-      </SafeAreaView>
-    );
-  }
-}
-
-function mapStateToProps(state: PersistentState) {
-  return {
-    userId: state.user.userId,
-    firstName: state.user.firstName,
-    lastName: state.user.lastName,
-    role: state.user.role,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+      </SafeAreaView>);
   };
-}
+  return render();
+};
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-export default connect(mapStateToProps)(HomeScreenCraftsman);
+export default HomeScreenCraftsman;

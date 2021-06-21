@@ -6,7 +6,7 @@ import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   store, ProfileService, ConfigFactory,
-  PersistentState, connect, persistentStore, persistentActions,
+  PersistentState, connect, userActions, StoreState,
 } from 'fixit-common-data-store';
 import axios from 'axios';
 
@@ -109,14 +109,14 @@ class SecurityScreen extends React.Component<any, SecurityScreenState > {
         Availability: this.state.availability,
       }, { headers: { 'Content-Type': 'application/json' } });
 
-    persistentStore.dispatch(persistentActions.default.setUserInfo(
-      this.props.userId,
-      this.state.firstName,
-      this.state.lastName,
-      this.props.email,
-      this.props.role,
-      this.props.status,
-    ));
+    store.dispatch(userActions.setUserInfo({
+      userId: this.props.userId,
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      email: this.props.email,
+      role: this.props.role,
+      status: this.props.status,
+    }));
   }
 
   render() : JSX.Element {
@@ -253,7 +253,7 @@ class SecurityScreen extends React.Component<any, SecurityScreenState > {
   }
 }
 
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
     userId: state.user.userId,
     firstName: state.user.firstName,
@@ -261,7 +261,7 @@ function mapStateToProps(state: PersistentState) {
     email: state.user.email,
     role: state.user.role,
     status: state.user.status,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

@@ -1,19 +1,14 @@
 import React from 'react';
 import {
-  SafeAreaView, Text, View, StyleSheet, TouchableOpacity, Image,
+  SafeAreaView, Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
-import { Button, Icon, NotificationBell } from 'fixit-common-ui';
+import { Button, Icon } from 'fixit-common-ui';
 import {
-  store, ProfileService, RatingsService, ConfigFactory, PersistentState, connect,
+  store, connect, StoreState, AddressModel,
 } from 'fixit-common-data-store';
-import { AddressModel } from 'fixit-common-data-store/src/models/profile/profileModel';
-import { Rating } from 'react-native-ratings';
 import NativeAuthService from '../../../core/services/authentication/nativeAuthService';
 import { b2cConfig } from '../../../core/config/msalConfig';
-import defaultProfilePic from '../../../common/assets/defaultProfileIcon.png';
 
-const profileService = new ProfileService(new ConfigFactory(), store);
-const ratingsService = new RatingsService(new ConfigFactory(), store);
 const b2cClient = new NativeAuthService(b2cConfig);
 
 const styles = StyleSheet.create({
@@ -21,25 +16,6 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: '#FFD14A',
-  },
-  imageContainer: {
-    height: 150,
-    paddingTop: 10,
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  ratingContainer: {
-    zIndex: 1,
-    position: 'absolute',
-    top: -15,
-    width: 130,
-    height: 30,
-    backgroundColor: 'white',
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   bodyContainer: {
     backgroundColor: 'white',
@@ -51,7 +27,6 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     overflow: 'scroll',
-    paddingTop: 100,
     width: '95%',
   },
   buttonFirst: {
@@ -94,68 +69,12 @@ const styles = StyleSheet.create({
   },
 });
 
-class AccountScreen extends React.Component
-<any, {
-  firstName: string,
-  lastName: string,
-  address: AddressModel,
-  profilePictureUrl: string,
-  averageRating: number,
-}> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      firstName: store.getState().profile.firstName,
-      lastName: store.getState().profile.lastName,
-      address: store.getState().profile.address,
-      profilePictureUrl: store.getState().profile.profilePictureUrl,
-      averageRating: store.getState().ratings.averageRating,
-    };
-  }
-
-  async componentDidMount() : Promise<void> {
-    const responseProfile = await profileService.getUserProfile(this.props.userId);
-    const responseRatings = await ratingsService.getUserRatingsAverage(this.props.userId);
-    this.setState({
-      firstName: responseProfile.firstName,
-      lastName: responseProfile.lastName,
-      address: responseProfile.address,
-      profilePictureUrl: responseProfile.profilePictureUrl,
-      averageRating: responseRatings.ratings.averageRating,
-    });
-  }
-
+class AccountScreen extends React.Component<any> {
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={{ position: 'absolute', right: 0 }}>
-          <NotificationBell
-            notifications={this.props.unseenNotificationsNumber}
-            // TODO: Extract the navigate string into an enum, same elsewhere
-            onPress={() => this.props.navigation.navigate('Notifications')}
-          />
-        </View>
-        <View style={styles.imageContainer}>
-          {this.state.profilePictureUrl
-            ? <Image source={{ uri: this.state.profilePictureUrl }} style={styles.circle} />
-            : <Image source={defaultProfilePic} style={styles.circle} />
-          }
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{this.props.firstName} {this.props.lastName}</Text>
-        </View>
-
         <View style={styles.bodyContainer}>
-          <View style={styles.ratingContainer}>
-            <Rating
-              type='custom'
-              ratingColor={'#FFD14A'}
-              ratingBackgroundColor={'gray'}
-              tintColor={'white'}
-              readonly={true}
-              startingValue={this.state.averageRating}
-              ratingCount={5}
-              imageSize={23}
-            />
-          </View>
+
           <View style={styles.buttonsContainer}>
             <TouchableOpacity testID='profileBtn' style={styles.buttonFirst}
               onPress={() => this.props.navigation.navigate('Profile')}>
@@ -185,7 +104,7 @@ class AccountScreen extends React.Component
               alignItems: 'center',
               alignContent: 'center',
               alignSelf: 'center',
-              margin: 30,
+              margin: 10,
             }}>
               <Button
                 testID='signOutBtn'
@@ -204,15 +123,4 @@ class AccountScreen extends React.Component
   }
 }
 
-function mapStateToProps(state: PersistentState) {
-  return {
-    userId: state.user.userId,
-    firstName: state.user.firstName,
-    lastName: state.user.lastName,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-export default connect(mapStateToProps)(AccountScreen);
+export default AccountScreen;

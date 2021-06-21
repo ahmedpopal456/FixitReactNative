@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import { DeviceInstallationUpsertRequest } from 'src/common/models/notifications/deviceInstallationUpsertRequest';
+import { DeviceInstallationUpsertRequest } from '../../../common/models/notifications/DeviceInstallationUpsertRequest';
 
 export default class NotificationService {
   private baseUrl: string;

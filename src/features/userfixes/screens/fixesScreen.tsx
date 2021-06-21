@@ -2,10 +2,10 @@ import React from 'react';
 import {
   Text, View, StyleSheet, TouchableOpacity, Dimensions, ScrollView, FlatList, LogBox,
 } from 'react-native';
-import { Button, Icon, NotificationBell } from 'fixit-common-ui';
+import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, FixesService, ConfigFactory, connect, PersistentState, FixesModel,
+  store, FixesService, ConfigFactory, connect, StoreState, FixesModel,
 } from 'fixit-common-data-store';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
@@ -338,8 +338,8 @@ class FixesScreen extends React.Component<any, {
             : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`
           }
         </Text>
-        <Text style={{ fontWeight: 'bold' }}>{item.details[0].name}</Text>
-        <Text style={{ color: '#8B8B8B' }}>{item.details[0].category}</Text>
+        <Text style={{ fontWeight: 'bold' }}>{item.details.name}</Text>
+        <Text style={{ color: '#8B8B8B' }}>{item.details.category}</Text>
       </View>
       <View style={styles.arrow}>
         <Icon library='AntDesign' name='arrowright' color='accent' />
@@ -350,15 +350,6 @@ class FixesScreen extends React.Component<any, {
   render() : JSX.Element {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.topContainer}>
-          <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
-            <Icon library='AntDesign' name='back' size={30} />
-          </Button>
-          <NotificationBell
-            notifications={this.props.unseenNotificationsNumber}
-            onPress={() => this.props.navigation.navigate('Notifications')}
-          />
-        </View>
         <View style={styles.topCycleContainer}>
           <Button // fixSelected = true
             testID='fixesBtn'
@@ -430,10 +421,10 @@ class FixesScreen extends React.Component<any, {
   }
 }
 
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
     userId: state.user.userId,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

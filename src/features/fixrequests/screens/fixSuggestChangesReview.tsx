@@ -5,12 +5,11 @@ import {
 import {
   Button,
   colors,
-  Divider,
   H1,
-  H2, H3, Icon, P, Spacer, Tag,
+  H2, Icon, Spacer,
 } from 'fixit-common-ui';
 import {
-  StoreState, rootContext, connect, persistentStore, FixesModel, FixRequestObjModel,
+  StoreState, connect, FixesModel, FixRequestModel, store,
 } from 'fixit-common-data-store';
 import axios from 'axios';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -28,7 +27,7 @@ type FixSuggestChangesReviewNavigationProps = StackNavigationProp<HomeStackNavig
 export type FixSuggestChangesReviewProps = {
   navigation: FixSuggestChangesReviewNavigationProps;
   passedFix: FixesModel;
-  fixRequestObj: FixRequestObjModel,
+  fixRequestObj: FixRequestModel,
   cost: string,
   comments: string,
 };
@@ -48,9 +47,9 @@ class FixSuggestChangesReview extends
             Id: this.props.passedFix.id,
             AssignedToCraftsman:
               {
-                Id: persistentStore.getState().user.userId,
-                FirstName: persistentStore.getState().user.firstName,
-                LastName: persistentStore.getState().user.lastName,
+                Id: store.getState().user.userId,
+                FirstName: store.getState().user.firstName,
+                LastName: store.getState().user.lastName,
               },
             SystemCalculatedCost: this.props.passedFix.systemCalculatedCost,
             CraftsmanEstimatedCost:
@@ -60,8 +59,8 @@ class FixSuggestChangesReview extends
               },
             Schedule: [
               {
-                startTimestampUtc: this.props.fixRequestObj.Schedule[0].StartTimestampUtc,
-                endTimestampUtc: this.props.fixRequestObj.Schedule[0].EndTimestampUtc,
+                startTimestampUtc: this.props.fixRequestObj.schedule[0].startTimestampUtc,
+                endTimestampUtc: this.props.fixRequestObj.schedule[0].endTimestampUtc,
               },
             ],
             FixCategory: {},
@@ -139,14 +138,14 @@ class FixSuggestChangesReview extends
                     fontSize: 18,
                   }}>
                     {
-                      new Date(this.props.fixRequestObj.Schedule[0].StartTimestampUtc * 1000)
+                      new Date(this.props.fixRequestObj.schedule[0].startTimestampUtc * 1000)
                         .toLocaleDateString('en-US', {
                           month: 'long', day: 'numeric',
                         })
                     }
                   &nbsp;-&nbsp;
                     {
-                      new Date(this.props.fixRequestObj.Schedule[0].EndTimestampUtc * 1000)
+                      new Date(this.props.fixRequestObj.schedule[0].endTimestampUtc * 1000)
                         .toLocaleDateString('en-US', {
                           month: 'long', day: 'numeric',
                         })
@@ -266,8 +265,4 @@ function mapStateToProps(state : StoreState, ownProps : any) {
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixSuggestChangesReview);
+export default connect(mapStateToProps)(FixSuggestChangesReview);

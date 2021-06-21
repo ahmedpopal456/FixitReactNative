@@ -134,14 +134,14 @@ export default class Calendar extends
         const utcTimestamp = Math.floor((item.date).getTime() / 1000);
         if (!this.state.startDate) {
           this.setState({ startDate: item.date });
-          store.dispatch(fixRequestActions.setFixStartDate(utcTimestamp));
+          store.dispatch(fixRequestActions.setFixStartDate({ startTimestamp: utcTimestamp }));
         } else if (!this.state.endDate && item.date > this.state.startDate) {
           this.setState({ endDate: item.date });
-          store.dispatch(fixRequestActions.setFixEndDate(utcTimestamp));
+          store.dispatch(fixRequestActions.setFixEndDate({ endTimestamp: utcTimestamp }));
         } else {
           this.setState({ startDate: item.date, endDate: null });
-          store.dispatch(fixRequestActions.setFixStartDate(utcTimestamp));
-          store.dispatch(fixRequestActions.setFixEndDate(0));
+          store.dispatch(fixRequestActions.setFixStartDate({ startTimestamp: utcTimestamp }));
+          store.dispatch(fixRequestActions.setFixEndDate({ endTimestamp: 0 }));
         }
       }
     };

@@ -3,11 +3,11 @@ import {
   Text, View, StyleSheet, Dimensions, RefreshControl, TouchableOpacity, Alert,
 } from 'react-native';
 import {
-  Avatar, Button, colors, Icon, NotificationBell,
+  Avatar, Button, colors, Icon,
 } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import { PersistentState, persistentStore, connect } from 'fixit-common-data-store';
+import { connect, StoreState, store } from 'fixit-common-data-store';
 import ChatService from '../../../core/services/chat/chatService';
 import { ConversationModel } from '../models/chatModel';
 
@@ -71,7 +71,7 @@ class ChatScreen extends React.Component<any, ChatScreenState> {
       matchedConversations: [],
       refreshing: false,
     };
-    const { userId } = persistentStore.getState().user;
+    const { userId } = store.getState().user;
     this.userId = userId || '';
     this.chatService = new ChatService(this.userId);
   }
@@ -97,8 +97,8 @@ class ChatScreen extends React.Component<any, ChatScreenState> {
     await this.fetchConversations();
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.unseenNotificationsNumber != this.props.unseenNotificationsNumber) {
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.unseenNotificationsNumber !== this.props.unseenNotificationsNumber) {
       this.fetchConversations();
     }
   }
@@ -201,18 +201,6 @@ class ChatScreen extends React.Component<any, ChatScreenState> {
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.topContainer}>
-          <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
-            <Icon library='AntDesign' name='back' size={30} />
-          </Button>
-          <NotificationBell
-            notifications={this.props.unseenNotificationsNumber}
-            onPress={() => this.props.navigation.navigate('Fixes', {
-              screen: 'Notifications',
-            })}
-          />
-        </View>
-        <Text style={styles.title}>Chats</Text>
         <View style = {styles.bodyContainer}>
           <View style= {styles.titleContainer}>
             <Button
@@ -255,12 +243,10 @@ class ChatScreen extends React.Component<any, ChatScreenState> {
   }
 }
 
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 export default connect(mapStateToProps)(ChatScreen);

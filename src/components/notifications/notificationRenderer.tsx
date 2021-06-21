@@ -1,11 +1,10 @@
 import React from 'react';
 import {
   connect,
-  rootContext,
   notificationActions,
+  StoreState,
 } from 'fixit-common-data-store';
-import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-import { NotificationProps } from '../../common/models/notifications/notificationProps';
+import { NotificationProps } from '../../common/models/notifications/NotificationProps';
 import {
   FixClientRequest,
   FixCraftsmanResponse,
@@ -38,19 +37,14 @@ class NotificationRenderer extends React.Component<any> {
   }
 }
 
-const mapStateToProps = (state: {
-  notifications: {messages: FirebaseMessagingTypes.RemoteMessage[]}
-}) => ({
+const mapStateToProps = (state: StoreState) => ({
   messages: state.notifications.messages,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   onDismissNotification: (id: string) => {
-    dispatch(notificationActions.default.dismissNotification(id));
+    dispatch(notificationActions.dismissNotification({ messageId: id }));
   },
 });
 
-// @ts-ignore
-export default connect(mapStateToProps, mapDispatchToProps, null, {
-  context: rootContext,
-})(NotificationRenderer);
+export default connect(mapStateToProps, mapDispatchToProps)(NotificationRenderer);

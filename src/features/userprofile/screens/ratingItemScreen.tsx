@@ -3,7 +3,7 @@ import {
   Text, View, StyleSheet, SafeAreaView, Dimensions, Image,
 } from 'react-native';
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
-import { connect, PersistentState } from 'fixit-common-data-store';
+import { connect, StoreState } from 'fixit-common-data-store';
 import { Rating } from 'react-native-ratings';
 import defaultProfilePic from '../../../common/assets/defaultProfileIcon.png';
 
@@ -107,12 +107,12 @@ const RatingItemScreen = (props: {
   </SafeAreaView>
 );
 
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
     userId: state.user.userId,
     firstName: state.user.firstName,
     lastName: state.user.lastName,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

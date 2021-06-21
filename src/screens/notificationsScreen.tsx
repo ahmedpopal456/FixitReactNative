@@ -5,7 +5,7 @@ import {
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  persistentStore, persistentActions, PersistentState, connect, NotificationModel,
+  persistentActions, connect, NotificationModel, StoreState, store,
 } from 'fixit-common-data-store';
 import NotificationHandler from '../core/handlers/notificationHandler';
 import defaultProfilePic from '../common/assets/defaultProfileIcon.png';
@@ -64,7 +64,7 @@ class NotificationsScreen extends React.Component<any> {
     if (!item.visited) {
       notifications[index] = { ...notifications[index], visited: true };
 
-      persistentStore.dispatch(persistentActions.default.setNotificationList(
+      store.dispatch(persistentActions.default.setNotificationList(
         { notifications }, this.props.unseenNotificationsNumber - 1,
       ));
     }
@@ -118,10 +118,10 @@ class NotificationsScreen extends React.Component<any> {
   }
 }
 
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
-    notifications: state.notificationList.notifications,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    notifications: state.persist.notificationList.notifications,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

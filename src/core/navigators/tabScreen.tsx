@@ -40,9 +40,8 @@ const tabScreen = (props: {name: string, iconName: string, StackNavigator: any})
     name={props.name}
     options={{
       tabBarIcon: ({ focused }) => tabBarIcon(focused, props.iconName),
-    }}
-    component={props.StackNavigator}
-  />
+    }}>{props.StackNavigator}
+  </Tab.Screen>
 );
 
 export default tabScreen;

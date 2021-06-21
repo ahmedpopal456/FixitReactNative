@@ -6,7 +6,7 @@ import {
   H2, H3, Icon, P, Spacer, Tag,
 } from 'fixit-common-ui';
 import {
-  connect, FixRequestService, store, StoreState, rootContext, persistentStore, FixesModel, FixRequestObjModel,
+  connect, FixRequestService, store, StoreState, FixRequestModel, FixesModel,
 } from 'fixit-common-data-store';
 import axios from 'axios';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -27,7 +27,7 @@ type FixRequestReviewNavigationProps = StackNavigationProp<
 
 export type FixRequestReviewProps = {
   navigation: FixRequestReviewNavigationProps;
-  fixRequestObj: FixRequestObjModel;
+  fixRequestObj: FixRequestModel;
   passedFix?: FixesModel;
   isFixCraftsmanResponseNotification?: boolean;
 };
@@ -55,19 +55,19 @@ class FixRequestReview extends
     handleConfirm = () : void => {
       const serv = new FixRequestService(store);
       const fixRequestObj = { ...this.props.fixRequestObj };
-      delete fixRequestObj.Details[0].Unit;
-      const { userId } = persistentStore.getState().user;
-      const { firstName } = persistentStore.getState().user;
-      const { lastName } = persistentStore.getState().user;
-      fixRequestObj.CreatedByClient = {
-        Id: userId,
-        FirstName: firstName || '',
-        LastName: lastName || '',
+      delete fixRequestObj.details.unit;
+      const { userId } = store.getState().user;
+      const { firstName } = store.getState().user;
+      const { lastName } = store.getState().user;
+      fixRequestObj.createdByClient = {
+        id: userId,
+        firstName: firstName || '',
+        lastName: lastName || '',
       };
-      fixRequestObj.UpdatedByUser = {
-        Id: userId,
-        FirstName: firstName || '',
-        LastName: lastName || '',
+      fixRequestObj.updatedByUser = {
+        id: userId,
+        firstName: firstName || '',
+        lastName: lastName || '',
       };
       serv.publishFixRequest(fixRequestObj);
       this.setState({
@@ -134,9 +134,9 @@ class FixRequestReview extends
             ...this.props.passedFix?.craftsmanEstimatedCost,
           },
           UpdatedByUser: {
-            Id: persistentStore.getState().user.userId,
-            FirstName: persistentStore.getState().user.firstName,
-            LastName: persistentStore.getState().user.lastName,
+            Id: store.getState().user.userId,
+            FirstName: store.getState().user.firstName,
+            LastName: store.getState().user.lastName,
           },
         },
       )
@@ -173,8 +173,8 @@ class FixRequestReview extends
                     <H3 style={globalStyles.boldTitle}>Category</H3>
                     <P>{
                       this.props.passedFix
-                        ? this.props.passedFix.details[0].category
-                        : this.props.fixRequestObj.Details[0].Category
+                        ? this.props.passedFix.details.category
+                        : this.props.fixRequestObj.details.category
                     }</P>
                   </View>
                   <View style={{
@@ -183,22 +183,22 @@ class FixRequestReview extends
                     <H3 style={globalStyles.boldTitle}>Type</H3>
                     <P>{
                       this.props.passedFix
-                        ? this.props.passedFix.details[0].type
-                        : this.props.fixRequestObj.Details[0].Type
+                        ? this.props.passedFix.details.type
+                        : this.props.fixRequestObj.details.type
                     }</P>
                   </View>
                 </View>
                 <Divider />
                 <H2>{
                   this.props.passedFix
-                    ? this.props.passedFix.details[0].name
-                    : this.props.fixRequestObj.Details[0].Name
+                    ? this.props.passedFix.details.name
+                    : this.props.fixRequestObj.details.name
                 }</H2>
                 <H3 style={globalStyles.boldTitle}>Job Description</H3>
                 <P>{
                   this.props.passedFix
-                    ? this.props.passedFix.details[0].description
-                    : this.props.fixRequestObj.Details[0].Description
+                    ? this.props.passedFix.details.description
+                    : this.props.fixRequestObj.details.description
                 }</P>
                 <H3 style={globalStyles.boldTitle}>Tags</H3>
                 <View style={{
@@ -219,14 +219,14 @@ class FixRequestReview extends
                           </View>
                           : null
                       ))
-                      : this.props.fixRequestObj.Tags.map((tag:{Name:string}) => (
+                      : this.props.fixRequestObj.tags.map((tag: {name: string}) => (
                         tag
-                          ? <View key={tag.Name} style={{
+                          ? <View key={tag.name} style={{
                             flexGrow: 0,
                             display: 'flex',
                             alignItems: 'center',
                           }}>
-                            <Tag backgroundColor={'accent'} textColor={'dark'}>{tag.Name}</Tag>
+                            <Tag backgroundColor={'accent'} textColor={'dark'}>{tag.name}</Tag>
                           </View>
                           : null
                       ))
@@ -243,12 +243,12 @@ class FixRequestReview extends
                   <P>{
                     this.props.passedFix
                       ? this.props.passedFix.location.address
-                      : this.props.fixRequestObj.Location.Address
+                      : this.props.fixRequestObj.location.address
                   }</P>
                   <P>{
                     this.props.passedFix
                       ? this.props.passedFix.location.city
-                      : this.props.fixRequestObj.Location.City
+                      : this.props.fixRequestObj.location.city
                   }</P>
                 </View>
                 <View style={{
@@ -257,12 +257,12 @@ class FixRequestReview extends
                   <P>{
                     this.props.passedFix
                       ? this.props.passedFix.location.postalCode
-                      : this.props.fixRequestObj.Location.PostalCode
+                      : this.props.fixRequestObj.location.postalCode
                   }</P>
                   <P>{
                     this.props.passedFix
                       ? this.props.passedFix.location.province
-                      : this.props.fixRequestObj.Location.Province
+                      : this.props.fixRequestObj.location.province
                   }</P>
                 </View>
                 <Spacer height={'40px'} />
@@ -272,12 +272,12 @@ class FixRequestReview extends
                   startDate={
                     this.props.passedFix
                       ? new Date(this.props.passedFix.schedule[0].startTimestampUtc * 1000)
-                      : new Date(this.props.fixRequestObj.Schedule[0].StartTimestampUtc * 1000)
+                      : new Date(this.props.fixRequestObj.schedule[0].startTimestampUtc * 1000)
                   }
                   endDate={
                     this.props.passedFix
                       ? new Date(this.props.passedFix.schedule[0].endTimestampUtc * 1000)
-                      : new Date(this.props.fixRequestObj.Schedule[0].EndTimestampUtc * 1000)
+                      : new Date(this.props.fixRequestObj.schedule[0].endTimestampUtc * 1000)
                   }
                   canUpdate={false}/>
                 <Spacer height={'40px'} />
@@ -290,7 +290,7 @@ class FixRequestReview extends
                         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
                       })
                     : new Date(
-                      this.props.fixRequestObj.Schedule[0].EndTimestampUtc * 1000,
+                      this.props.fixRequestObj.schedule[0].endTimestampUtc * 1000,
                     ).toLocaleDateString('en-US', {
                       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
                     })
@@ -329,7 +329,7 @@ class FixRequestReview extends
                         <Text>{
                           this.props.passedFix && this.props.passedFix.clientEstimatedCost
                             ? this.props.passedFix.clientEstimatedCost.minimumCost.toString()
-                            : this.props.fixRequestObj.ClientEstimatedCost.MinimumCost.toString()
+                            : this.props.fixRequestObj.clientEstimatedCost.minimumCost.toString()
                         }</Text>
                         <Text style={{
                           marginLeft: 10,
@@ -346,7 +346,7 @@ class FixRequestReview extends
                         <Text>{
                           this.props.passedFix && this.props.passedFix.clientEstimatedCost
                             ? this.props.passedFix.clientEstimatedCost.maximumCost.toString()
-                            : this.props.fixRequestObj.ClientEstimatedCost.MaximumCost.toString()
+                            : this.props.fixRequestObj.clientEstimatedCost.maximumCost.toString()
                         }</Text>
                       </>
                   }
@@ -562,8 +562,4 @@ function mapStateToProps(state : StoreState, ownProps : any) {
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixRequestReview);
+export default connect(mapStateToProps)(FixRequestReview);

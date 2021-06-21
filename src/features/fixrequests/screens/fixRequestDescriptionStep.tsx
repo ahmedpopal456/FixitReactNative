@@ -6,12 +6,13 @@ import {
   connect,
   fixRequestActions,
   FixRequestService,
-  persistentStore,
-  rootContext,
   store,
   StoreState,
   FixTemplateObjectModel,
-  FixRequestObjModel,
+  FixRequestModel,
+  SectionModel,
+  SectionDetailsModel,
+  TagModel,
 } from 'fixit-common-data-store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FormNextPageArrows, FormTextInput } from '../../../components/forms';
@@ -30,7 +31,7 @@ type FixRequestDescriptionStepNavigationProps = StackNavigationProp<
 export type FixRequestDescriptionStepProps = {
   navigation: FixRequestDescriptionStepNavigationProps;
   fixTemplateId: string,
-  fixRequestObj: FixRequestObjModel,
+  fixRequestObj: FixRequestModel,
   fixStepsDynamicRoutes:{
     key:string,
   }[],
@@ -59,45 +60,32 @@ class FixRequestDescriptionStep extends
     handleContinue = () : void => {
       const serv = new FixRequestService(store);
 
-      const tags : string[] = [];
-      this.props.fixRequestObj.Tags.forEach((tag: { Id?: string, Name: string, }) : void => {
-        tags.push(tag.Name);
+      const tags : Array<TagModel> = [];
+      this.props.fixRequestObj.tags.forEach((tag: { id?: string, name: string, }) : void => {
+        tags.push(tag);
       });
 
-      const sections: {
-          Name:string,
-          Fields:{
-              Name:string,
-              Values:string[],
-          }[]
-      }[] = [];
-      this.props.fixRequestObj.Details[0].Sections.forEach((section:{
-        Name:string,
-        Details:{
-            Name:string,
-            Value:string,
-        }[] }) : void => {
-        const fields : {
-            Name:string,
-            Values:string[],
-          }[] = [];
-        section.Details.forEach((field: {Name:string, Value:string}) : void => {
-          fields.push({ Name: field.Name, Values: [field.Value] });
+      const sections: Array<SectionModel> = [];
+      this.props.fixRequestObj.details.sections.forEach((section: SectionModel) : void => {
+        const fields : Array<SectionDetailsModel> = [];
+        section.details.forEach((sectionDetails: SectionDetailsModel) : void => {
+          fields.push({ name: sectionDetails.name, value: sectionDetails.value });
         });
-        sections.push({ Name: section.Name, Fields: fields });
+        sections.push({ name: section.name, details: fields });
       });
 
       const fixTemplateObject : FixTemplateObjectModel = {
         Status: 'Public',
-        Name: this.props.fixRequestObj.Details[0].Name,
-        WorkTypeId: this.props.fixRequestObj.Details[0].Type,
-        WorkCategoryId: this.props.fixRequestObj.Details[0].Category,
-        FixUnitId: this.props.fixRequestObj.Details[0].Unit,
-        Description: this.props.fixRequestObj.Details[0].Description,
-        CreatedByUserId: persistentStore.getState().user.userId,
-        UpdatedByUserId: persistentStore.getState().user.userId,
+        Name: this.props.fixRequestObj.details.name,
+        WorkTypeId: this.props.fixRequestObj.details.type,
+        WorkCategoryId: this.props.fixRequestObj.details.category,
+        FixUnitId: this.props.fixRequestObj.details.unit,
+        Description: this.props.fixRequestObj.details.description,
+        CreatedByUserId: store.getState().user.userId,
+        UpdatedByUserId: store.getState().user.userId,
         Tags: tags,
-        Sections: sections,
+        // TODO: remove as any
+        Sections: sections as any,
       };
 
       if (this.props.fixTemplateId) {
@@ -110,7 +98,7 @@ class FixRequestDescriptionStep extends
 
     handleAddSection = () : void => {
       store.dispatch(fixRequestActions.setNumberOfSteps(
-        this.props.numberOfSteps + 1,
+        { numberOfSteps: this.props.numberOfSteps + 1 },
       ));
       this.props.navigation.navigate('FixRequestSectionsStep');
     }
@@ -121,7 +109,7 @@ class FixRequestDescriptionStep extends
         onClick: this.handleContinue,
       }];
       if (this.props.fixTemplateId
-      && this.props.fixRequestObj.Details[0].Sections.length > 0
+      && this.props.fixRequestObj.details.sections.length > 0
       && !this.props.fixStepsDynamicRoutes[0]) {
         return [
           ...nextPageOptionsObj,
@@ -168,9 +156,9 @@ class FixRequestDescriptionStep extends
                 <Spacer height="5px" />
                 <FormTextInput big
                   onChange={
-                    (text : string) => store.dispatch(fixRequestActions.setFixDescription(text))
+                    (text : string) => store.dispatch(fixRequestActions.setFixDescription({ description: text }))
                   }
-                  value={this.props.fixRequestObj.Details[0].Description} />
+                  value={this.props.fixRequestObj.details.description} />
               </StyledContentWrapper>
             </StyledScrollView>
           </StyledPageWrapper>
@@ -190,8 +178,4 @@ function mapStateToProps(state : StoreState) {
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixRequestDescriptionStep);
+export default connect(mapStateToProps)(FixRequestDescriptionStep);

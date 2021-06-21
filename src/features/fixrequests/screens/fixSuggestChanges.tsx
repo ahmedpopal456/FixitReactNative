@@ -9,7 +9,7 @@ import {
   H2, Icon, P, Spacer,
 } from 'fixit-common-ui';
 import {
-  StoreState, rootContext, connect, fixRequestActions, store, FixesModel, FixRequestObjModel,
+  StoreState, connect, fixRequestActions, store, FixesModel, FixRequestModel,
 } from 'fixit-common-data-store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FormTextInput } from '../../../components/forms/index';
@@ -28,7 +28,7 @@ type FixSuggestChangesNavigationProps = StackNavigationProp<
 export type FixSuggestChangesProps = {
   navigation: FixSuggestChangesNavigationProps;
   passedFix: FixesModel;
-  fixRequestObj: FixRequestObjModel,
+  fixRequestObj: FixRequestModel,
 };
 
 class FixSuggestChanges extends
@@ -40,10 +40,10 @@ state={
 
 componentDidMount() : void {
   store.dispatch(
-    fixRequestActions.setFixStartDate(this.props.passedFix.schedule[0].startTimestampUtc),
+    fixRequestActions.setFixStartDate({ startTimestamp: this.props.passedFix.schedule[0].startTimestampUtc }),
   );
   store.dispatch(
-    fixRequestActions.setFixEndDate(this.props.passedFix.schedule[0].endTimestampUtc),
+    fixRequestActions.setFixEndDate({ endTimestamp: this.props.passedFix.schedule[0].endTimestampUtc }),
   );
   this.forceUpdate();
 }
@@ -101,11 +101,11 @@ render() : JSX.Element {
             <H2>Fix Plan Timeline</H2>
             <Calendar
               startDate={
-                new Date(this.props.fixRequestObj.Schedule[0].StartTimestampUtc * 1000)
+                new Date(this.props.fixRequestObj.schedule[0].startTimestampUtc * 1000)
 
               }
               endDate={
-                new Date(this.props.fixRequestObj.Schedule[0].EndTimestampUtc * 1000)
+                new Date(this.props.fixRequestObj.schedule[0].endTimestampUtc * 1000)
 
               }
               canUpdate={true}/>
@@ -150,8 +150,4 @@ function mapStateToProps(state : StoreState, ownProps : any) {
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixSuggestChanges);
+export default connect(mapStateToProps)(FixSuggestChanges);

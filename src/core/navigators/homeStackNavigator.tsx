@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { PersistentState, connect } from 'fixit-common-data-store';
+import { connect, StoreState } from 'fixit-common-data-store';
+import Header from '../../components/headers/header';
 import FixRequestMetaStep from '../../features/fixrequests/screens/fixRequestMetaStep';
 import HomeScreenClient from '../../screens/homeScreenClient';
 import FixSearchResultsScreen from '../../features/fixrequests/screens/fixSearchResultsScreen';
@@ -17,55 +18,104 @@ import NotificationsScreen from '../../screens/notificationsScreen';
 
 const Stack = createStackNavigator();
 
-class HomeStackNavigator extends React.Component<any> {
-  render(): JSX.Element {
-    return (
-      <Stack.Navigator headerMode='none'>
-        {this.props.role === UserRoles.CLIENT
-        && <Stack.Screen name="HomeScreen" component={HomeScreenClient} />}
-        {this.props.role === UserRoles.CRAFTSMAN
-        && <Stack.Screen name="HomeScreen" component={HomeScreenCraftsman} />}
-        <Stack.Screen name="SearchResultsScreen" component={FixSearchResultsScreen} />
-        <Stack.Screen name="FixRequestMetaStep" component={FixRequestMetaStep} options={{
+const HomeStackNavigator: FunctionComponent<any> = (props) => {
+  const render = () : JSX.Element => (
+    <Stack.Navigator
+      headerMode='screen'
+      screenOptions={{
+        headerShown: false,
+        header: ({ navigation }) => (
+          <Header
+            notificationsBadgeCount={props.otherProp.notificationCount}
+            userRatings={props.otherProp.averageRating}
+            navigation={navigation}></Header>),
+      }}>
+      {props.role === UserRoles.CLIENT
+         && <Stack.Screen
+           name="HomeScreen"
+           component={HomeScreenClient}
+           options={{
+             headerShown: true,
+           }}/>}
+      {props.role === UserRoles.CRAFTSMAN
+        && <Stack.Screen
+          name="HomeScreen"
+          component={HomeScreenCraftsman}
+          options={{
+            headerShown: true,
+          }} />}
+      <Stack.Screen
+        name="SearchResultsScreen"
+        component={FixSearchResultsScreen}/>
+      <Stack.Screen
+        name="FixRequestMetaStep"
+        component={FixRequestMetaStep}
+        options={{
           animationEnabled: false,
         }} />
-        <Stack.Screen name="FixRequestDescriptionStep" component={FixRequestDescriptionStep} options={{
+      <Stack.Screen
+        name="FixRequestDescriptionStep"
+        component={FixRequestDescriptionStep}
+        options={{
           animationEnabled: false,
         }} />
-        <Stack.Screen name="FixRequestSectionsStep" component={FixRequestSectionsStep} options={{
+      <Stack.Screen
+        name="FixRequestSectionsStep"
+        component={FixRequestSectionsStep}
+        options={{
           animationEnabled: false,
         }} />
-        <Stack.Screen name="FixRequestImagesLocationStep" component={FixRequestImagesLocationStep} options={{
+      <Stack.Screen
+        name="FixRequestImagesLocationStep"
+        component={FixRequestImagesLocationStep}
+        options={{
+          headerShown: false,
           animationEnabled: false,
         }} />
-        <Stack.Screen name="FixRequestScheduleStep" component={FixRequestScheduleStep} options={{
+      <Stack.Screen
+        name="FixRequestScheduleStep"
+        component={FixRequestScheduleStep}
+        options={{
           animationEnabled: false,
         }} />
-        <Stack.Screen name="FixRequestReview" component={FixRequestReview} options={{
+      <Stack.Screen
+        name="FixRequestReview"
+        component={FixRequestReview}
+        options={{
           animationEnabled: false,
         }} />
-        <Stack.Screen name="FixSuggestChanges" component={FixSuggestChanges} options={{
+      <Stack.Screen
+        name="FixSuggestChanges"
+        component={FixSuggestChanges}
+        options={{
           animationEnabled: false,
         }} />
-        <Stack.Screen name="FixSuggestChangesReview" component={FixSuggestChangesReview} options={{
+      <Stack.Screen
+        name="FixSuggestChangesReview"
+        component={FixSuggestChangesReview}
+        options={{
           animationEnabled: false,
         }} />
-        <Stack.Screen name="Notifications" component={NotificationsScreen} />
-      </Stack.Navigator>
-    );
-  }
-}
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          animationEnabled: false,
+        }}/>
+    </Stack.Navigator>
+  );
 
-function mapStateToProps(state: PersistentState) {
+  return render();
+};
+
+function mapStateToProps(state: StoreState) {
   return {
     userId: state.user.userId,
     firstName: state.user.firstName,
     lastName: state.user.lastName,
     role: state.user.role,
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 export default connect(mapStateToProps)(HomeStackNavigator);

@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  BackHandler, KeyboardAvoidingView, Text, View, StyleSheet, Dimensions, ViewStyle,
+  Text, View, StyleSheet, Dimensions, ViewStyle,
 } from 'react-native';
 import {
   Avatar, Button, Icon, NotificationBell, colors,
 } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PersistentState, persistentStore, connect } from 'fixit-common-data-store';
+import { connect, StoreState, store } from 'fixit-common-data-store';
 // import { Widget } from 'react-chat-widget';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { ConversationModel, MessageModel, ParticipantModel } from '../models/chatModel';
@@ -106,7 +106,7 @@ class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState>
     };
 
     this.scrollRef = React.createRef();
-    const { userId } = persistentStore.getState().user;
+    const { userId } = store.getState().user;
     this.userId = userId || '';
     this.signalRService = new SignalRService(this.userId, this.state.conversation.id);
 
@@ -143,7 +143,7 @@ class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState>
       messages: response,
     });
     setTimeout(() => {
-      setTimeout(() => { this.scrollRef.current.scrollToEnd({ animated: false }); });
+      setTimeout(() => { this.scrollRef?.current?.scrollToEnd({ animated: false }); });
     });
   }
 
@@ -154,6 +154,7 @@ class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState>
   async onNewMessage(message: any) {
     // convert new message object properties to camel case
     const camelMessage = toCamel(message);
+    console.log(camelMessage);
     if (camelMessage.conversationId === this.state.conversation.id) {
       this.setState({
         messages: this.state.messages.concat([camelMessage.message]),
@@ -210,17 +211,6 @@ class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState>
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.topContainer}>
-          <Button onPress={this.props.navigation.goBack} color='transparent'>
-            <Icon library='AntDesign' name='back' size={30} />
-          </Button>
-          <NotificationBell
-            notifications={this.props.unseenNotificationsNumber}
-            onPress={() => this.props.navigation.navigate('Fixes', {
-              screen: 'Notifications',
-            })}
-          />
-        </View>
         <View style={styles.bodyContainer}>
           <View style={styles.headerContainer}>
             <View style={styles.headerInformation}>
@@ -241,7 +231,7 @@ class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState>
             style={{ marginBottom: 50 }}
             onContentSizeChange={
               () => {
-                setTimeout(() => { this.scrollRef.current.scrollToEnd({ animated: false }); });
+                setTimeout(() => { this.scrollRef?.current?.scrollToEnd({ animated: false }); });
               }}>
             {this.state.messages.length !== 0
               ? this.renderMessages()
@@ -292,7 +282,7 @@ function messageBox(isSelf: boolean): ViewStyle {
 }
 
 function toCamel(o: any) {
-  let newO : any; let newKey; let value;
+  const newO : any = {}; let newKey; let value;
   if (o instanceof Array) {
     return o.map((item) => {
       if (typeof item === 'object') {
@@ -310,18 +300,16 @@ function toCamel(o: any) {
       if (value instanceof Array || (value !== null && value.constructor === Object)) {
         value = toCamel(value);
       }
+
       newO[newKey] = value;
     }
   });
-
   return newO;
 }
-function mapStateToProps(state: PersistentState) {
+function mapStateToProps(state: StoreState) {
   return {
-    unseenNotificationsNumber: state.unseenNotificationsNumber,
+    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 export default connect(mapStateToProps)(ChatMessagingScreen);

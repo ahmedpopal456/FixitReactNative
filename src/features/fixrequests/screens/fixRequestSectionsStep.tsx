@@ -10,11 +10,12 @@ import {
   fixRequestActions,
   store,
   StoreState,
-  rootContext,
   FixRequestService,
   FixTemplateObjectModel,
-  persistentStore,
-  FixRequestObjModel,
+  FixRequestModel,
+  SectionModel,
+  SectionDetailsModel,
+  TagModel,
 } from 'fixit-common-data-store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FormTextInput, FormNextPageArrows } from '../../../components/forms/index';
@@ -32,7 +33,7 @@ type FixRequestSectionsStepNavigationProps = StackNavigationProp<
 
 export type FixRequestSectionsStepProps = {
   navigation: FixRequestSectionsStepNavigationProps;
-  fixRequest: FixRequestObjModel;
+  fixRequest: FixRequestModel;
   fixStepsDynamicRoutes: {
     key:string,
   }[],
@@ -59,7 +60,7 @@ class FixRequestSectionsStep extends
 
       if (!routeKeyIsInState) {
         store.dispatch(
-          fixRequestActions.addFixStepsDynamicRoute(currentRouteKey),
+          fixRequestActions.addFixStepsDynamicRoutes({ key: currentRouteKey }),
         );
       }
 
@@ -71,7 +72,7 @@ class FixRequestSectionsStep extends
             if (element.key === currentRouteKey) {
               store.dispatch(
                 fixRequestActions.setCurrentFixStepsRouteIndex(
-                  index,
+                  { routeIndex: index },
                 ),
               );
             }
@@ -92,7 +93,7 @@ class FixRequestSectionsStep extends
         onClick: this.handleContinue,
       }];
       if (this.props.fixTemplateId
-      && this.props.fixRequest.Details[0].Sections[this.props.fixStepsCurrentRouteIndex + 1]
+      && this.props.fixRequest.details.sections[this.props.fixStepsCurrentRouteIndex + 1]
       && !this.props.fixStepsDynamicRoutes[this.props.fixStepsCurrentRouteIndex + 1]) {
         return [
           ...nextPageOptionsObj,
@@ -120,9 +121,9 @@ class FixRequestSectionsStep extends
     handleContinue = () : void => {
       const serv = new FixRequestService(store);
 
-      const tags : string[] = [];
-      this.props.fixRequest.Tags.forEach((tag: { Id?: string, Name: string, }) : void => {
-        tags.push(tag.Name);
+      const tags : Array<TagModel> = [];
+      this.props.fixRequest.tags.forEach((tag: { id?: string, name: string, }) : void => {
+        tags.push({ name: tag.name });
       });
 
       const sections: {
@@ -132,31 +133,28 @@ class FixRequestSectionsStep extends
               Values:string[],
           }[]
       }[] = [];
-      this.props.fixRequest.Details[0].Sections.forEach((section:{
-        Name:string,
-        Details:{
-            Name:string,
-            Value:string,
-        }[] }) : void => {
-        const fields : {
+      this.props.fixRequest.details.sections.forEach(
+        (section: SectionModel) : void => {
+          const fields : {
             Name:string,
             Values:string[],
           }[] = [];
-        section.Details.forEach((field: {Name:string, Value:string}) : void => {
-          fields.push({ Name: field.Name, Values: [field.Value] });
-        });
-        sections.push({ Name: section.Name, Fields: fields });
-      });
+          section.details.forEach((detail: SectionDetailsModel) : void => {
+            fields.push({ Name: detail.name, Values: [detail.value] });
+          });
+          sections.push({ Name: section.name, Fields: fields });
+        },
+      );
 
       const fixTemplateObject : FixTemplateObjectModel = {
         Status: 'Public',
-        Name: this.props.fixRequest.Details[0].Name,
-        WorkTypeId: this.props.fixRequest.Details[0].Type,
-        WorkCategoryId: this.props.fixRequest.Details[0].Category,
-        FixUnitId: this.props.fixRequest.Details[0].Unit,
-        Description: this.props.fixRequest.Details[0].Description,
-        CreatedByUserId: persistentStore.getState().user.userId,
-        UpdatedByUserId: persistentStore.getState().user.userId,
+        Name: this.props.fixRequest.details.name,
+        WorkTypeId: this.props.fixRequest.details.type,
+        WorkCategoryId: this.props.fixRequest.details.category,
+        FixUnitId: this.props.fixRequest.details.unit,
+        Description: this.props.fixRequest.details.description,
+        CreatedByUserId: store.getState().user.userId,
+        UpdatedByUserId: store.getState().user.userId,
         Tags: tags,
         Sections: sections,
       };
@@ -170,44 +168,43 @@ class FixRequestSectionsStep extends
     }
 
     handleAddSection = () : void => {
-      store.dispatch(fixRequestActions.setNumberOfSteps(
-        this.props.numberOfSteps + 1,
-      ));
+      store.dispatch(fixRequestActions.setNumberOfSteps({ numberOfSteps: this.props.numberOfSteps + 1 }));
       const newIndex = this.props.fixStepsCurrentRouteIndex + 1;
       store.dispatch(
-        fixRequestActions.setCurrentFixStepsRouteIndex(newIndex),
+        fixRequestActions.setCurrentFixStepsRouteIndex({ routeIndex: newIndex }),
       );
-      if (this.props.fixRequest.Details[0].Sections[newIndex]) {
-        store.dispatch(fixRequestActions.setFixSectionDetails(
-          this.props.fixRequest.Details[0].Sections[newIndex].Details,
-          newIndex,
-        ));
+      if (this.props.fixRequest.details.sections[newIndex]) {
+        store.dispatch(fixRequestActions.setFixSectionDetails({
+          details: this.props.fixRequest.details.sections[newIndex].details,
+          index: newIndex,
+        }));
       } else {
-        store.dispatch(fixRequestActions.setFixSectionDetails(
+        store.dispatch(fixRequestActions.setFixSectionDetails({
+          details:
           [{
-            Name: '',
-            Value: '',
+            name: '',
+            value: '',
           }],
-          newIndex,
-        ));
+          index: newIndex,
+        }));
       }
       this.props.navigation.push('FixRequestSectionsStep');
     }
 
     handleAddFields = () : void => {
       const index = this.props.fixStepsCurrentRouteIndex;
-      const details = [...this.props.fixRequest.Details[0].Sections[index].Details, { Name: '', Value: '' }];
+      const details = [...this.props.fixRequest.details.sections[index].details, { name: '', value: '' }];
       store.dispatch(
-        fixRequestActions.setFixSectionDetails(details, index),
+        fixRequestActions.setFixSectionDetails({ index, details }),
       );
     }
 
     moveFields = (from:number, to:number) : void => {
       const index = this.props.fixStepsCurrentRouteIndex;
-      const currSectionDetails = [...this.props.fixRequest.Details[0].Sections[index].Details];
+      const currSectionDetails = [...this.props.fixRequest.details.sections[index].details];
       currSectionDetails.splice(to, 0, currSectionDetails.splice(from, 1)[0]);
       store.dispatch(
-        fixRequestActions.setFixSectionDetails(currSectionDetails, index),
+        fixRequestActions.setFixSectionDetails({ details: currSectionDetails, index }),
       );
     }
 
@@ -215,24 +212,27 @@ class FixRequestSectionsStep extends
       text:string,
       index:number = this.props.fixStepsCurrentRouteIndex,
     ) : void => {
-      store.dispatch(fixRequestActions.setFixSectionTitle(text, index));
+      store.dispatch(fixRequestActions.setFixSectionTitle({ sectionName: text, index }));
     }
 
-    setFixSectionDetails = (updateType:string, inputText:string, index:number) : void => {
+    setFixSectionDetailsName = (inputText: string, index: number) : void => {
       const sectionIndex = this.props.fixStepsCurrentRouteIndex;
-      const details = [...this.props.fixRequest.Details[0].Sections[sectionIndex].Details];
-      if (updateType === 'name') {
-        details[index] = {
-          Name: inputText,
-          Value: details[index].Value,
-        };
-      } else {
-        details[index] = {
-          Name: details[index].Name,
-          Value: inputText,
-        };
-      }
-      store.dispatch(fixRequestActions.setFixSectionDetails(details, sectionIndex));
+      const details = [...this.props.fixRequest.details.sections[sectionIndex].details];
+      details[index] = {
+        name: inputText,
+        value: details[index].value,
+      };
+      store.dispatch(fixRequestActions.setFixSectionDetails({ details, index: sectionIndex }));
+    }
+
+    setFixSectionDetailsValue = (inputText: string, index:number) : void => {
+      const sectionIndex = this.props.fixStepsCurrentRouteIndex;
+      const details = [...this.props.fixRequest.details.sections[sectionIndex].details];
+      details[index] = {
+        name: details[index].name,
+        value: inputText,
+      };
+      store.dispatch(fixRequestActions.setFixSectionDetails({ details, index: sectionIndex }));
     }
 
     render() : JSX.Element {
@@ -257,8 +257,8 @@ class FixRequestSectionsStep extends
                 <FormTextInput
                   onChange={(text : string) => this.setFixSectionTitle(text)}
                   value={
-                    this.props.fixRequest.Details[0]
-                      .Sections[this.props.fixStepsCurrentRouteIndex].Name
+                    this.props.fixRequest.details
+                      .sections[this.props.fixStepsCurrentRouteIndex].name
                   } />
                 <Spacer height="20px" />
                 <View style={{
@@ -282,13 +282,13 @@ class FixRequestSectionsStep extends
                   </TouchableOpacity>
                 </View>
                 <Divider />
-                {this.props.fixRequest.Details[0]
-                  .Sections[this.props.fixStepsCurrentRouteIndex]
-                  .Details.map((f:{
-                  Name:string,
-                  Value:string
+                {this.props.fixRequest.details
+                  .sections[this.props.fixStepsCurrentRouteIndex]
+                  .details.map((f:{
+                  name:string,
+                  value:string
                 }, index:number) => (
-                    <View key={`${f.Name}_k`}>
+                    <View key={`${f.name}_k`}>
                       <View style={{
                         display: 'flex',
                         flexDirection: 'row',
@@ -304,9 +304,9 @@ class FixRequestSectionsStep extends
                               <Icon library="FontAwesome5" name="arrow-up" />
                             </TouchableOpacity>
                             : <></>}
-                          {(this.props.fixRequest.Details[0]
-                            .Sections[this.props.fixStepsCurrentRouteIndex]
-                            .Details[index + 1])
+                          {(this.props.fixRequest.details
+                            .sections[this.props.fixStepsCurrentRouteIndex]
+                            .details[index + 1])
                             ? <TouchableOpacity style={{
                               flexGrow: 0,
                               flexDirection: 'column',
@@ -323,18 +323,18 @@ class FixRequestSectionsStep extends
                         }}>
                           <FormTextInput
                             title={'Field Title'}
-                            value={f.Name}
-                            onChange={(text : string) => this.setFixSectionDetails('name', text, index)}/>
+                            value={f.name}
+                            onChange={(text : string) => this.setFixSectionDetailsName(text, index)}/>
                           <Spacer height="20px" />
                           <FormTextInput
                             title={'Field Information'}
-                            value={f.Value}
-                            onChange={(text : string) => this.setFixSectionDetails('value', text, index)}/>
+                            value={f.value}
+                            onChange={(text : string) => this.setFixSectionDetailsValue(text, index)}/>
                         </View>
                       </View>
-                      {(this.props.fixRequest.Details[0]
-                        .Sections[this.props.fixStepsCurrentRouteIndex]
-                        .Details[index + 1]) ? <Divider faded/> : <></>}
+                      {(this.props.fixRequest.details
+                        .sections[this.props.fixStepsCurrentRouteIndex]
+                        .details[index + 1]) ? <Divider faded/> : <></>}
                     </View>
                   ))}
               </StyledContentWrapper>
@@ -358,8 +358,4 @@ function mapStateToProps(state : StoreState) {
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixRequestSectionsStep);
+export default connect(mapStateToProps)(FixRequestSectionsStep);

@@ -7,7 +7,7 @@ import {
   TouchableOpacity, View, Text,
 } from 'react-native';
 import {
-  store, fixRequestActions, connect, StoreState, rootContext, FixRequestService, FixRequestObjModel,
+  store, fixRequestActions, connect, StoreState, FixRequestService, FixRequestModel, TagModel,
 } from 'fixit-common-data-store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FormTextInput, FormNextPageArrows } from '../../../components/forms/index';
@@ -28,16 +28,14 @@ type FixRequestMetaStepScreenNavigationProps = StackNavigationProp<
 
 export type FixRequestMetaStepScreenProps = {
   navigation: FixRequestMetaStepScreenNavigationProps;
-  tags: {
-    Name: string,
-  }[];
+  tags: Array<TagModel>;
   templateName: string;
   templateCategory: string;
   templateType: string;
   fixTitle: string;
   numberOfSteps: number;
   templateId: string;
-  fixObj: FixRequestObjModel;
+  fixObj: FixRequestModel;
 };
 
 export type FixRequestMetaStepScreenState = {
@@ -91,7 +89,7 @@ class FixRequestMetaStep extends
 
       let isTagAlreadySaved = false;
       this.props.tags.forEach((tag) => {
-        if (tag.Name === currentText) {
+        if (tag.name === currentText) {
           isTagAlreadySaved = true;
         }
       });
@@ -101,7 +99,7 @@ class FixRequestMetaStep extends
       });
 
       if (!isTagAlreadySaved) {
-        store.dispatch(fixRequestActions.addFixRequestTag(currentText));
+        store.dispatch(fixRequestActions.addFixRequestTagName({ name: currentText }));
       }
     }
 
@@ -109,7 +107,7 @@ class FixRequestMetaStep extends
       const tagArr = this.props.tags;
       let index = -1;
       for (let i = 0; i < tagArr.length; i += 1) {
-        if (tagArr[i].Name === tag) {
+        if (tagArr[i].name === tag) {
           index = i;
         }
       }
@@ -143,7 +141,7 @@ class FixRequestMetaStep extends
         suggestedTags: suggestedTagArr,
       }));
 
-      store.dispatch(fixRequestActions.addFixRequestTag(tag));
+      store.dispatch(fixRequestActions.addFixRequestTagName({ name: tag }));
     }
 
     render() : JSX.Element {
@@ -158,7 +156,7 @@ class FixRequestMetaStep extends
             <StepIndicator
               numberSteps={
                 this.props.templateId
-                  ? this.props.numberOfSteps + this.props.fixObj.Details[0].Sections.length
+                  ? this.props.numberOfSteps + this.props.fixObj.details.sections.length
                   : this.props.numberOfSteps
               }
               currentStep={1} />
@@ -171,7 +169,7 @@ class FixRequestMetaStep extends
                 <Spacer height="5px" />
                 <FormTextInput
                   onChange={
-                    (text : string) => store.dispatch(fixRequestActions.setFixTemplateName(text))
+                    (text : string) => store.dispatch(fixRequestActions.setFixTemplateName({ name: text }))
                   }
                   value={this.props.templateName} />
                 <Spacer height="20px" />
@@ -181,7 +179,7 @@ class FixRequestMetaStep extends
                   ? <Picker
                     selectedValue={this.props.templateCategory}
                     onValueChange={(value) => store
-                      .dispatch(fixRequestActions.setFixTemplateCategory(value))
+                      .dispatch(fixRequestActions.setFixTemplateCategory({ category: value }))
                     }>
                     {this.state.categories.map((category:{
                       id:string,
@@ -204,7 +202,7 @@ class FixRequestMetaStep extends
                     onValueChange={(value) => {
                       console.log(value);
                       store
-                        .dispatch(fixRequestActions.setFixTemplateType(value));
+                        .dispatch(fixRequestActions.setFixTemplateType({ type: value }));
                     }}>
                     {this.state.types.map((type:{
                       id:string,
@@ -220,9 +218,9 @@ class FixRequestMetaStep extends
                 <Spacer height="5px" />
                 {this.state.units
                   ? <Picker
-                    selectedValue={this.props.fixObj.Details[0].Unit}
+                    selectedValue={this.props.fixObj.details.unit}
                     onValueChange={(value) => store
-                      .dispatch(fixRequestActions.setFixTemplateType(value))
+                      .dispatch(fixRequestActions.setFixTemplateType({ type: value }))
                     }>
                     {this.state.units.map((unit:{
                       id:string,
@@ -250,7 +248,9 @@ class FixRequestMetaStep extends
                 <FadeInAnimator visible={this.state.titleFieldVisible}>
                   <FormTextInput
                     onChange={
-                      (text : string) => store.dispatch(fixRequestActions.setFixTitle(text))
+                      (text : string) => store.dispatch(
+                        fixRequestActions.setFixSectionTitle({ sectionName: text, index: 0 }),
+                      )
                     }
                     value={this.props.fixTitle} />
                 </FadeInAnimator>
@@ -296,12 +296,12 @@ class FixRequestMetaStep extends
                   onFocus={() => this.showTagSuggestions() }
                   onBlur={() => this.hideTagSuggestions() }/>
                 <View style={FixRequestStyles.fixTagContainer}>
-                  {this.props.tags.map((tag:{Name:string}) => (
+                  {this.props.tags.map((tag:TagModel) => (
                     tag
-                      ? <View key={tag.Name} style={FixRequestStyles.fixTagWrapper}>
-                        <Tag backgroundColor={'accent'} textColor={'dark'}>{tag.Name}</Tag>
+                      ? <View key={tag.name} style={FixRequestStyles.fixTagWrapper}>
+                        <Tag backgroundColor={'accent'} textColor={'dark'}>{tag.name}</Tag>
                         <TouchableOpacity style={{ flexGrow: 0, marginLeft: -5 }}
-                          onPress={() => this.removeTag(tag.Name)}>
+                          onPress={() => this.removeTag(tag.name)}>
                           <Icon library="FontAwesome5" name="times-circle" color={'dark'} />
                         </TouchableOpacity>
                       </View>
@@ -319,19 +319,15 @@ class FixRequestMetaStep extends
 
 function mapStateToProps(state : StoreState) {
   return {
-    tags: state.fixRequest.fixRequestObj.Tags,
-    templateName: state.fixRequest.fixRequestObj.Details[0].Name,
-    templateCategory: state.fixRequest.fixRequestObj.Details[0].Category,
-    templateType: state.fixRequest.fixRequestObj.Details[0].Type,
-    fixTitle: state.fixRequest.fixRequestObj.Details[0].Name,
+    tags: state.fixRequest.fixRequestObj.tags,
+    templateName: state.fixRequest.fixRequestObj.details.name,
+    templateCategory: state.fixRequest.fixRequestObj.details.category,
+    templateType: state.fixRequest.fixRequestObj.details.type,
+    fixTitle: state.fixRequest.fixRequestObj.details.name,
     numberOfSteps: state.fixRequest.numberOfSteps,
     templateId: state.fixRequest.fixTemplateId,
     fixObj: state.fixRequest.fixRequestObj,
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixRequestMetaStep);
+export default connect(mapStateToProps)(FixRequestMetaStep);

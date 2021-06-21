@@ -10,7 +10,7 @@ import {
   ConfigFactory, FixesService, RatingsService, store,
 } from 'fixit-common-data-store';
 import { StackActions } from '@react-navigation/native';
-import { NotificationProps } from '../../common/models/notifications/notificationProps';
+import { NotificationProps } from '../../common/models/notifications/NotificationProps';
 
 const ratingsService = new RatingsService(new ConfigFactory(), store);
 
@@ -114,14 +114,14 @@ export default class FixCraftsmanResponse extends React.Component<NotificationPr
       const fix = await this.fixesService.getFix(decodedMessage.Id);
       const responseRatings = await ratingsService
         .getUserRatingsAverage(decodedMessage.AssignedToCraftsman.Id);
-      console.log(responseRatings);
+      console.log('getUserRatingsAverage', responseRatings);
       this.setState({
         craftsmanName: `${decodedMessage.AssignedToCraftsman.FirstName} ${decodedMessage.AssignedToCraftsman.LastName}`,
         craftsmanFirstName: decodedMessage.AssignedToCraftsman.FirstName,
         craftsmanLastName: decodedMessage.AssignedToCraftsman.LastName,
         craftsmanId: decodedMessage.AssignedToCraftsman.Id,
-        craftsmanRating: responseRatings.ratings.averageRating,
-        fixTitle: fix.details[0].name,
+        craftsmanRating: responseRatings.averageRating,
+        fixTitle: fix.details.name,
         tags: fix.tags,
         scheduleStart: decodedMessage.Schedule[0].startTimestampUtc,
         scheduleEnd: decodedMessage.Schedule[0].endTimestampUtc,

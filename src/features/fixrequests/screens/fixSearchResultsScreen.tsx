@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {
-  connect, fixRequestActions, FixRequestService, store, StoreState, rootContext,
+  connect, fixRequestActions, FixRequestService, store, StoreState,
 } from 'fixit-common-data-store';
 import { SearchTextInput } from '../../../components/index';
 import GlobalStyles from '../../../common/styles/globalStyles';
@@ -45,7 +45,7 @@ class FixSearchResultsScreen extends
 
     handleSelectFixTemplate = (id:string) : void => {
       const serv = new FixRequestService(store);
-      serv.setFixTemplateId(id);
+      serv.setFixTemplateById(id);
 
       this.props.navigation.navigate('FixRequestMetaStep');
     }
@@ -256,8 +256,4 @@ function mapStateToProps(state : StoreState, ownProps : any) {
   };
 }
 
-export default connect(
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapStateToProps, null, null, { context: rootContext },
-)(FixSearchResultsScreen);
+export default connect(mapStateToProps)(FixSearchResultsScreen);
