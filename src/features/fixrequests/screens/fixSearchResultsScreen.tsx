@@ -45,7 +45,7 @@ class FixSearchResultsScreen extends
 
     handleSelectFixTemplate = (id:string) : void => {
       const serv = new FixRequestService(store);
-      serv.setFixTemplateById(id);
+      serv.getFixTemplateById(id);
 
       this.props.navigation.navigate('FixRequestMetaStep');
     }

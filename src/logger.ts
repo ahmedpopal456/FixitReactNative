@@ -1,7 +1,6 @@
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import { Initialization } from '@microsoft/applicationinsights-web/types/Initialization';
-// eslint-disable-next-line import/no-unresolved
-import { INSTRUMENTATION_KEY } from '@env';
+import config from './core/config/appConfig';
 
 export default class Logger {
   private static appInsights: Initialization;
@@ -10,7 +9,7 @@ export default class Logger {
     if (!this.appInsights) {
       this.appInsights = new ApplicationInsights({
         config: {
-          instrumentationKey: INSTRUMENTATION_KEY,
+          instrumentationKey: config.instrumentationKey,
         },
       });
     }
