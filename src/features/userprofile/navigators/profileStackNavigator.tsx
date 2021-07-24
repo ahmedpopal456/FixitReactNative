@@ -6,7 +6,7 @@ import ProfileScreen from '../screens/profileScreen';
 import SecurityScreen from '../screens/securityScreen';
 import RatingsScreen from '../screens/ratingsScreen';
 import RatingItemScreen from '../screens/ratingItemScreen';
-import NotificationsScreen from '../../../screens/notificationsScreen';
+import NotificationsScreen from '../../notifications/screens/notificationsScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,8 +19,8 @@ const ProfileStackNavigator: FunctionComponent<any> = (props) => (
         <Header
           notificationsBadgeCount={props.otherProp.notificationCount}
           userRatings={props.otherProp.averageRating}
-          height={100}
-          navigation={navigation}></Header>),
+          navigation={navigation}
+          userFirstName={props.otherProp.userFirstName}></Header>),
     }}>
     <Stack.Screen
       name="Account"

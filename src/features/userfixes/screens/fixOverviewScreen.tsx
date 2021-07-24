@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import {
   SafeAreaView, Text, View, StyleSheet, Dimensions, ScrollView, ImageBackground,
 } from 'react-native';
@@ -112,206 +112,200 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class FixOverviewScreen extends React.Component<any, any> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      phase: 2,
-      isPhaseOne: true,
-      isPhaseTwo: false,
-      isPhaseThree: false,
-      readMore: false,
-      displayReadMore: false,
-      tasks: [
-        {
-          title: 'Punch wood',
-          description: 'Use hand to chop wood',
-        },
-        {
-          title: 'Craft crafting bench',
-          description: 'Put wooden planks into 2x2 crafting',
-        },
-        {
-          title: 'Slay the enderdragon',
-          description: 'Punch your way to the ender and defeat the enderdragon using beds',
-        },
-      ],
-    };
-  }
+export interface FixOverviewTask {
+  title: string,
+  description: string
+}
 
-  componentDidMount(): void {
-    switch (this.state.phase) {
+const FixOverviewScreen : FunctionComponent<any> = (props) => {
+  const [phase, setPhase] = useState<number>(2);
+  const [isPhaseOne, setIsPhaseOne] = useState<boolean>(true);
+  const [isPhaseTwo, setIsPhaseTwo] = useState<boolean>(false);
+  const [isPhaseThree, setIsPhaseThree] = useState<boolean>(false);
+  const [readMore, setReadMore] = useState<boolean>(false);
+  const [displayReadMore, setDisplayReadMore] = useState<boolean>(false);
+  const [tasks, setTasks] = useState<Array<FixOverviewTask>>([
+    {
+      title: 'Punch wood',
+      description: 'Use hand to chop wood',
+    },
+    {
+      title: 'Craft crafting bench',
+      description: 'Put wooden planks into 2x2 crafting',
+    },
+    {
+      title: 'Slay the enderdragon',
+      description: 'Punch your way to the ender and defeat the enderdragon using beds',
+    },
+  ]);
+
+  useEffect(() => {
+    switch (phase) {
       case 1:
-        this.setState({
-          isPhaseOne: true,
-          isPhaseTwo: false,
-          isPhaseThree: false,
-        });
+        setIsPhaseOne(true);
+        setIsPhaseTwo(false);
+        setIsPhaseThree(false);
         break;
       case 2:
-        this.setState({
-          isPhaseOne: false,
-          isPhaseTwo: true,
-          isPhaseThree: false,
-        });
+        setIsPhaseOne(false);
+        setIsPhaseTwo(true);
+        setIsPhaseThree(false);
         break;
       case 3:
-        this.setState({
-          isPhaseOne: false,
-          isPhaseTwo: false,
-          isPhaseThree: true,
-        });
+        setIsPhaseOne(false);
+        setIsPhaseTwo(false);
+        setIsPhaseThree(true);
         break;
       default:
         break;
     }
-  }
+  }, []);
 
-  displayTaskTitle = (phase: number) : string => {
-    switch (phase) {
+  const displayTaskTitle = (phaseNumber: number) : string => {
+    switch (phaseNumber) {
       case 1:
-        return this.state.tasks[phase - 1].title;
+        return tasks[phaseNumber - 1].title;
       case 2:
-        return this.state.tasks[phase - 1].title;
+        return tasks[phaseNumber - 1].title;
       case 3:
-        return this.state.tasks[phase - 1].title;
+        return tasks[phaseNumber - 1].title;
       default:
         return 'Some task';
     }
-  }
+  };
 
-  render() : JSX.Element {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ImageBackground
-          source={bgImage}
-          style={{
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <ScrollView testID='fixOverviewScroll'>
-            <View style={styles.topContainer}>
-              <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
-                <Icon library='AntDesign' name='back' size={30} />
-              </Button>
-            </View>
-            <View testID='fixInfo' style={styles.infoContainer}>
-              <DonutChart
-                value={75}
-                radius={50}
-                strokeWidth={7}
-                color='primary'
-                textColor='white'
-              />
-              <View style={{ flex: 1, margin: 5 }}>
-                <Text style={styles.title}>{this.props.route.params.fix.details.name}</Text>
-                <View style={styles.descriptionContainer}>
-                  <Text
-                    numberOfLines={this.state.readMore ? 0 : 3}
-                    onTextLayout={(e: any) => this.setState({
-                      displayReadMore: e.nativeEvent.lines.length >= 3,
-                    })}
-                  >
-                    {this.props.route.params.fix.details.description}
-                  </Text>
-                  {this.state.displayReadMore
-                    ? <View style={styles.button}>
-                      <TouchableOpacity
-                        onPress={() => this.setState({ readMore: !this.state.readMore })}
-                      >
-                        <Text style={{ color: 'white', textAlign: 'center' }}>
-                          {this.state.readMore ? 'Read less' : 'Read more'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View> : null}
-                </View>
+  const render = () => (
+    <SafeAreaView style={styles.container}>
+      <ImageBackground
+        source={bgImage}
+        style={{
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <ScrollView testID='fixOverviewScroll'>
+          <View style={styles.topContainer}>
+            <Button onPress={() => props.navigation.goBack()} color='transparent'>
+              <Icon library='AntDesign' name='back' size={30} />
+            </Button>
+          </View>
+          <View testID='fixInfo' style={styles.infoContainer}>
+            <DonutChart
+              value={75}
+              radius={50}
+              strokeWidth={7}
+              color='primary'
+              textColor='white'
+            />
+            <View style={{ flex: 1, margin: 5 }}>
+              <Text style={styles.title}>{props.route.params.fix.details.name}</Text>
+              <View style={styles.descriptionContainer}>
+                <Text
+                  numberOfLines={readMore ? 0 : 3}
+                  onTextLayout={(e: any) => setDisplayReadMore(e.nativeEvent.lines.length >= 3)}
+                >
+                  {props.route.params.fix.details.description}
+                </Text>
+                {displayReadMore
+                  ? <View style={styles.button}>
+                    <TouchableOpacity
+                      onPress={() => setReadMore(!readMore)}
+                    >
+                      <Text style={{ color: 'white', textAlign: 'center' }}>
+                        {readMore ? 'Read less' : 'Read more'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View> : null}
               </View>
             </View>
-            <Text style={[styles.title, { alignSelf: 'center', marginTop: 20 }]}>Phase {this.state.phase}</Text>
-            <View testID='fixOverviewPhase' style={styles.phaseContainer}>
+          </View>
+          <Text style={[styles.title,
+            { alignSelf: 'center', marginTop: 20 }]}>Phase {phase}</Text>
+          <View testID='fixOverviewPhase' style={styles.phaseContainer}>
+            <View style={{
+              backgroundColor: isPhaseOne ? '#DDDDDF' : colors.accent,
+              borderTopLeftRadius: 30,
+              borderBottomLeftRadius: 30,
+            }}>
+              <TouchableOpacity
+                style={phase === 1 ? styles.circleOn : styles.circleOff}
+                onPress={() => setPhase(1)}
+              >
+                <Text style={phase === 1 ? styles.textOn : styles.textOff}>1</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{
+              flex: 1,
+              backgroundColor: isPhaseOne ? '#DDDDDF' : colors.accent,
+              width: '100%',
+              height: '100%',
+            }} />
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ backgroundColor: isPhaseOne ? '#DDDDDF' : colors.accent }} />
+              <View style={{ backgroundColor: isPhaseTwo ? '#DDDDDF' : colors.accent }} />
               <View style={{
-                backgroundColor: this.state.isPhaseOne ? '#DDDDDF' : colors.accent,
-                borderTopLeftRadius: 30,
-                borderBottomLeftRadius: 30,
-              }}>
-                <TouchableOpacity
-                  style={this.state.phase === 1 ? styles.circleOn : styles.circleOff}
-                  onPress={() => this.setState({ phase: 1 })}
-                >
-                  <Text style={this.state.phase === 1 ? styles.textOn : styles.textOff}>1</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{
-                flex: 1,
-                backgroundColor: this.state.isPhaseOne ? '#DDDDDF' : colors.accent,
+                zIndex: 1,
+                position: 'absolute',
                 width: '100%',
                 height: '100%',
-              }} />
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ backgroundColor: this.state.isPhaseOne ? '#DDDDDF' : colors.accent }} />
-                <View style={{ backgroundColor: this.state.isPhaseTwo ? '#DDDDDF' : colors.accent }} />
-                <View style={{
-                  zIndex: 1,
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  alignItems: 'center',
-                  alignSelf: 'center',
-                }}>
-                  <TouchableOpacity
-                    style={this.state.phase === 2 ? styles.circleOn : styles.circleOff}
-                    onPress={() => this.setState({ phase: 2 })}
-                  >
-                    <Text style={this.state.phase === 2 ? styles.textOn : styles.textOff}>2</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={{
-                flex: 1,
-                backgroundColor: this.state.isPhaseThree ? colors.accent : '#DDDDDF',
-                width: '100%',
-                height: '100%',
-              }} />
-              <View style={{
-                backgroundColor: this.state.isPhaseThree ? colors.accent : '#DDDDDF',
-                borderTopRightRadius: 30,
-                borderBottomRightRadius: 30,
+                alignItems: 'center',
+                alignSelf: 'center',
               }}>
                 <TouchableOpacity
-                  style={this.state.phase === 3 ? styles.circleOn : styles.circleOff}
-                  onPress={() => this.setState({ phase: 3 })}
+                  style={phase === 2 ? styles.circleOn : styles.circleOff}
+                  onPress={() => setPhase(2)}
                 >
-                  <Text style={this.state.phase === 3 ? styles.textOn : styles.textOff}>3</Text>
+                  <Text style={phase === 2 ? styles.textOn : styles.textOff}>2</Text>
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={styles.taskContainer}>
-              <View style={styles.tag}>
-                <Text style={{ fontSize: 12 }}>NEXT TASK</Text>
-              </View>
-              <Text style={{ fontSize: 20 }}>{this.displayTaskTitle(this.state.phase)}</Text>
-              <Button onPress={() => undefined}>
+            <View style={{
+              flex: 1,
+              backgroundColor: isPhaseThree ? colors.accent : '#DDDDDF',
+              width: '100%',
+              height: '100%',
+            }} />
+            <View style={{
+              backgroundColor: isPhaseThree ? colors.accent : '#DDDDDF',
+              borderTopRightRadius: 30,
+              borderBottomRightRadius: 30,
+            }}>
+              <TouchableOpacity
+                style={phase === 3 ? styles.circleOn : styles.circleOff}
+                onPress={() => setPhase(3)}
+              >
+                <Text style={phase === 3 ? styles.textOn : styles.textOff}>3</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.taskContainer}>
+            <View style={styles.tag}>
+              <Text style={{ fontSize: 12 }}>NEXT TASK</Text>
+            </View>
+            <Text style={{ fontSize: 20 }}>{displayTaskTitle(phase)}</Text>
+            <Button onPress={() => undefined}>
                 See Status
-              </Button>
+            </Button>
+          </View>
+          <View style={styles.scheduleContainer}>
+            <Text style={[styles.title, { alignSelf: 'center' }]}>Schedule</Text>
+            <View testID='calendar'>
+              <Calendar
+                startDate={
+                  new Date(props.route.params.fix.schedule[0].startTimestampUtc * 1000)
+                }
+                endDate={
+                  new Date(props.route.params.fix.schedule[0].endTimestampUtc * 1000)
+                }
+                canUpdate={false}
+              />
             </View>
-            <View style={styles.scheduleContainer}>
-              <Text style={[styles.title, { alignSelf: 'center' }]}>Schedule</Text>
-              <View testID='calendar'>
-                <Calendar
-                  startDate={
-                    new Date(this.props.route.params.fix.schedule[0].startTimestampUtc * 1000)
-                  }
-                  endDate={
-                    new Date(this.props.route.params.fix.schedule[0].endTimestampUtc * 1000)
-                  }
-                  canUpdate={false}
-                />
-              </View>
-            </View>
-          </ScrollView>
-        </ImageBackground>
-      </SafeAreaView>
-    );
-  }
-}
+          </View>
+        </ScrollView>
+      </ImageBackground>
+    </SafeAreaView>
+  );
+  return render();
+};
+
+export default FixOverviewScreen;

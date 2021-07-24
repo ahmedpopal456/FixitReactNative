@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import {
   Text, View, StyleSheet, Dimensions, Image, TouchableOpacity, FlatList,
 } from 'react-native';
-import { Button, Icon, NotificationBell } from 'fixit-common-ui';
+import { Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, FixesService, ConfigFactory, FixesModel,
+  store, FixesService, ConfigFactory, StoreState, useSelector,
 } from 'fixit-common-data-store';
+import useAsyncEffect from 'use-async-effect';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-
   bodyContainer: {
     flex: 1,
     backgroundColor: 'white',
@@ -31,7 +30,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-
   fixContainer: {
     flexDirection: 'row',
     marginLeft: 50,
@@ -44,7 +42,6 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     elevation: 3,
   },
-
   image: {
     width: 200,
     height: 200,
@@ -56,14 +53,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
   },
-
   arrow: {
     backgroundColor: '#1D1F2A',
     paddingHorizontal: 5,
     borderWidth: 1,
     borderRadius: 5,
   },
-
   text: {
     alignSelf: 'center',
     marginBottom: 10,
@@ -71,28 +66,15 @@ const styles = StyleSheet.create({
   },
 });
 
-interface ChatProfileScreenState {
-  profilePictureUrl: string,
-  pendingFixes: FixesModel[],
-}
+const ChatProfileScreen : FunctionComponent<any> = () => {
+  const profilePictureUrl = useSelector((storeState: StoreState) => storeState.profile);
+  const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
 
-export default class ChatProfileScreen extends React.Component<any, ChatProfileScreenState> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      profilePictureUrl: store.getState().profile.profilePictureUrl,
-      pendingFixes: store.getState().fixes.pendingFixes,
-    };
-  }
+  useAsyncEffect(async () => {
+    await fixesService.getPendingFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
+  }, []);
 
-  async componentDidMount() : Promise<void> {
-    const pendingFixResponse = await fixesService.getPendingFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
-    this.setState({
-      pendingFixes: pendingFixResponse,
-    });
-  }
-
-  renderItem = ({ item }) : JSX.Element => (
+  const renderItem = ({ item }) : JSX.Element => (
     <TouchableOpacity onPress={() => undefined} style={styles.fixContainer}>
       <View style={{ width: 200, paddingVertical: 5 }}>
         <Text>
@@ -110,40 +92,46 @@ export default class ChatProfileScreen extends React.Component<any, ChatProfileS
     </TouchableOpacity>
   );
 
-  render() : JSX.Element {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.bodyContainer}>
-          <Text style={{ alignSelf: 'center', marginTop: 15, color: 'gray' }}>last seen today at 10:33</Text>
-          {this.state.profilePictureUrl
-            ? <View style={styles.image}>
-              <Image
-                style={styles.image}
-                source={{ uri: this.state.profilePictureUrl }}
-              />
-            </View>
-            : <View style={styles.image}>
-              <Text>Image not found</Text>
-            </View>
-          }
-          {/* Rating */}
-          <Text style={styles.text}>Andy</Text>
-          <Text style={styles.text}>Info</Text>
-          <Text style={{
-            color: 'gray', marginLeft: 50, alignSelf: 'flex-start', marginTop: 10,
-          }}>Your fixes with Andy:</Text>
-          <View>
-            {/* body of each section */}
-            <FlatList
-              nestedScrollEnabled={true}
-              data={this.state.pendingFixes}
-              renderItem={this.renderItem}
-              keyExtractor={(item) => item.id}
+  const render = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.bodyContainer}>
+        <Text style={{
+          alignSelf: 'center',
+          marginTop: 15,
+          color: 'gray',
+        }}>last seen today at 10:33</Text>
+        {profilePictureUrl
+          ? <View style={styles.image}>
+            <Image
+              style={styles.image}
+              source={{ uri: profilePictureUrl }}
             />
           </View>
-          {/* fixes */}
+          : <View style={styles.image}>
+            <Text>Image not found</Text>
+          </View>
+        }
+        {/* Rating */}
+        <Text style={styles.text}>Andy</Text>
+        <Text style={styles.text}>Info</Text>
+        <Text style={{
+          color: 'gray', marginLeft: 50, alignSelf: 'flex-start', marginTop: 10,
+        }}>Your fixes with Andy:</Text>
+        <View>
+          {/* body of each section */}
+          <FlatList
+            nestedScrollEnabled={true}
+            data={pendingFixes.fixes}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+          />
         </View>
-      </SafeAreaView>
-    );
-  }
-}
+        {/* fixes */}
+      </View>
+    </SafeAreaView>
+  );
+
+  return render();
+};
+
+export default ChatProfileScreen;

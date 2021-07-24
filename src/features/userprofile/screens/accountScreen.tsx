@@ -1,11 +1,8 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import {
   SafeAreaView, Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
-import {
-  store, connect, StoreState, AddressModel,
-} from 'fixit-common-data-store';
 import NativeAuthService from '../../../core/services/authentication/nativeAuthService';
 import { b2cConfig } from '../../../core/config/msalConfig';
 
@@ -15,11 +12,13 @@ const styles = StyleSheet.create({
   container: {
     height: '100%',
     width: '100%',
-    backgroundColor: '#FFD14A',
+    backgroundColor: 'white',
   },
   bodyContainer: {
+    marginTop: 50,
     backgroundColor: 'white',
-    flexGrow: 100,
+    flexDirection: 'column',
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopLeftRadius: 20,
@@ -69,58 +68,39 @@ const styles = StyleSheet.create({
   },
 });
 
-class AccountScreen extends React.Component<any> {
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.bodyContainer}>
+const AccountScreen : FunctionComponent<any> = (props) => {
+  const option = (id : string,
+    title: string,
+    navigateTo: string | undefined,
+    action : any,
+    style: any) => (<TouchableOpacity testID={id} style={style}
+    // eslint-disable-next-line no-nested-ternary
+    onPress={() => (navigateTo ? props.navigation.navigate(navigateTo) : action !== null ? action() : null)}>
+    <Text>{title}</Text>
+    <Icon library='AntDesign' name='caretright' />
+  </TouchableOpacity>);
 
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity testID='profileBtn' style={styles.buttonFirst}
-              onPress={() => this.props.navigation.navigate('Profile')}>
-              <Text>My Profile</Text>
-              <Icon library='AntDesign' name='caretright' />
-            </TouchableOpacity>
-            <TouchableOpacity testID='loginSecurityBtn' style={styles.button}
-              onPress={() => this.props.navigation.navigate('Security')}>
-              <Text>Login & Security</Text>
-              <Icon library='AntDesign' name='caretright' />
-            </TouchableOpacity>
-            <TouchableOpacity testID='paymentBtn' style={styles.button} onPress={() => undefined}>
-              <Text>Payments</Text>
-              <Icon library='AntDesign' name='caretright' />
-            </TouchableOpacity>
-            <TouchableOpacity testID='ratingsBtn' style={styles.button}
-              onPress={() => this.props.navigation.navigate('Ratings')}>
-              <Text>Ratings</Text>
-              <Icon library='AntDesign' name='caretright' />
-            </TouchableOpacity>
-            <TouchableOpacity testID='addressBtn' style={styles.buttonLast} onPress={() => undefined}>
-              <Text>Your Addresses</Text>
-              <Icon library='AntDesign' name='caretright' />
-            </TouchableOpacity>
-            <View style={{
-              display: 'flex',
-              alignItems: 'center',
-              alignContent: 'center',
-              alignSelf: 'center',
-              margin: 10,
-            }}>
-              <Button
-                testID='signOutBtn'
-                onPress={async () => b2cClient.signOut()}
-                width={100}
-                shape='circle'
-                padding={0}
-              >
-            Sign out
-              </Button>
-            </View>
-          </View>
+  const render = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.bodyContainer}>
+        <View style={styles.buttonsContainer}>
+          {option('profileBtn', 'My Profile', 'Profile', null, styles.buttonFirst)}
+          {option('loginSecurityBtn', 'Login & Security', 'Security', null, styles.button)}
+          {option('paymentBtn', 'Payments', undefined, null, styles.button)}
+          {option('ratingsBtn', 'Ratings', 'Ratings', null, styles.button)}
+          {option('signOutBtn', 'Sign Out', undefined, async () => b2cClient.signOut(), styles.buttonLast)}
         </View>
-      </SafeAreaView>
-    );
-  }
-}
+      </View>
+      <View style={{
+        alignItems: 'center',
+        alignContent: 'flex-end',
+        alignSelf: 'center',
+        height: '15%',
+      }}>
+      </View>
+    </SafeAreaView>
+  );
+  return render();
+};
 
 export default AccountScreen;

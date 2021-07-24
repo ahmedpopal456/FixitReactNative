@@ -1,313 +1,316 @@
-import React, { useEffect, useState, FunctionComponent } from 'react';
+/* eslint-disable no-nested-ternary */
+import React, { useState, FunctionComponent, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
-  Text, View, ScrollView, Image, TouchableOpacity,
+  Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, Dimensions, SafeAreaView, Alert,
 } from 'react-native';
 import {
-  connect,
+  ConfigFactory,
+  FixesService,
+  store,
   StoreState,
+  useSelector,
 } from 'fixit-common-data-store';
 import {
-  Button, colors, H1, H2, Icon, Tag,
+  Button, colors, Icon, Tag,
 } from 'fixit-common-ui';
-import axios from 'axios';
+import useAsyncEffect from 'use-async-effect';
+import Toast from 'react-native-toast-message';
+import ProgressIndicatorFactory from '../components/progressIndicators/progressIndicatorFactory';
 import SearchTextInput from '../components/searchTextInput';
 
-interface HomeScreenClientState {
-  titleFieldVisible: boolean,
-  titleFieldTextVisible: boolean,
-  tagSuggestionsVisible: boolean,
-  suggestedTags: Array<string>,
-  tagInputText: string,
-  tags: Array<string>,
-}
+const fixesService = new FixesService(new ConfigFactory(), store);
 
-interface HomeScreenClientProps {
-  userId: string,
-  firstName: string,
-  lastName: string,
-  role: number,
-  unseenNotificationsNumber: number
-}
+const styles = StyleSheet.create({
+  baseContainer: {
+    flex: 1,
+    backgroundColor: '#EEEEEE',
+  },
+  baseContainer_View: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    borderRadius: 20,
+  },
+  baseContainer_View_View: {
+    height: '90%',
+  },
+  baseContainer_View_View_View: {
+    paddingLeft: 25,
+    borderRadius: 25,
+    backgroundColor: '#EEEEEE',
+    paddingTop: 20,
+    paddingBottom: 20,
+    marginTop: -20,
+    elevation: 10,
+  },
+  tagsContainer: {
+    marginRight: 10,
+    justifyContent: 'flex-start',
+  },
+  tagsContainerView: {
+    alignContent: 'flex-start',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginLeft: 15,
+  },
+  selectedTagsContainer: {
+    flexGrow: 0,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+    marginTop: 2,
+    marginLeft: 2,
+  },
+  spinner: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 30,
+  },
+  loadingMessage: {
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    lineHeight: 90,
+  },
+  headers: {
+    marginLeft: 15,
+    marginTop: 15,
+  },
+  footer: {
+    backgroundColor: '#EEEEEE',
+    height: 300,
+    marginTop: -30,
+    paddingTop: 60,
+  },
+});
 
-const initialState : HomeScreenClientState = {
-  titleFieldVisible: false,
-  titleFieldTextVisible: true,
-  tagSuggestionsVisible: false,
-  suggestedTags: [''],
-  tagInputText: '',
-  tags: [''],
-};
+const HomeScreenClient: FunctionComponent = () => {
+  const maxSelectedTags = 5;
 
-const HomeScreenClient: FunctionComponent<HomeScreenClientProps> = (props) => {
-  const [state, setState] = useState<HomeScreenClientState>(initialState);
   const navigation = useNavigation();
+  const popularFixTags = useSelector((storeState: StoreState) => storeState.fixes.topFixTagsState);
 
-  useEffect(() => {
-    const suggestedTags = [''];
-    axios
-      .get('https://fixit-dev-fms-api.azurewebsites.net/api/tags/3')
-      .then((res) => {
-        let i;
-        for (i = 0; i < res.data.length; i += 1) {
-          suggestedTags.push(res.data[i].name);
-        }
-        if (i > -1) {
-          suggestedTags.splice(0, 1);
-        }
+  const [refreshState, setRefreshState] = useState<boolean>(false);
+  const [tagInputTextState, setTagInputTextState] = useState<string>('');
+  const [selectedTagsState, setSelectedTagsState] = useState<Array<string>>(['']);
+  const [suggestedTagsState, setSuggestedTagsState] = useState<Array<string>>(['']);
+  const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
 
-        setState((prevState: HomeScreenClientState) => ({
-          ...prevState,
-          suggestedTags,
-        }));
-      });
+  useAsyncEffect(async () => {
+    await onRefresh();
   }, []);
 
-  const setTagInputText = (text: string): void => {
-    setState((prevState: HomeScreenClientState) => ({
-      ...prevState,
-      tagInputText: text,
-    }));
+  useEffect(() => {
+    if (!popularFixTags.isLoading) {
+      const nonSelectedTags = popularFixTags.tags.filter((tag) => !selectedTagsState.includes(tag.name));
+      setSuggestedTagsState(nonSelectedTags.map((tag) => tag.name));
+    }
+  }, [popularFixTags]);
+
+  const onRefresh = async () => {
+    setRefreshState(true);
+    await fixesService.getPopularFixTags('5');
+    setRefreshState(false);
   };
 
   const addTag = (): void => {
-    const currentText = state.tagInputText;
-    if (currentText && state.tags.indexOf(currentText) === -1) {
-      setState((prevState: HomeScreenClientState) => ({
-        ...prevState,
-        tagInputText: '',
-        tags: [...prevState.tags, currentText],
-      }));
+    if (selectedTagsState.length > maxSelectedTags) {
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1: 'Exceeded tag limit',
+      });
+      return;
     }
+
+    if (selectedTagsState.includes(tagInputTextState)) {
+      Toast.show({
+        type: 'info',
+        position: 'bottom',
+        text1: 'Tag already selected',
+      });
+      return;
+    }
+
+    const updatedTags = [...selectedTagsState];
+    updatedTags.push(tagInputTextState);
+    setSelectedTagsState(updatedTags);
   };
 
   const removeTag = (tag: string): void => {
-    const tagArr = state.tags;
-    const index = tagArr.indexOf(tag);
-    if (index > -1) {
-      tagArr.splice(index, 1);
-    }
-    setState((prevState: HomeScreenClientState) => ({
-      ...prevState,
-      tags: tagArr,
-    }));
-  };
+    const updatedTags = [...selectedTagsState];
+    const suggestedTags = [...suggestedTagsState];
+    const index = updatedTags.indexOf(tag);
 
-  const showTagSuggestions = (): void => {
-    setState((prevState: HomeScreenClientState) => (
-      {
-        ...prevState,
-        tagSuggestionsVisible: true,
-      }));
+    if (index > -1) {
+      updatedTags.splice(index, 1);
+    }
+    if (!suggestedTags.includes(tag)) {
+      suggestedTags.push(tag);
+    }
+    setSuggestedTagsState(suggestedTags);
+    setSelectedTagsState(updatedTags);
   };
 
   const addSuggestedTagToTagList = (tag: string): void => {
-    const suggestedTagArr = state.suggestedTags;
-    const index = suggestedTagArr.indexOf(tag);
-    if (index > -1) {
-      suggestedTagArr.splice(index, 1);
+    const suggestedTags = [...suggestedTagsState];
+    const selectedTags = [...selectedTagsState];
+
+    if (selectedTagsState.includes(tag)) {
+      Toast.show({
+        type: 'info',
+        position: 'bottom',
+        text1: 'Tag already selected',
+      });
+      return;
     }
 
-    setState((prevState: HomeScreenClientState) => (
-      {
-        ...prevState,
-        suggestedTags: suggestedTagArr,
-      }));
-    setState((prevState: HomeScreenClientState) => (
-      {
-        ...prevState,
-        suggestedTags: suggestedTagArr,
-        tags: [...prevState.tags, tag],
-      }));
+    const index = suggestedTags.indexOf(tag);
+    if (index > -1) {
+      suggestedTags.splice(index, 1);
+    }
+    setSuggestedTagsState(suggestedTags);
+    setSelectedTagsState([...selectedTags, tag]);
   };
 
   const search = () : void => {
     navigation.navigate('SearchResultsScreen', {
-      tags: state.tags,
+      tags: selectedTagsState,
     });
   };
 
   return (
-    <>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{
-          height: 20,
-          width: '100%',
-          backgroundColor: colors.accent,
-        }}>
-        </View>
-        <View style={{
-          paddingLeft: 25,
-          borderRadius: 25,
-          backgroundColor: '#EEEEEE',
-          paddingTop: 20,
-          paddingBottom: 20,
-          marginTop: -20,
-          elevation: 10,
-        }}>
-          <Text>Most Popular Fixes</Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-            }}
-          >
-            {state.suggestedTags.map((tag: any) => (tag ? (
+    <SafeAreaView style={styles.baseContainer}>
+      <View style={styles.baseContainer_View}>
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshState}
+              onRefresh={onRefresh}
+              colors={[colors.orange]}/>
+          }
+          showsVerticalScrollIndicator={false}>
+        </ScrollView>
+        <View style={styles.baseContainer_View_View}>
+          <View style={styles.baseContainer_View_View_View}>
+            {suggestedTagsState.length > 0
+              ? <Text>Suggested Tags</Text>
+              : <></>}
+            <View
+              style={{
+                marginTop: 10,
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                flexGrow: 100,
+              }}>
+              {popularFixTags.isLoading
+                ? <ProgressIndicatorFactory
+                  type='indeterminate'
+                  children={{
+                    indicatorType: 'circular',
+                    color: colors.orange,
+                  }}/>
+                : suggestedTagsState.length < 0
+                  ? <></>
+                  : <View style={styles.tagsContainerView}>
+                    {suggestedTagsState.map((tag: any) => (tag ? (
+                      <View
+                        key={tag}
+                        style={styles.tagsContainer}>
+
+                        <TouchableOpacity
+                          onPress={() => addSuggestedTagToTagList(tag)}
+                          style={{
+                            flexGrow: 0,
+                            marginLeft: 5,
+                            marginRight: -15,
+                          }}
+                        >
+                          <Tag
+                            backgroundColor={'grey'}
+                            textColor={'light'}>
+                            {tag}
+                          </Tag>
+                        </TouchableOpacity>
+                      </View>
+                    ) : null))}
+                  </View>}
+            </View>
+            <View>
+              <View style={{
+                position: 'absolute',
+                zIndex: -1,
+                paddingTop: 10,
+              }}
+              >
+                <SearchTextInput
+                  onChange={(text: string) => setTagInputTextState(text)}
+                  value={tagInputTextState}
+                  placeholder="What needs Fixing?"
+                  onFocus={() => setTagSuggestionsVisible(true)}
+                  onSubmitEditing={addTag}
+                />
+              </View>
               <View
-                key={tag}
                 style={{
-                  flexGrow: 0,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginRight: 10,
+                  paddingLeft: 280,
+                  marginVertical: 13,
+                  paddingBottom: 10,
                 }}
               >
-                <TouchableOpacity
-                  onPress={() => addSuggestedTagToTagList(tag)}
-                  style={{
-                    flexGrow: 0,
-                    marginLeft: 5,
-                    marginRight: -15,
-                  }}
+                <Button
+                  testID='searchBtn'
+                  onPress={search}
+                  color="primary"
+                  width={50}
+                  padding={0}
                 >
-                  <Tag backgroundColor={'grey'} textColor={'light'}>
-                    {tag}
-                  </Tag>
-                </TouchableOpacity>
+                  <Icon
+                    library="Ionicons"
+                    name="hammer-outline"
+                    color="accent"
+                  />
+                </Button>
               </View>
-            ) : null))}
-          </View>
-          <View style={{ flexDirection: 'row' }}>
-            <View
-              style={{ position: 'absolute', zIndex: -1, paddingTop: 10 }}
-            >
-              <SearchTextInput
-                onChange={(text: string) => setTagInputText(text)}
-                value={state.tagInputText}
-                placeholder="What needs Fixing?"
-                onFocus={() => showTagSuggestions()}
-                onSubmitEditing={addTag}
-              />
             </View>
             <View
               style={{
-                paddingLeft: 280,
-                marginVertical: 13,
-                paddingBottom: 10,
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
               }}
             >
-              <Button
-                testID='searchBtn'
-                onPress={search}
-                color="primary"
-                width={50}
-                padding={0}
-              >
-                <Icon
-                  library="Ionicons"
-                  name="hammer-outline"
-                  color="accent"
-                />
-              </Button>
+              {selectedTagsState.map((tag: any) => (tag ? (
+                <View
+                  key={tag}
+                  style={styles.selectedTagsContainer}>
+                  <Tag backgroundColor={'accent'} textColor={'dark'}>
+                    {tag}
+                  </Tag>
+                  <TouchableOpacity
+                    style={{ flexGrow: 0, marginLeft: -5 }}
+                    onPress={() => removeTag(tag)}
+                  >
+                    <Icon
+                      library="FontAwesome5"
+                      name="times-circle"
+                      color={'dark'}
+                    />
+                  </TouchableOpacity>
+                </View>
+              ) : null))}
             </View>
           </View>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-            }}
-          >
-            {state.tags.map((tag: any) => (tag ? (
-              <View
-                key={tag}
-                style={{
-                  flexGrow: 0,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginRight: 10,
-                  marginTop: 2,
-                  marginLeft: 2,
-                }}
-              >
-                <Tag backgroundColor={'accent'} textColor={'dark'}>
-                  {tag}
-                </Tag>
-                <TouchableOpacity
-                  style={{ flexGrow: 0, marginLeft: -5 }}
-                  onPress={() => removeTag(tag)}
-                >
-                  <Icon
-                    library="FontAwesome5"
-                    name="times-circle"
-                    color={'dark'}
-                  />
-                </TouchableOpacity>
-              </View>
-            ) : null))}
+          <View style={styles.footer}>
           </View>
         </View>
-        <View style={{
-          backgroundColor: '#fff',
-          height: 300,
-          marginTop: -30,
-          paddingTop: 60,
-        }}>
-          <H2
-            style={{
-              textAlign: 'center',
-            }}
-          >
-                Explore
-          </H2>
-          <ScrollView
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'nowrap',
-              padding: 20,
-            }}>
-            <Image style={{
-              height: 150,
-              width: 150,
-              borderRadius: 15,
-              marginRight: 20,
-            // eslint-disable-next-line max-len
-            }}source={{ uri: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80' }}/>
-            <Image style={{
-              height: 150,
-              width: 150,
-              borderRadius: 15,
-              marginRight: 20,
-            // eslint-disable-next-line max-len
-            }}source={{ uri: 'https://images.unsplash.com/photo-1599619585752-c3edb42a414c?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80' }}/>
-            <Image style={{
-              height: 150,
-              width: 150,
-              borderRadius: 15,
-              marginRight: 20,
-            // eslint-disable-next-line max-len
-            }}source={{ uri: 'https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }}/>
-          </ScrollView>
-        </View>
-      </ScrollView>
-    </>
+      </View>
+      <Toast ref={(ref) => Toast.setRef(ref)} />
+    </SafeAreaView>
   );
 };
 
-function mapStateToProps(state: StoreState) {
-  return {
-    userId: state.user.userId,
-    firstName: state.user.firstName,
-    lastName: state.user.lastName,
-    role: state.user.role,
-    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-export default connect(mapStateToProps)(HomeScreenClient);
+export default HomeScreenClient;

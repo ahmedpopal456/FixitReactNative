@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import {
   Text, View, StyleSheet, TouchableOpacity, Dimensions, ScrollView, FlatList, LogBox,
 } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, FixesService, ConfigFactory, connect, StoreState, FixesModel,
+  store, FixesService, ConfigFactory, connect, StoreState, FixesModel, useSelector,
 } from 'fixit-common-data-store';
+import useAsyncEffect from 'use-async-effect';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
 
@@ -82,56 +83,32 @@ const styles = StyleSheet.create({
   },
 });
 
-class FixesScreen extends React.Component<any, {
-  fixSelected: boolean,
-  showPending: boolean,
-  showProgress: boolean,
-  showReview: boolean,
-  showCompleted: boolean,
-  showTerminated: boolean,
-  newFixes: Array<FixesModel>,
-  pendingFixes: Array<FixesModel>,
-  inProgressFixes: Array<FixesModel>,
-  inReviewFixes: Array<FixesModel>,
-  completedFixes: Array<FixesModel>,
-  terminatedFixes: Array<FixesModel>,
-}> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      fixSelected: true,
-      showPending: true,
-      showProgress: true,
-      showReview: true,
-      showCompleted: true,
-      showTerminated: true,
-      newFixes: store.getState().fixes.newFixes,
-      pendingFixes: store.getState().fixes.pendingFixes,
-      inProgressFixes: store.getState().fixes.inProgressFixes,
-      inReviewFixes: store.getState().fixes.inReviewFixes,
-      completedFixes: store.getState().fixes.completedFixes,
-      terminatedFixes: store.getState().fixes.terminatedFixes,
-    };
-  }
+const FixesScreen: FunctionComponent<any> = (props) => {
+  const [fixSelected, setFixSelected] = useState<boolean>(true);
+  const [showPending, setShowPending] = useState<boolean>(true);
+  const [showProgress, setShowProgress] = useState<boolean>(true);
+  const [showReview, setShowReview] = useState<boolean>(true);
+  const [showCompleted, setShowCompleted] = useState<boolean>(true);
+  const [showTerminated, setShowTerminated] = useState<boolean>(true);
 
-  async componentDidMount() : Promise<void> {
-    const newFixResponse = await fixesService.getNewFixes(this.props.userId);
-    const pendingFixResponse = await fixesService.getPendingFixes(this.props.userId);
-    const inProgresFixResponse = await fixesService.getInProgressFixes(this.props.userId);
-    const inReviewFixResponse = await fixesService.getInReviewFixes(this.props.userId);
-    const completedFixResponse = await fixesService.getCompletedFixes(this.props.userId);
-    const terminatedFixResponse = await fixesService.getTerminatedFixes(this.props.userId);
-    this.setState({
-      newFixes: newFixResponse,
-      pendingFixes: pendingFixResponse,
-      inProgressFixes: inProgresFixResponse,
-      inReviewFixes: inReviewFixResponse,
-      completedFixes: completedFixResponse,
-      terminatedFixes: terminatedFixResponse,
-    });
-  }
+  const user = useSelector((storeState: StoreState) => storeState.user);
+  const newFixes = useSelector((storeState: StoreState) => storeState.fixes.newFixesState);
+  const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
+  const inProgressFixes = useSelector((storeState: StoreState) => storeState.fixes.inProgressFixesState);
+  const inReviewFixes = useSelector((storeState: StoreState) => storeState.fixes.inReviewFixesState);
+  const completedFixes = useSelector((storeState: StoreState) => storeState.fixes.completedFixesState);
+  const terminatedFixes = useSelector((storeState: StoreState) => storeState.fixes.terminatedFixesState);
 
-  getStatusColor = (status: number) => {
+  useAsyncEffect(async () => {
+    await fixesService.getNewFixes(user.userId as string);
+    await fixesService.getPendingFixes(user.userId as string);
+    await fixesService.getInProgressFixes(user.userId as string);
+    await fixesService.getInReviewFixes(user.userId as string);
+    await fixesService.getCompletedFixes(user.userId as string);
+    await fixesService.getTerminatedFixes(user.userId as string);
+  }, []);
+
+  const getStatusColor = (status: number) => {
     switch (status) {
       case 0: // new
         return { backgroundColor: '#1D1F2A' };
@@ -148,189 +125,187 @@ class FixesScreen extends React.Component<any, {
       default: // new or other
         return { backgroundColor: '#1D1F2A' };
     }
-  }
+  };
 
-  renderFixes() {
-    return (
-      <ScrollView nestedScrollEnabled={true}>
-        { this.state.pendingFixes && this.state.pendingFixes.length === 0
-          ? null
-          : <View style={{ margin: 5 }}>
-            {/* Section Title */}
-            <View>
-              <View style={styles.titleContainer}>
-                <Text style={styles.title}>Pending</Text>
-                <TouchableOpacity
-                  onPress={() => this.setState({ showPending: !this.state.showPending })}
-                >
-                  {this.state.showPending
-                    ? <Icon library='AntDesign' name='caretdown' />
-                    : <Icon library='AntDesign' name='caretup' />
-                  }
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.subtitle}>The fix plan is still in progress.</Text>
+  const renderFixes = () => (
+    <ScrollView nestedScrollEnabled={true}>
+      { !pendingFixes || !pendingFixes.fixes.length
+        ? null
+        : <View style={{ margin: 5 }}>
+          {/* Section Title */}
+          <View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Pending</Text>
+              <TouchableOpacity
+                onPress={() => setShowPending(!showPending)}
+              >
+                {showPending
+                  ? <Icon library='AntDesign' name='caretdown' />
+                  : <Icon library='AntDesign' name='caretup' />
+                }
+              </TouchableOpacity>
             </View>
-            {this.state.showPending
-              ? <View>
-                {/* body of each section */}
-                <FlatList
-                  nestedScrollEnabled={true}
-                  data={this.state.pendingFixes}
-                  renderItem={this.renderItem}
-                  keyExtractor={(item: any) => item.id}
-                />
-              </View>
-              : null
-            }
+            <Text style={styles.subtitle}>The fix plan is still in progress.</Text>
           </View>
-        }
-
-        { this.state.inProgressFixes && this.state.inProgressFixes.length === 0
-          ? null
-          : <View style={{ margin: 5 }}>
-            {/* Section Title */}
-            <View>
-              <View style={styles.titleContainer}>
-                <Text style={styles.title}>In Progress</Text>
-                <TouchableOpacity
-                  onPress={() => this.setState({ showProgress: !this.state.showProgress })}
-                >
-                  {this.state.showProgress
-                    ? <Icon library='AntDesign' name='caretdown' />
-                    : <Icon library='AntDesign' name='caretup' />
-                  }
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.subtitle}>These fixes are under way.</Text>
+          {showPending
+            ? <View>
+              {/* body of each section */}
+              <FlatList
+                nestedScrollEnabled={true}
+                data={pendingFixes.fixes}
+                renderItem={renderItem}
+                keyExtractor={(item: any) => item.id}
+              />
             </View>
-            {this.state.showProgress
-              ? <View style={{ justifyContent: 'center' }}>
-                {/* body of each section */}
-                <FlatList
-                  nestedScrollEnabled={true}
-                  data={this.state.inProgressFixes}
-                  renderItem={this.renderItem}
-                  keyExtractor={(item: any) => item.id}
-                />
-              </View>
-              : null
-            }
-          </View>
-        }
+            : null
+          }
+        </View>
+      }
 
-        { this.state.inReviewFixes && this.state.inReviewFixes.length === 0
-          ? null
-          : <View style={{ margin: 5 }}>
-            {/* Section Title */}
-            <View>
-              <View style={styles.titleContainer}>
-                <Text style={styles.title}>In Review</Text>
-                <TouchableOpacity
-                  onPress={() => this.setState({ showReview: !this.state.showReview })}
-                >
-                  {this.state.showReview
-                    ? <Icon library='AntDesign' name='caretdown' />
-                    : <Icon library='AntDesign' name='caretup' />
-                  }
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.subtitle}>You need to approve the completion of the fix.</Text>
+      { !inProgressFixes || !inProgressFixes.fixes.length
+        ? null
+        : <View style={{ margin: 5 }}>
+          {/* Section Title */}
+          <View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>In Progress</Text>
+              <TouchableOpacity
+                onPress={() => setShowProgress(!showProgress)}
+              >
+                {showProgress
+                  ? <Icon library='AntDesign' name='caretdown' />
+                  : <Icon library='AntDesign' name='caretup' />
+                }
+              </TouchableOpacity>
             </View>
-            {this.state.showReview
-              ? <View>
-                {/* body of each section */}
-                <FlatList
-                  nestedScrollEnabled={true}
-                  data={this.state.inReviewFixes}
-                  renderItem={this.renderItem}
-                  keyExtractor={(item: any) => item.id}
-                />
-              </View>
-              : null
-            }
+            <Text style={styles.subtitle}>These fixes are under way.</Text>
           </View>
-        }
-
-        { this.state.completedFixes && this.state.completedFixes.length === 0
-          ? null
-          : <View style={{ margin: 5 }}>
-            {/* Section Title */}
-            <View>
-              <View style={styles.titleContainer}>
-                <Text style={styles.title}>Completed</Text>
-                <TouchableOpacity
-                  onPress={() => this.setState({ showCompleted: !this.state.showCompleted })}
-                >
-                  {this.state.showCompleted
-                    ? <Icon library='AntDesign' name='caretdown' />
-                    : <Icon library='AntDesign' name='caretup' />
-                  }
-                </TouchableOpacity>
-              </View>
+          {showProgress
+            ? <View style={{ justifyContent: 'center' }}>
+              {/* body of each section */}
+              <FlatList
+                nestedScrollEnabled={true}
+                data={inProgressFixes.fixes}
+                renderItem={renderItem}
+                keyExtractor={(item: any) => item.id}
+              />
             </View>
-            {this.state.showCompleted
-              ? <View>
-                {/* body of each section */}
-                <FlatList
-                  nestedScrollEnabled={true}
-                  data={this.state.completedFixes}
-                  renderItem={this.renderItem}
-                  keyExtractor={(item: any) => item.id}
-                />
-              </View>
-              : null
-            }
-          </View>
-        }
+            : null
+          }
+        </View>
+      }
 
-        { this.state.terminatedFixes && this.state.terminatedFixes.length === 0
-          ? null
-          : <View style={{ margin: 5 }}>
-            {/* Section Title */}
-            <View>
-              <View style={styles.titleContainer}>
-                <Text style={styles.title}>Terminated</Text>
-                <TouchableOpacity
-                  onPress={() => this.setState({ showTerminated: !this.state.showTerminated })}
-                >
-                  {this.state.showTerminated
-                    ? <Icon library='AntDesign' name='caretdown' />
-                    : <Icon library='AntDesign' name='caretup' />
-                  }
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.subtitle}>Abandoned Fixes.</Text>
+      { !inReviewFixes || !inReviewFixes.fixes.length
+        ? null
+        : <View style={{ margin: 5 }}>
+          {/* Section Title */}
+          <View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>In Review</Text>
+              <TouchableOpacity
+                onPress={() => setShowReview(!showReview)}
+              >
+                {showReview
+                  ? <Icon library='AntDesign' name='caretdown' />
+                  : <Icon library='AntDesign' name='caretup' />
+                }
+              </TouchableOpacity>
             </View>
-            {this.state.showTerminated
-              ? <View>
-                {/* body of each section */}
-                <FlatList
-                  nestedScrollEnabled={true}
-                  data={this.state.terminatedFixes}
-                  renderItem={this.renderItem}
-                  keyExtractor={(item: any) => item.id}
-                />
-              </View>
-              : null
-            }
+            <Text style={styles.subtitle}>You need to approve the completion of the fix.</Text>
           </View>
-        }
-      </ScrollView>
-    );
-  }
+          {showReview
+            ? <View>
+              {/* body of each section */}
+              <FlatList
+                nestedScrollEnabled={true}
+                data={inReviewFixes.fixes}
+                renderItem={renderItem}
+                keyExtractor={(item: any) => item.id}
+              />
+            </View>
+            : null
+          }
+        </View>
+      }
 
-  renderItem = ({ item } : any) : JSX.Element => (
+      { !completedFixes || !completedFixes.fixes.length
+        ? null
+        : <View style={{ margin: 5 }}>
+          {/* Section Title */}
+          <View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Completed</Text>
+              <TouchableOpacity
+                onPress={() => setShowCompleted(!showCompleted)}
+              >
+                {showCompleted
+                  ? <Icon library='AntDesign' name='caretdown' />
+                  : <Icon library='AntDesign' name='caretup' />
+                }
+              </TouchableOpacity>
+            </View>
+          </View>
+          {showCompleted
+            ? <View>
+              {/* body of each section */}
+              <FlatList
+                nestedScrollEnabled={true}
+                data={completedFixes.fixes}
+                renderItem={renderItem}
+                keyExtractor={(item: any) => item.id}
+              />
+            </View>
+            : null
+          }
+        </View>
+      }
+
+      { !terminatedFixes || !terminatedFixes.fixes.length
+        ? null
+        : <View style={{ margin: 5 }}>
+          {/* Section Title */}
+          <View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Terminated</Text>
+              <TouchableOpacity
+                onPress={() => setShowTerminated(!showTerminated)}
+              >
+                {showTerminated
+                  ? <Icon library='AntDesign' name='caretdown' />
+                  : <Icon library='AntDesign' name='caretup' />
+                }
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.subtitle}>Abandoned Fixes.</Text>
+          </View>
+          {showTerminated
+            ? <View>
+              {/* body of each section */}
+              <FlatList
+                nestedScrollEnabled={true}
+                data={terminatedFixes.fixes}
+                renderItem={renderItem}
+                keyExtractor={(item: any) => item.id}
+              />
+            </View>
+            : null
+          }
+        </View>
+      }
+    </ScrollView>
+  );
+
+  const renderItem = ({ item } : any) : JSX.Element => (
     <TouchableOpacity
       onPress={() => {
         if (item.status !== 0) { // Not Fix Request
           // TODO: Extract the navigate string into an enum, same elsewhere
-          this.props.navigation.navigate('FixOverview', { fix: item });
+          props.navigation.navigate('FixOverview', { fix: item });
         }
       }}
       style={styles.fixContainer}
     >
-      <View style={[styles.statusBar, this.getStatusColor(item.status)]}></View>
+      <View style={[styles.statusBar, getStatusColor(item.status)]}></View>
       <View style={{ width: 200, paddingVertical: 5 }}>
         <Text>
           {item.assignedToCraftsman == null
@@ -347,85 +322,78 @@ class FixesScreen extends React.Component<any, {
     </TouchableOpacity>
   );
 
-  render() : JSX.Element {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.topCycleContainer}>
-          <Button // fixSelected = true
-            testID='fixesBtn'
-            onPress={() => this.setState({ fixSelected: true })}
-            width={100}
-            shape='circle'
-            padding={0}
-            outline={!this.state.fixSelected}
+  const render = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.topCycleContainer}>
+        <Button
+          testID='fixesBtn'
+          onPress={() => setFixSelected(true)}
+          width={100}
+          shape='circle'
+          padding={0}
+          outline={!fixSelected}
+        >
+          <Text
+            style={{
+              fontSize: 20,
+              color: fixSelected ? '#FFD14A' : '#1D1F2A',
+            }}
           >
-            <Text
-              style={{
-                fontSize: 20,
-                color: this.state.fixSelected ? '#FFD14A' : '#1D1F2A',
-              }}
-            >
               Fixes
-            </Text>
-          </Button>
-          <Button // fixSelected = false
-            testID='fixRequestsBtn'
-            onPress={() => this.setState({ fixSelected: false })}
-            width={150}
-            shape='circle'
-            padding={0}
-            outline={!!this.state.fixSelected}
+          </Text>
+        </Button>
+        <Button
+          testID='fixRequestsBtn'
+          onPress={() => setFixSelected(false)}
+          width={150}
+          shape='circle'
+          padding={0}
+          outline={fixSelected}
+        >
+          <Text
+            style={{
+              fontSize: 20,
+              color: fixSelected ? '#1D1F2A' : '#FFD14A',
+            }}
           >
-            <Text
-              style={{
-                fontSize: 20,
-                color: this.state.fixSelected ? '#1D1F2A' : '#FFD14A',
-              }}
-            >
               Fix Requests
-            </Text>
-          </Button>
-        </View>
+          </Text>
+        </Button>
+      </View>
 
-        <View style={styles.bodyContainer}>
-          {this.state.fixSelected
-            ? <View style={{ width: '100%', height: '100%' }}>
-              {((this.state.pendingFixes && this.state.pendingFixes.length === 0)
-                && (this.state.inProgressFixes && this.state.inProgressFixes.length === 0)
-                && (this.state.inReviewFixes && this.state.inReviewFixes.length === 0)
-                && (this.state.completedFixes && this.state.completedFixes.length === 0)
-                && (this.state.terminatedFixes && this.state.terminatedFixes.length === 0))
-                ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text>You have no on-going fixes.</Text>
-                </View>
-                : this.renderFixes()
-              }
-            </View>
-            : <View style={{ width: '100%', height: '100%' }}>
-              {(this.state.newFixes && this.state.newFixes.length === 0)
-                ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text>You have no fix requests.</Text>
-                </View>
-                : <FlatList
-                  nestedScrollEnabled={true}
-                  data={this.state.newFixes}
-                  renderItem={this.renderItem}
-                  keyExtractor={(item: any) => item.id}
-                />
-              }
-            </View>
-          }
-        </View>
-      </SafeAreaView>
-    );
-  }
-}
+      <View style={styles.bodyContainer}>
+        {fixSelected
+          ? <View style={{ width: '100%', height: '100%' }}>
+            {((pendingFixes && pendingFixes.fixes.length === 0)
+                && (inProgressFixes && inProgressFixes.fixes.length === 0)
+                && (inReviewFixes && inReviewFixes.fixes.length === 0)
+                && (completedFixes && completedFixes.fixes.length === 0)
+                && (terminatedFixes && terminatedFixes.fixes.length === 0))
+              ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>You have no on-going fixes.</Text>
+              </View>
+              : renderFixes()
+            }
+          </View>
+          : <View style={{ width: '100%', height: '100%' }}>
+            {(newFixes && newFixes.fixes.length === 0)
+              ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>You have no fix requests.</Text>
+              </View>
+              : <FlatList
+                nestedScrollEnabled={true}
+                data={newFixes.fixes}
+                renderItem={renderItem}
+                keyExtractor={(item: any) => item.id}
+              />
+            }
+          </View>
+        }
+      </View>
+    </SafeAreaView>
+  );
 
-function mapStateToProps(state: StoreState) {
-  return {
-    userId: state.user.userId,
-    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
-  };
-}
+  return render();
+};
 
-export default connect(mapStateToProps)(FixesScreen);
+export default FixesScreen;

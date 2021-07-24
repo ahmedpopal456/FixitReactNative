@@ -2,7 +2,7 @@ import React from 'react';
 import 'react-native';
 import { shallow } from 'enzyme';
 import { Provider, store } from 'fixit-common-data-store';
-import NotificationsScreen from '../notificationsScreen';
+import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
 
 describe('Notifications Screen', () => {
   it('renders correctly', async () => {

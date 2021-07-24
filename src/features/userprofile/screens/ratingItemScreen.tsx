@@ -5,7 +5,7 @@ import {
 import { Button, Icon, NotificationBell } from 'fixit-common-ui';
 import { connect, StoreState } from 'fixit-common-data-store';
 import { Rating } from 'react-native-ratings';
-import defaultProfilePic from '../../../common/assets/defaultProfileIcon.png';
+import { Avatar } from 'react-native-elements';
 
 const styles = StyleSheet.create({
   container: {
@@ -16,7 +16,8 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   bodyContainer: {
     flex: 1,
@@ -33,8 +34,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   title: {
-    paddingLeft: 10,
-    paddingBottom: 10,
     fontSize: 20,
   },
   textName: {
@@ -72,18 +71,15 @@ const RatingItemScreen = (props: {
       <Button onPress={() => props.navigation.goBack()} color='transparent'>
         <Icon library='AntDesign' name='back' size={30} />
       </Button>
-      <NotificationBell
-        notifications={props.unseenNotificationsNumber}
-        onPress={() => props.navigation.navigate('Notifications')}
-      />
     </View>
-    <Text style={styles.title}>Your Ratings</Text>
     <View style={styles.bodyContainer}>
       <View style={styles.infoContainer}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={[styles.image, { marginRight: 10 }]}>
-            <Image source={defaultProfilePic} style={styles.image} />
-          </View>
+          <Avatar
+            size="small"
+            rounded
+            icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
+          />
           <Text style={styles.textName}>
             {props.route.params.firstName} {props.route.params.lastName}
           </Text>
@@ -107,13 +103,4 @@ const RatingItemScreen = (props: {
   </SafeAreaView>
 );
 
-function mapStateToProps(state: StoreState) {
-  return {
-    userId: state.user.userId,
-    firstName: state.user.firstName,
-    lastName: state.user.lastName,
-    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
-  };
-}
-
-export default connect(mapStateToProps)(RatingItemScreen);
+export default RatingItemScreen;

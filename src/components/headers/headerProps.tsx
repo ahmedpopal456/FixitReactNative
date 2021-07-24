@@ -14,5 +14,7 @@ export interface HeaderProps extends PropsWithChildren<any>{
     /** If provided, notifications will be rendered */
     notificationsBadgeCount?:number
     /** If provided, ratings will be rendered */
-    userRatings?:number
+    userRatings?:number,
+    /** User's First Name */
+    userFirstName?:string
   }

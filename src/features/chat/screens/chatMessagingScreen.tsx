@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import {
   Text, View, StyleSheet, Dimensions, ViewStyle,
 } from 'react-native';
 import {
-  Avatar, Button, Icon, NotificationBell, colors,
+  Button, Icon, colors,
 } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { connect, StoreState, store } from 'fixit-common-data-store';
+import {
+  StoreState, useSelector,
+} from 'fixit-common-data-store';
 // import { Widget } from 'react-chat-widget';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import { ConversationModel, MessageModel, ParticipantModel } from '../models/chatModel';
+import useAsyncEffect from 'use-async-effect';
+import { Avatar } from 'react-native-elements';
+import { ConversationModel, MessageModel } from '../models/chatModel';
 import SignalRService from '../../../core/services/chat/signalRService';
 import config from '../../../core/config/appConfig';
 
@@ -80,109 +84,87 @@ const styles = StyleSheet.create({
   },
 });
 
-interface ChatMessagingScreenState {
-  conversation: ConversationModel,
-  messages: MessageModel[],
-  message: string
-}
+const ChatMessagingScreen : FunctionComponent<any> = (props) => {
+  const scrollRef: React.RefObject<ScrollView> = React.createRef();
+  const user = useSelector((storeState: StoreState) => storeState.user);
+  const [conversation] = useState<ConversationModel>(props.route.params.conversation);
+  const [messages, setMessages] = useState<MessageModel[]>([]);
+  const [message, setMessage] = useState<string>('');
 
-class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState> {
-  scrollRef: React.RefObject<ScrollView>;
+  const signalRService: SignalRService = new SignalRService(user.userId as string, conversation.id);
 
-  userId: string;
-
-  signalRService: SignalRService;
-
-  selfParticipant: ParticipantModel;
-
-  otherParticipant: ParticipantModel;
-
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      conversation: this.props.route.params.conversation,
-      messages: [],
-      message: '',
-    };
-
-    this.scrollRef = React.createRef();
-    const { userId } = store.getState().user;
-    this.userId = userId || '';
-    this.signalRService = new SignalRService(this.userId, this.state.conversation.id);
-
-    this.selfParticipant = this.getParticipant(true);
-    this.otherParticipant = this.getParticipant(false);
-
-    this.signalRService.buildConnection()
-      .then(() => {
-        this.signalRService.getConnection()?.on(config.newMessageChannel, this.onNewMessage.bind(this));
-        this.signalRService.getConnection()?.onclose(() => console.log('disconnected'));
-        console.log('connecting...');
-        this.signalRService.getConnection()?.start()
-          .then(() => {
-            console.log('connected!');
-          })
-          .catch(console.error);
-      })
-      .catch(console.error);
-  }
-
-  getParticipant(isSelf: boolean) : ParticipantModel {
-    const participantNeeded = this.state.conversation.participants.find(
-      (participant) => (isSelf ? participant.user.id === this.userId : participant.user.id !== this.userId),
+  const getParticipant = (isSelf: boolean) => {
+    const participantNeeded = conversation.participants.find(
+      (participant) => (isSelf ? participant.user.id === user.userId : participant.user.id !== user.userId),
     );
     if (participantNeeded == null) {
       throw new Error('cannot find user');
     }
     return participantNeeded;
-  }
+  };
 
-  async componentDidMount() : Promise<void> {
-    const response = await this.signalRService.getMessages();
-    this.setState({
-      messages: response,
-    });
+  const selfParticipant = getParticipant(true);
+  const otherParticipant = getParticipant(false);
+
+  useAsyncEffect(async () => {
+    const response = await signalRService.getMessages();
+    setMessages(response);
     setTimeout(() => {
-      setTimeout(() => { this.scrollRef?.current?.scrollToEnd({ animated: false }); });
+      setTimeout(() => { scrollRef?.current?.scrollToEnd({ animated: false }); });
     });
-  }
-
-  componentWillUnmount() {
-    this.signalRService.getConnection()?.stop();
-  }
-
-  async onNewMessage(message: any) {
-    // convert new message object properties to camel case
-    const camelMessage = toCamel(message);
-    console.log(camelMessage);
-    if (camelMessage.conversationId === this.state.conversation.id) {
-      this.setState({
-        messages: this.state.messages.concat([camelMessage.message]),
+    signalRService.buildConnection()
+      .then(() => {
+        signalRService.getConnection()?.on(config.newMessageChannel,
+          (incomingMessage) => {
+            onNewMessage(incomingMessage);
+          });
+        signalRService.getConnection()?.start();
       });
-    }
-  }
 
-  renderMessages = () : JSX.Element => (
+    return () => {
+      signalRService.getConnection()?.stop();
+    };
+  }, []);
+
+  const onNewMessage = async (newMessage: any) => {
+    const camelMessage = toCamel(newMessage);
+
+    if (camelMessage.conversationId === conversation.id) {
+      const backupMessages = messages;
+      backupMessages.push(camelMessage.message);
+      setMessages(backupMessages);
+    }
+  };
+
+  const renderMessages = () : JSX.Element => (
     <>
-      {this.state.messages.map((message) => {
-        const isSelf = message.createdByUser.id === this.userId;
+      {messages.map((mess) => {
+        const isSelf = mess.createdByUser.id === user.userId;
         return (
-          <View key={message.id}>
+          <View key={mess.id}>
             {isSelf
               ? <><View style={[styles.messageContainer, messageContainer(isSelf)]}>
                 <View style={[styles.messageBox, messageBox(isSelf)]}>
-                  <Text>{message.message}</Text>
+                  <Text>{mess.message}</Text>
                 </View>
                 <View style={styles.messageAvatar}>
-                  <Avatar style={{ width: 32, height: 32, backgroundColor: colors.grey }}></Avatar>
+                  <Avatar
+                    size="medium"
+                    rounded
+                    icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
+                  />
                 </View>
               </View></>
-              : <><View key={message.id} style={[styles.messageContainer, messageContainer(isSelf)]}>
+              : <><View key={mess.id} style={[styles.messageContainer, messageContainer(isSelf)]}>
                 <View style={styles.messageAvatar}>
-                  <Avatar style={{ width: 32, height: 32, backgroundColor: colors.grey }}></Avatar>
+                  <Avatar
+                    size="medium"
+                    rounded
+                    icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
+                  />
                 </View>
                 <View style={[styles.messageBox, messageBox(isSelf)]}>
-                  <Text style={{ color: colors.white }}>{message.message}</Text>
+                  <Text style={{ color: colors.white }}>{mess.message}</Text>
                 </View>
               </View></>
             }
@@ -190,9 +172,9 @@ class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState>
         );
       })}
     </>
-  )
+  );
 
-  renderNoMessage = (firstName: string, lastName: string): JSX.Element => (
+  const renderNoMessage = (firstName: string, lastName: string): JSX.Element => (
     <View style={{ paddingTop: 10 }}>
       <Icon
         library='Ionicons' name='chatbubbles-outline'
@@ -206,68 +188,73 @@ class ChatMessagingScreen extends React.Component<any, ChatMessagingScreenState>
             Start chatting now!
       </Text>
     </View>
-  )
+  );
 
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.bodyContainer}>
-          <View style={styles.headerContainer}>
-            <View style={styles.headerInformation}>
-              <Text style={{ textAlign: 'right', color: colors.grey }}>
-                {/* last seen at {otherParticipant.lastRead} */}
-              </Text>
-              <Text style={{ textAlign: 'right', fontSize: 20 }}>
-                {this.otherParticipant.user.firstName} {this.otherParticipant.user.lastName}
-              </Text>
-            </View>
-            <View style={styles.headerAvatar}>
-              <Avatar image={this.otherParticipant.user.profilePictureUrl}></Avatar>
-            </View>
+  const render = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.bodyContainer}>
+        <View style={styles.headerContainer}>
+          <View style={styles.headerInformation}>
+            <Text style={{ textAlign: 'right', color: colors.grey }}>
+              {/* last seen at {otherParticipant.lastRead} */}
+            </Text>
+            <Text style={{ textAlign: 'right' }}>
+              {otherParticipant?.user.firstName} {otherParticipant?.user.lastName}
+            </Text>
           </View>
-
-          <ScrollView
-            ref = {this.scrollRef}
-            style={{ marginBottom: 50 }}
-            onContentSizeChange={
-              () => {
-                setTimeout(() => { this.scrollRef?.current?.scrollToEnd({ animated: false }); });
-              }}>
-            {this.state.messages.length !== 0
-              ? this.renderMessages()
-              : this.renderNoMessage(this.otherParticipant.user.firstName, this.otherParticipant.user.lastName)}
-          </ScrollView>
-
-          <View style ={{
-            flexDirection: 'row', alignItems: 'center', margin: 5, position: 'absolute', bottom: 0, left: 0, right: 0,
-          }}>
-            <TextInput
-              style={styles.input}
-              placeholderTextColor='white'
-              placeholder="Enter your message..."
-              onChangeText={(text) => this.setState({ message: text })} value={this.state.message}
-              onSubmitEditing={() => {
-                this.signalRService.sendMessage(this.selfParticipant.user,
-                  this.otherParticipant.user, this.state.message); this.setState({ message: '' });
-              }}></TextInput>
-            <Button style={styles.buttons}>
-              <Icon library='FontAwesome' name='image' color='accent' size={20}/>
-            </Button>
-            <Button
-              style={styles.buttons}
-              onPress={() => {
-                this.signalRService.sendMessage(this.selfParticipant.user,
-                  this.otherParticipant.user, this.state.message); this.setState({ message: '' });
-              }}>
-              <Icon library='FontAwesome' name='send' color='accent' size={20}/>
-            </Button>
-          </View>
-
         </View>
-      </SafeAreaView>
-    );
-  }
-}
+
+        <ScrollView
+          ref = {scrollRef}
+          style={{ marginBottom: 50 }}
+          onContentSizeChange={
+            () => {
+              setTimeout(() => { scrollRef?.current?.scrollToEnd({ animated: false }); });
+            }}>
+          {messages.length !== 0
+            ? renderMessages()
+            : renderNoMessage(otherParticipant?.user.firstName as string, otherParticipant?.user.lastName as string)}
+        </ScrollView>
+
+        <View style ={{
+          flexDirection: 'row', alignItems: 'center', margin: 5, position: 'absolute', bottom: 0, left: 0, right: 0,
+        }}>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor='white'
+            placeholder="Enter your message..."
+            onChangeText={(text) => setMessage(text)}
+            value={message}
+            onSubmitEditing={() => {
+              signalRService.sendMessage(
+                selfParticipant.user,
+                otherParticipant.user,
+                message,
+              );
+              setMessage('');
+            }}>
+          </TextInput>
+          <Button style={styles.buttons}>
+            <Icon library='FontAwesome' name='image' color='accent' size={20}/>
+          </Button>
+          <Button
+            style={styles.buttons}
+            onPress={() => {
+              signalRService.sendMessage(
+                selfParticipant.user,
+                otherParticipant.user,
+                message,
+              );
+              setMessage('');
+            }}>
+            <Icon library='FontAwesome' name='send' color='accent' size={20}/>
+          </Button>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+  return render();
+};
 
 function messageContainer(isSelf: boolean): ViewStyle {
   return isSelf
@@ -306,10 +293,5 @@ function toCamel(o: any) {
   });
   return newO;
 }
-function mapStateToProps(state: StoreState) {
-  return {
-    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
-  };
-}
 
-export default connect(mapStateToProps)(ChatMessagingScreen);
+export default ChatMessagingScreen;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import {
   Text,
   View,
@@ -6,15 +6,15 @@ import {
   Dimensions,
   FlatList,
   TouchableOpacity,
-  Image,
 } from 'react-native';
-import { Button, Icon, NotificationBell } from 'fixit-common-ui';
+import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, RatingsService, ConfigFactory, connect, UserSummaryModel, StoreState, RatingsModel,
+  store, RatingsService, ConfigFactory, StoreState, RatingsModel, useSelector,
 } from 'fixit-common-data-store';
 import { Rating } from 'react-native-ratings';
-import defaultProfilePic from '../../../common/assets/defaultProfileIcon.png';
+import useAsyncEffect from 'use-async-effect';
+import { Avatar } from 'react-native-elements';
 
 const ratingsService = new RatingsService(new ConfigFactory(), store);
 
@@ -27,7 +27,8 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   bodyContainer: {
     flex: 1,
@@ -38,10 +39,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-
   title: {
-    paddingLeft: 10,
-    paddingBottom: 10,
     fontSize: 20,
   },
   infoContainer: {
@@ -69,34 +67,17 @@ const styles = StyleSheet.create({
   },
 });
 
-class RatingsScreen extends React.Component
-<any, RatingsModel> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      ratingsId: store.getState().ratings.ratingsId,
-      averageRating: store.getState().ratings.averageRating,
-      ratings: store.getState().ratings.ratings,
-      ratingsOfUser: store.getState().ratings.ratingsOfUser,
-    };
-  }
+const RatingsScreen : FunctionComponent<any> = (props) => {
+  const user = useSelector((storeState: StoreState) => storeState.user);
+  const ratings = useSelector((storeState:StoreState) => storeState.ratings);
 
-  async componentDidMount() : Promise<void> {
-    const response = await ratingsService.getUserRatingsAverage(
-      this.props.userId,
-    );
-    this.setState({
-      // TODO: this is probably not good
-      ratingsId: response.ratingsId,
-      averageRating: response.averageRating,
-      ratings: response.ratings,
-      ratingsOfUser: response.ratingsOfUser,
-    });
-  }
+  useAsyncEffect(async () => {
+    await ratingsService.getUserRatingsAverage(user.userId as string);
+  }, []);
 
-  renderItem = ({ item } : any) : JSX.Element => (
+  const renderItem = ({ item } : any) : JSX.Element => (
     <TouchableOpacity
-      onPress={() => this.props.navigation.navigate('RatingItem', {
+      onPress={() => props.navigation.navigate('RatingItem', {
         firstName: item.reviewedByUser.firstName,
         lastName: item.reviewedByUser.lastName,
         score: item.score,
@@ -105,9 +86,11 @@ class RatingsScreen extends React.Component
       testID='ratingItem'
       style={styles.ratingItem}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={[styles.image, { marginRight: 10 }]}>
-          <Image source={defaultProfilePic} style={styles.image} />
-        </View>
+        <Avatar
+          size="small"
+          rounded
+          icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
+        />
         <Text style={styles.textName}>
           {item.reviewedByUser.firstName} {item.reviewedByUser.lastName}
         </Text>
@@ -119,52 +102,39 @@ class RatingsScreen extends React.Component
         ratingBackgroundColor={'gray'}
         tintColor={'white'}
         readonly={true}
-        startingValue={this.state.averageRating}
+        startingValue={ratings?.averageRating}
         ratingCount={5}
         imageSize={20}
       />
-      <Text style={{ fontWeight: 'bold', marginVertical: 5 }}>
-        {new Date(item.createdTimestampUtc * 1000).toLocaleDateString()}
+      <Text style={{ fontStyle: 'italic', marginVertical: 5 }}>
+        Reviewed on {new Date(item.createdTimestampUtc * 1000).toLocaleDateString()}
       </Text>
       <Text numberOfLines={2} style={{ marginVertical: 5 }}>{item.comment}</Text>
     </TouchableOpacity>
   );
 
-  render() : JSX.Element {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.topContainer}>
-          <Button onPress={() => this.props.navigation.goBack()} color='transparent'>
-            <Icon library='AntDesign' name='back' size={30} />
-          </Button>
-          <NotificationBell
-            notifications={this.props.unseenNotificationsNumber}
-            onPress={() => this.props.navigation.navigate('Notifications')}
+  const render = () => (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.topContainer}>
+        <Button onPress={() => props.navigation.goBack()} color='transparent'>
+          <Icon library='AntDesign' name='back' size={30} />
+        </Button>
+        <Text style={styles.title}>Ratings</Text>
+      </View>
+      <View style={styles.bodyContainer}>
+        {ratings?.ratings && ratings?.ratings.length > 0 ? (
+          <FlatList
+            style={{ width: '100%' }}
+            data={ratings?.ratings}
+            renderItem={renderItem}
+            keyExtractor={(item : any) => item.id}
           />
-        </View>
-        <Text style={styles.title}>Your Ratings</Text>
-        <View style={styles.bodyContainer}>
-          {this.state.ratings && this.state.ratings.length > 0 ? (
-            <FlatList
-              style={{ width: '100%' }}
-              data={this.state.ratings}
-              renderItem={this.renderItem}
-              keyExtractor={(item : any) => item.id}
-            />
-          ) : null}
-        </View>
-      </SafeAreaView>
-    );
-  }
-}
+        ) : null}
+      </View>
+    </SafeAreaView>
+  );
 
-function mapStateToProps(state: StoreState) {
-  return {
-    userId: state.user.userId,
-    firstName: state.user.firstName,
-    lastName: state.user.lastName,
-    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
-  };
-}
+  return render();
+};
 
-export default connect(mapStateToProps)(RatingsScreen);
+export default RatingsScreen;

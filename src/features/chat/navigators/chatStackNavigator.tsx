@@ -16,7 +16,8 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
         <Header
           notificationsBadgeCount={props.otherProp.notificationCount}
           userRatings={props.otherProp.averageRating}
-          navigation={navigation}></Header>),
+          navigation={navigation}
+          userFirstName={props.otherProp.userFirstName}></Header>),
     }}>
     <Stack.Screen
       name="Chat"

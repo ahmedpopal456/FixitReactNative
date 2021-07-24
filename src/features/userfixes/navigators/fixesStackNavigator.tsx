@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import FixesScreen from '../screens/fixesScreen';
 import FixOverviewScreen from '../screens/fixOverviewScreen';
-import NotificationsScreen from '../../../screens/notificationsScreen';
+import NotificationsScreen from '../../notifications/screens/notificationsScreen';
 import Header from '../../../components/headers/header';
 
 const Stack = createStackNavigator();
@@ -16,7 +16,8 @@ const FixesStackNavigator: FunctionComponent<any> = (props) => (
         <Header
           notificationsBadgeCount={props.otherProp.notificationCount}
           userRatings={props.otherProp.averageRating}
-          navigation={navigation}></Header>),
+          navigation={navigation}
+          userFirstName={props.otherProp.userFirstName}></Header>),
     }}>
     <Stack.Screen
       name="Fixes"

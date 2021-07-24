@@ -62,7 +62,7 @@ export default class NativeAuthService {
     const userId = decodedAuthToken.sub;
 
     store.dispatch(
-      userActions.setAuthStatus({ isAuthenticated: true, authToken: msalResult.accessToken }),
+      userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }),
     );
     // TODO: Make this api call in FixitCommonDataStore
     axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${userId}/account/profile/summary`)
@@ -163,7 +163,7 @@ export default class NativeAuthService {
     );
     await Promise.all(signOutPromises);
     store.dispatch(
-      userActions.setAuthStatus({ isAuthenticated: false, authToken: '' }),
+      userActions.UPDATE_AUTH_STATUS({ isAuthenticated: false, authToken: '' }),
     );
     return true;
   }

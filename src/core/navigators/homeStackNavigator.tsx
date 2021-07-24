@@ -14,7 +14,7 @@ import FixSuggestChanges from '../../features/fixrequests/screens/fixSuggestChan
 import FixSuggestChangesReview from '../../features/fixrequests/screens/fixSuggestChangesReview';
 import UserRoles from '../../common/models/users/userRolesEnum';
 import HomeScreenCraftsman from '../../screens/homeScreenCraftsman';
-import NotificationsScreen from '../../screens/notificationsScreen';
+import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,7 +28,8 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
           <Header
             notificationsBadgeCount={props.otherProp.notificationCount}
             userRatings={props.otherProp.averageRating}
-            navigation={navigation}></Header>),
+            navigation={navigation}
+            userFirstName={props.otherProp.userFirstName}></Header>),
       }}>
       {props.role === UserRoles.CLIENT
          && <Stack.Screen

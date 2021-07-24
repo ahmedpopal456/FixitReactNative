@@ -15,7 +15,7 @@ const Header: FunctionComponent<HeaderProps> = (props) => {
           marginTop: 15, marginLeft: 15, marginRight: 15, fontSize: 15,
         }}>{props.title},</Text>
         <View style={{ flexDirection: 'row' }}>
-          <Text style={{ marginLeft: 15, fontSize: 25, fontWeight: 'bold' }}>Joanna</Text>
+          <Text style={{ marginLeft: 15, fontSize: 25, fontWeight: 'bold' }}>{props.userFirstName}</Text>
           {props.userRatings !== undefined ? (
             <TouchableOpacity
               onPress={() => props.navigation.navigate('Ratings')}>
@@ -27,11 +27,12 @@ const Header: FunctionComponent<HeaderProps> = (props) => {
                 tintColor={'#FFD14A'}
                 readonly={true}
                 startingValue={props.userRatings}
-                ratingCount={5}
                 imageSize={20}
               />
-            </TouchableOpacity>)
+            </TouchableOpacity>
+          )
             : (<></>)}
+          <Text style={{ marginLeft: 5, marginTop: 13, fontStyle: 'italic' }}>{props.userRatings?.toFixed(1)}</Text>
         </View>
       </View>
       {props.notificationsBadgeCount !== undefined ? (
@@ -50,6 +51,7 @@ Header.defaultProps = {
   title: 'Hello',
   userRatings: undefined,
   notificationsBadgeCount: 0,
+  userFirstName: 'Joanna',
 };
 
 export default Header;

@@ -38,29 +38,44 @@ const RootTabNavigator: FunctionComponent = () => {
     name: routes.home,
     iconName: icons.user,
     StackNavigator: (componentProps: any) => <HomeStackNavigator {
-      ...componentProps} otherProp={{ averageRating: userRatingState.averageRating, notificationCount }} />,
+      ...componentProps} otherProp={{
+      averageRating: userRatingState.averageRating,
+      notificationCount,
+      userFirstName: user.firstName,
+    }} />,
   };
   const profile = {
     name: routes.profile,
     iconName: icons.home,
     StackNavigator: (componentProps: any) => <ProfileStackNavigator {
-      ...componentProps} otherProp={{ averageRating: userRatingState.averageRating, notificationCount }} />,
+      ...componentProps} otherProp={{
+      averageRating: userRatingState.averageRating,
+      notificationCount,
+      userFirstName: user.firstName,
+    }} />,
   };
   const fixes = {
     name: routes.fixes,
     iconName: icons.hammer,
     StackNavigator: (componentProps: any) => <FixesStackNavigator {
-      ...componentProps} otherProp={{ averageRating: userRatingState.averageRating, notificationCount }} />,
+      ...componentProps} otherProp={{
+      averageRating: userRatingState.averageRating,
+      notificationCount,
+      userFirstName: user.firstName,
+    }} />,
   };
   const chat = {
     name: routes.chat,
     iconName: icons.comment,
     StackNavigator: (componentProps: any) => <ChatStackNavigator {
-      ...componentProps} otherProp={{ averageRating: userRatingState.averageRating, notificationCount }} />,
+      ...componentProps} otherProp={{
+      averageRating: userRatingState.averageRating,
+      notificationCount,
+      userFirstName: user.firstName,
+    }} />,
   };
   return (
     <Tab.Navigator
-      lazy={true}
       tabBarOptions={tabBarOptions}
       initialRouteName={routes.home}>
       {tabScreen(home)}

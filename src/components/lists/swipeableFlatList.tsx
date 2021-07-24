@@ -19,12 +19,16 @@ const styles = StyleSheet.create({
 const SwipeableFlatList: FunctionComponent<SwipeableFlatListProps> = (props) => (
   <View>
     <ViewWrapper>
-      <Text style={{ marginTop: 15, marginLeft: 15 }}>{props.title}</Text>
-      <TouchableOpacity onPress={() => props.navigationProps.navigation.navigate(props.navigationProps.title, {
-        screen: props.navigationProps.title,
-      })}>
-        <Text style={{ marginTop: 15, marginLeft: 195, color: 'grey' }}>See All</Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', marginLeft: 15 }}>
+        <Text style={{ alignSelf: 'flex-start', marginTop: 15 }}>{props.title}</Text>
+        <TouchableOpacity onPress={() => props.navigationProps.navigation.navigate(props.navigationProps.title, {
+          screen: props.navigationProps.title,
+        })}>
+          <Text style={{
+            alignSelf: 'flex-end', marginTop: 15, marginLeft: 250, color: 'grey',
+          }}>See All</Text>
+        </TouchableOpacity>
+      </View>
     </ViewWrapper>
     <View style={{ marginLeft: 15, marginRight: 15 }}>
       <SwiperFlatList
