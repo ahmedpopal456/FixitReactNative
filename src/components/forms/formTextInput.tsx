@@ -9,7 +9,7 @@ export default class FormTextInput extends
     onFocus?: () => void,
     onBlur?: () => void,
     big?:boolean,
-    value?:string,
+    value?:string | number,
     title?:string,
     padLeft?:boolean,
     numeric?:boolean,

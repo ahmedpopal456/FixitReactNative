@@ -1,16 +1,20 @@
 import {
   Icon, P, Spacer, H2, Tag,
 } from 'fixit-common-ui';
-import { Picker } from '@react-native-picker/picker';
-import React from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import {
   TouchableOpacity, View, Text,
 } from 'react-native';
 import {
-  store, fixRequestActions, connect, StoreState, FixRequestService, FixRequestModel, TagModel,
+  store,
+  fixRequestActions,
+  fixTemplateActions,
+  connect, StoreState, FixRequestService, FixRequestModel, Category, Type, Unit, useSelector,
 } from 'fixit-common-data-store';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { FormTextInput, FormNextPageArrows } from '../../../components/forms/index';
+import useAsyncEffect from 'use-async-effect';
+
+import { FormNextPageArrows } from '../../../components/forms';
 import { HomeStackNavigatorProps } from '../../../common/models/navigators/homeStackNavigatorModel';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import GlobalStyles from '../../../common/styles/globalStyles';
@@ -19,7 +23,8 @@ import StepIndicator from '../../../components/stepIndicator';
 import StyledScrollView from '../../../components/styledElements/styledScrollView';
 import StyledContentWrapper from '../../../components/styledElements/styledContentWrapper';
 import FixRequestStyles from '../styles/fixRequestStyles';
-import FixRequestHeader from '../components/fixRequestHeader';
+import { FixRequestHeader, FixTemplateFormTextInput, FixTemplatePicker } from '../components';
+import fixRequestConstants from './constants';
 
 type FixRequestMetaStepScreenNavigationProps = StackNavigationProp<
   HomeStackNavigatorProps,
@@ -28,304 +33,209 @@ type FixRequestMetaStepScreenNavigationProps = StackNavigationProp<
 
 export type FixRequestMetaStepScreenProps = {
   navigation: FixRequestMetaStepScreenNavigationProps;
-  tags: Array<TagModel>;
-  templateName: string;
-  templateCategory: string;
-  templateType: string;
-  fixTitle: string;
   numberOfSteps: number;
-  templateId: string;
   fixObj: FixRequestModel;
 };
 
-export type FixRequestMetaStepScreenState = {
-  titleFieldVisible: boolean;
-  titleFieldTextVisible: boolean;
-  tagSuggestionsVisible: boolean;
-  suggestedTags: string[];
-  tagInputText: string;
-  categories?: {id: string, name: string, skills: {id:string, name:string}[]}[];
-  types?: {id:string, name:string}[];
-  units?: {id:string, name:string}[];
-}
+const FixRequestMetaStep: FunctionComponent<FixRequestMetaStepScreenProps> = (props: FixRequestMetaStepScreenProps):
+JSX.Element => {
+  const fixTemplate = useSelector((storeState: StoreState) => (storeState.fixTemplate));
 
-class FixRequestMetaStep extends
-  React.Component<FixRequestMetaStepScreenProps> {
-    state : FixRequestMetaStepScreenState ={
-      titleFieldVisible: false,
-      titleFieldTextVisible: true,
-      tagSuggestionsVisible: false,
-      // TODO: retrieve this from the backend
-      suggestedTags: ['kitchen', 'bathroom', 'fireplace', 'TV room'],
-      tagInputText: '',
-      categories: undefined,
-      types: undefined,
-      units: undefined,
+  const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
+  const [tagInputText, setTagInputText] = useState<string>('');
+  const [suggestedTags, setSuggestedTags] = useState<Array<string>>([]);
+  const [templateTags, setTemplateTags] = useState<Array<string>>([]);
+  const [templateName, setTemplateName] = useState<string>('');
+  const [templateCategory, setTemplateCategory] = useState <Category>(fixTemplate.workCategory);
+  const [templateType, setTemplateType] = useState<Type>(fixTemplate.workType);
+  const [templateUnit, setTemplateUnit] = useState<Unit>(fixTemplate.fixUnit);
+  const [categories, setCategories] = useState<Array<Category>>([]);
+  const [types, setTypes] = useState<Array<Type>>([]);
+  const [units, setUnits] = useState<Array<Unit>>([]);
+
+  useAsyncEffect(async () => {
+    const fixRequestService = new FixRequestService(store);
+    setCategories(await fixRequestService.getCategories());
+    setTypes(await fixRequestService.getTypes());
+    setUnits(await fixRequestService.getUnits());
+  }, []);
+
+  useEffect(() => {
+    setTemplateName(fixTemplate.name);
+    setTemplateCategory(fixTemplate.workCategory);
+    setTemplateType(fixTemplate.workType);
+    setTemplateUnit(fixTemplate.fixUnit);
+    setTemplateTags(fixTemplate.tags);
+  }, [fixTemplate.name,
+    fixTemplate.workCategory,
+    fixTemplate.workType,
+    fixTemplate.fixUnit,
+    fixTemplate.tags]);
+
+  const handleNextStep = () : void => {
+    store.dispatch(fixTemplateActions.updateFixTemplate({
+      name: templateName,
+      workCategory: templateCategory,
+      workType: templateType,
+      fixUnit: templateUnit,
+      tags: templateTags,
+    }));
+
+    props.navigation.navigate('FixRequestDescriptionStep');
+  };
+
+  const addTag = () : void => {
+    const updateTemplateTags = [...templateTags];
+    const isTag = updateTemplateTags.indexOf(tagInputText);
+    if (isTag === -1) {
+      updateTemplateTags.push(tagInputText);
+      setTemplateTags(updateTemplateTags);
     }
+    setTagInputText('');
+  };
 
-    componentDidMount = async () : Promise<void> => {
-      const serv = new FixRequestService(store);
-      this.setState({
-        categories: await serv.getCategories(),
-        types: await serv.getTypes(),
-        units: await serv.getUnits(),
-      });
+  const removeTag = (tag : string) : void => {
+    const updateTemplateTags = [...templateTags];
+    const tagToRemoveIndex = updateTemplateTags.indexOf(tag);
+    if (tagToRemoveIndex > -1) {
+      updateTemplateTags.splice(tagToRemoveIndex, 1);
+      setTemplateTags(updateTemplateTags);
     }
+  };
 
-    handleNextStep = () : void => {
-      this.props.navigation.navigate('FixRequestDescriptionStep');
+  const addSuggestedTagToTagList = (tag : string) : void => {
+    const suggestedTagArr = suggestedTags;
+    const index = suggestedTagArr.indexOf(tag);
+    if (index > -1) {
+      suggestedTagArr.splice(index, 1);
     }
+    setSuggestedTags(suggestedTagArr);
 
-    showTitleField = () : void => {
-      this.setState({ titleFieldVisible: true, titleFieldTextVisible: false });
-    }
+    store.dispatch(fixRequestActions.addFixRequestTag({ name: tag }));
+  };
 
-    setTagInputText = (text:string) : void => {
-      this.setState({ tagInputText: text });
-    }
+  const suggestedTagsView = (): JSX.Element => (
+    suggestedTags.length
+      ? <View style={FixRequestStyles.fixTagsWrapper}>
+        <FadeInAnimator
+          visible={tagSuggestionsVisible}
+          style={FixRequestStyles.fixTagsAnimatedWrapper}>
+          <P>Suggestions:</P>
+          <View style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+          }}>
+            {suggestedTags.map((tag:string) => (
+              tag
+                ? <View
+                  key={tag}
+                  style={FixRequestStyles.fixTagWrapper}>
+                  <TouchableOpacity
+                    onPress={() => addSuggestedTagToTagList(tag)}
+                    style={FixRequestStyles.fixTagTouchableWrapper}
+                  >
+                    <Tag backgroundColor={'grey'} textColor={'light'}>{tag}</Tag>
+                  </TouchableOpacity>
+                </View>
+                : null
+            ))}
+          </View>
+        </FadeInAnimator>
+      </View> : <></>
+  );
 
-    addTag = () : void => {
-      const currentText = this.state.tagInputText;
+  const templateTagsList = () : JSX.Element => (
+    <View style={FixRequestStyles.fixTagContainer}>
+      {templateTags.map((tag:string) => (
+        tag
+          ? <View key={tag} style={FixRequestStyles.fixTagWrapper}>
+            <Tag backgroundColor={'accent'} textColor={'dark'}>{tag}</Tag>
+            <TouchableOpacity style={{ flexGrow: 0, marginLeft: -5 }}
+              onPress={() => removeTag(tag)}>
+              <Icon library="FontAwesome5" name="times-circle" color={'dark'} />
+            </TouchableOpacity>
+          </View>
+          : null
+      ))}
+    </View>
+  );
 
-      let isTagAlreadySaved = false;
-      this.props.tags.forEach((tag) => {
-        if (tag.name === currentText) {
-          isTagAlreadySaved = true;
-        }
-      });
+  const templateTagsRender = () : JSX.Element => (
+    <>
+      <View style={GlobalStyles.flexRow}>
+        <H2 style={FixRequestStyles.titleWithAction}>Tags</H2>
+        <TouchableOpacity style={FixRequestStyles.titleActionWrapper}
+          onPress={addTag}>
+          <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
+        </TouchableOpacity>
+      </View>
+      <Spacer height="5px" />
+      {suggestedTagsView()}
+      <FixTemplateFormTextInput
+        onChange={(text : string) => setTagInputText(text)}
+        value={tagInputText}
+        onFocus={() => setTagSuggestionsVisible(true) }
+        onBlur={() => setTagSuggestionsVisible(false) }
+      />
+      {templateTagsList()}
+    </>
+  );
 
-      this.setState({
-        tagInputText: '',
-      });
-
-      if (!isTagAlreadySaved) {
-        store.dispatch(fixRequestActions.addFixRequestTagName({ name: currentText }));
-      }
-    }
-
-    removeTag = (tag : string) : void => {
-      const tagArr = this.props.tags;
-      let index = -1;
-      for (let i = 0; i < tagArr.length; i += 1) {
-        if (tagArr[i].name === tag) {
-          index = i;
-        }
-      }
-      if (index > -1) {
-        tagArr.splice(index, 1);
-      }
-      store.dispatch(fixRequestActions.setFixRequestTags(tagArr));
-      this.forceUpdate();
-    }
-
-    showTagSuggestions = () : void => {
-      this.setState({ tagSuggestionsVisible: true });
-    }
-
-    hideTagSuggestions = () : void => {
-      this.setState({ tagSuggestionsVisible: false });
-    }
-
-    addSuggestedTagToTagList = (tag : string) : void => {
-      const suggestedTagArr = this.state.suggestedTags;
-      const index = suggestedTagArr.indexOf(tag);
-      if (index > -1) {
-        suggestedTagArr.splice(index, 1);
-      }
-
-      this.setState({
-        suggestedTags: suggestedTagArr,
-      });
-
-      this.setState(() => ({
-        suggestedTags: suggestedTagArr,
-      }));
-
-      store.dispatch(fixRequestActions.addFixRequestTagName({ name: tag }));
-    }
-
-    render() : JSX.Element {
-      return (
-        <>
-          <FixRequestHeader
-            showBackBtn={true}
-            navigation={this.props.navigation}
-            screenTitle="Create a Fixit Template and your Fixit Request"
-            textHeight={60}/>
-          <StyledPageWrapper>
-            <StepIndicator
-              numberSteps={
-                this.props.templateId
-                  ? this.props.numberOfSteps + this.props.fixObj.details.sections.length
-                  : this.props.numberOfSteps
-              }
-              currentStep={1} />
-            <StyledScrollView testID='styledScrollView' keyboardShouldPersistTaps={'handled'}>
-              <StyledContentWrapper>
-                <P>This section will be part of your new Fixit Template.
+  const render = () : JSX.Element => (
+    <>
+      <FixRequestHeader
+        showBackBtn={true}
+        navigation={props.navigation}
+        screenTitle="Create a Fixit Template and your Fixit Request"
+        textHeight={60}/>
+      <StyledPageWrapper>
+        <StepIndicator
+          numberSteps={ fixRequestConstants.NUMBER_OF_STEPS }
+          currentStep={1} />
+        <StyledScrollView testID='styledScrollView' keyboardShouldPersistTaps={'handled'}>
+          <StyledContentWrapper>
+            <P>This section will be part of your new Fixit Template.
                 You can fill in the fields with your requirement.</P>
-                <Spacer height="20px" />
-                <H2 style={GlobalStyles.boldTitle}>Template Name</H2>
-                <Spacer height="5px" />
-                <FormTextInput
-                  onChange={
-                    (text : string) => store.dispatch(fixRequestActions.setFixTemplateName({ name: text }))
-                  }
-                  value={this.props.templateName} />
-                <Spacer height="20px" />
-                <H2 style={GlobalStyles.boldTitle}>Category</H2>
-                <Spacer height="5px" />
-                {this.state.categories
-                  ? <Picker
-                    selectedValue={this.props.templateCategory}
-                    onValueChange={(value) => store
-                      .dispatch(fixRequestActions.setFixTemplateCategory({ category: value }))
-                    }>
-                    {this.state.categories.map((category:{
-                      id:string,
-                      name:string,
-                      skills: {
-                        id:string,
-                        name:string
-                      }[]}) => (
-                      <Picker.Item key={category.id} label={category.name} value={category.name} />
-                    ))}
-                  </Picker>
-                  : null
-                }
-                <Spacer height="20px" />
-                <H2 style={GlobalStyles.boldTitle}>Type</H2>
-                <Spacer height="5px" />
-                {this.state.types
-                  ? <Picker
-                    selectedValue={this.props.templateType}
-                    onValueChange={(value) => {
-                      console.log(value);
-                      store
-                        .dispatch(fixRequestActions.setFixTemplateType({ type: value }));
-                    }}>
-                    {this.state.types.map((type:{
-                      id:string,
-                      name:string
-                    }) => (
-                      <Picker.Item key={type.id} label={type.name} value={type.name} />
-                    ))}
-                  </Picker>
-                  : null
-                }
-                <Spacer height="20px" />
-                <H2 style={GlobalStyles.boldTitle}>Unit</H2>
-                <Spacer height="5px" />
-                {this.state.units
-                  ? <Picker
-                    selectedValue={this.props.fixObj.details.unit}
-                    onValueChange={(value) => store
-                      .dispatch(fixRequestActions.setFixTemplateType({ type: value }))
-                    }>
-                    {this.state.units.map((unit:{
-                      id:string,
-                      name:string
-                    }) => (
-                      <Picker.Item key={unit.id} label={unit.name} value={unit.name} />
-                    ))}
-                  </Picker>
-                  : null
-                }
-                <Spacer height="20px" />
-                <View style={GlobalStyles.flexRow}>
-                  {/*
-                  fix title is not a field in the DTO so it will always be the same as the name
-                  */}
-                  <H2 style={FixRequestStyles.titleWithAction}>Fix Title</H2>
-                  <TouchableOpacity style={FixRequestStyles.titleActionWrapper}
-                    onPress={this.showTitleField}>
-                    <Text style={FixRequestStyles.titleActionLabel}>Change</Text>
-                  </TouchableOpacity>
-                </View>
-                <FadeInAnimator visible={this.state.titleFieldTextVisible}>
-                  <P>Same as Template Name</P>
-                </FadeInAnimator>
-                <FadeInAnimator visible={this.state.titleFieldVisible}>
-                  <FormTextInput
-                    onChange={
-                      (text : string) => store.dispatch(
-                        fixRequestActions.setFixSectionTitle({ sectionName: text, index: 0 }),
-                      )
-                    }
-                    value={this.props.fixTitle} />
-                </FadeInAnimator>
-                <Spacer height="20px" />
-                <Spacer height="10px" />
-                <View style={GlobalStyles.flexRow}>
-                  <H2 style={FixRequestStyles.titleWithAction}>Tags</H2>
-                  <TouchableOpacity style={FixRequestStyles.titleActionWrapper}
-                    onPress={this.addTag}>
-                    <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
-                  </TouchableOpacity>
-                </View>
-                <Spacer height="5px" />
-                <View style={FixRequestStyles.fixTagsWrapper}>
-                  <FadeInAnimator
-                    visible={this.state.tagSuggestionsVisible}
-                    style={FixRequestStyles.fixTagsAnimatedWrapper}>
-                    <P>Suggestions:</P>
-                    <View style={{
-                      flexDirection: 'row',
-                      flexWrap: 'wrap',
-                    }}>
-                      {this.state.suggestedTags.map((tag:string) => (
-                        tag
-                          ? <View
-                            key={tag}
-                            style={FixRequestStyles.fixTagWrapper}>
-                            <TouchableOpacity
-                              onPress={() => this.addSuggestedTagToTagList(tag)}
-                              style={FixRequestStyles.fixTagTouchableWrapper}
-                            >
-                              <Tag backgroundColor={'grey'} textColor={'light'}>{tag}</Tag>
-                            </TouchableOpacity>
-                          </View>
-                          : null
-                      ))}
-                    </View>
-                  </FadeInAnimator>
-                </View>
-                <FormTextInput
-                  onChange={(text : string) => this.setTagInputText(text)}
-                  value={this.state.tagInputText}
-                  onFocus={() => this.showTagSuggestions() }
-                  onBlur={() => this.hideTagSuggestions() }/>
-                <View style={FixRequestStyles.fixTagContainer}>
-                  {this.props.tags.map((tag:TagModel) => (
-                    tag
-                      ? <View key={tag.name} style={FixRequestStyles.fixTagWrapper}>
-                        <Tag backgroundColor={'accent'} textColor={'dark'}>{tag.name}</Tag>
-                        <TouchableOpacity style={{ flexGrow: 0, marginLeft: -5 }}
-                          onPress={() => this.removeTag(tag.name)}>
-                          <Icon library="FontAwesome5" name="times-circle" color={'dark'} />
-                        </TouchableOpacity>
-                      </View>
-                      : null
-                  ))}
-                </View>
-              </StyledContentWrapper>
-            </StyledScrollView>
-          </StyledPageWrapper>
-          <FormNextPageArrows mainClick={this.handleNextStep} />
-        </>
-      );
-    }
-}
+            <Spacer height="20px" />
+            <FixTemplateFormTextInput
+              header={'Template Name'}
+              value={templateName}
+              onChange={(value : string) => setTemplateName(value)} />
+            <Spacer height="20px" />
+            <FixTemplatePicker
+              header={'Category'}
+              selectedValue={templateCategory}
+              onChange={(value: Category) => {
+                setTemplateCategory(value);
+              }
+              }
+              values={ categories || [] }/>
+            <Spacer height="20px" />
+            <FixTemplatePicker
+              header={'Type'}
+              selectedValue={templateType}
+              onChange={(value: Type) => setTemplateType(value)}
+              values={ types || [] }/>
+            <Spacer height="20px" />
+            <FixTemplatePicker
+              header={'Unit'}
+              selectedValue={templateUnit}
+              onChange={(value: Unit) => setTemplateUnit(value)}
+              values={ units || [] }/>
+            <Spacer height="30px" />
+            {templateTagsRender()}
+          </StyledContentWrapper>
+        </StyledScrollView>
+      </StyledPageWrapper>
+      <FormNextPageArrows mainClick={handleNextStep} />
+    </>
+  );
+  return render();
+};
 
 function mapStateToProps(state : StoreState) {
   return {
-    tags: state.fixRequest.fixRequestObj.tags,
-    templateName: state.fixRequest.fixRequestObj.details.name,
-    templateCategory: state.fixRequest.fixRequestObj.details.category,
-    templateType: state.fixRequest.fixRequestObj.details.type,
-    fixTitle: state.fixRequest.fixRequestObj.details.name,
     numberOfSteps: state.fixRequest.numberOfSteps,
-    templateId: state.fixRequest.fixTemplateId,
     fixObj: state.fixRequest.fixRequestObj,
   };
 }

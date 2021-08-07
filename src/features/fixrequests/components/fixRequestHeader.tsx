@@ -1,16 +1,14 @@
-import { StackNavigationProp } from '@react-navigation/stack';
 import { colors, H1 } from 'fixit-common-ui';
 import React from 'react';
 import {
   View, Image, TouchableOpacity,
 } from 'react-native';
-import { HomeStackNavigatorProps } from '../../../common/models/navigators/homeStackNavigatorModel';
 import backArrowIcon from '../../../common/assets/back-icon.png';
 
 export default class FixRequestHeader extends
   React.Component<{
     showBackBtn:boolean,
-    navigation:StackNavigationProp<HomeStackNavigatorProps, keyof HomeStackNavigatorProps>,
+    navigation:any,
     screenTitle:string,
     textHeight:number,
     backFunction?:()=>void

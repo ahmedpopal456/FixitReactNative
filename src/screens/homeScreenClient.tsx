@@ -2,7 +2,7 @@
 import React, { useState, FunctionComponent, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
-  Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, Dimensions, SafeAreaView, Alert,
+  Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView,
 } from 'react-native';
 import {
   ConfigFactory,
@@ -137,6 +137,7 @@ const HomeScreenClient: FunctionComponent = () => {
     const updatedTags = [...selectedTagsState];
     updatedTags.push(tagInputTextState);
     setSelectedTagsState(updatedTags);
+    setTagInputTextState('');
   };
 
   const removeTag = (tag: string): void => {

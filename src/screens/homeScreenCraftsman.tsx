@@ -13,6 +13,7 @@ import {
 } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useTranslation } from 'react-i18next';
 import SwipeableFlatList from '../components/lists/swipeableFlatList';
 import bgImage from '../common/assets/background-right.png';
 import image from '../common/assets/bedroom.jpg';
@@ -113,6 +114,8 @@ const styles = StyleSheet.create({
 
 const HomeScreenCraftsman: FunctionComponent = () => {
   const navigation = useNavigation();
+  const { t, i18n } = useTranslation();
+
   const [refreshState, setRefreshState] = useState<boolean>(false);
 
   const inProgressFixes = useSelector((storeState: StoreState) => storeState.fixes.inProgressFixesState);
@@ -259,7 +262,7 @@ const HomeScreenCraftsman: FunctionComponent = () => {
                     }}/>
                 </View> : isFixesToShowEmpty
                   ? <View style={{ height: 100 }}>
-                    <Text style={styles.loadingMessage}> No fix information available...</Text>
+                    <Text style={styles.loadingMessage}> {t('home.craftsman.fixes.notavailable')}</Text>
                   </View> : [
                     showPendingFixes,
                     showNewFixes,

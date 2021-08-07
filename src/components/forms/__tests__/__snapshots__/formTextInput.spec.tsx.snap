@@ -44,12 +44,9 @@ exports[`Form Text Input renders correctly 1`] = `
     style={
       Array [
         Object {
-          "backgroundColor": "#fff",
           "borderColor": "#8B8B8B",
-          "borderRadius": 8,
+          "borderRadius": 15,
           "borderWidth": 1,
-          "paddingLeft": 10,
-          "paddingRight": 10,
         },
         Object {
           "height": 50,

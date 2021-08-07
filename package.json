@@ -14,6 +14,8 @@
     "react-devtools": "react-devtools"
   },
   "dependencies": {
+    "i18next": "^20.3.2",
+    "react-i18next": "^11.11.0",
     "@microsoft/applicationinsights-web": "^2.6.3",
     "@microsoft/signalr": "^5.0.4",
     "@react-native-async-storage/async-storage": "^1.13.4",
@@ -32,7 +34,7 @@
     "base-64": "^1.0.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
-    "fixit-common-data-store": "0.2.45-ahmed-test",
+    "fixit-common-data-store": "1.0.108-alpha",
     "fixit-common-ui": "^1.0.4-alpha",
     "jwt-decode": "^3.1.2",
     "react": "16.13.1",

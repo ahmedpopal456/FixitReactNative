@@ -6,6 +6,7 @@ import App from './src/App';
 import { name as appName } from './app.json';
 import NotificationHandler from './src/core/handlers/notificationHandler';
 import Logger from './src/logger';
+import './i18n';
 
 NotificationHandler.getInstance();
 LogBox.ignoreLogs(['Require cycle: node_modules\\react-native\\Libraries\\Network\\fetch.js']);
