@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import {
   colors,
   Divider,
@@ -6,7 +6,7 @@ import {
 } from 'fixit-common-ui';
 import { View } from 'react-native';
 import {
-  fixRequestActions, store, StoreState, useSelector,
+  fixRequestActions, Schedule, store, StoreState, useDispatch, useSelector,
 } from 'fixit-common-data-store';
 import { useNavigation } from '@react-navigation/native';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
@@ -21,11 +21,21 @@ import constants from './constants';
 
 const FixRequestScheduleStep: FunctionComponent = () : JSX.Element => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const fixRequest = useSelector((storeState: StoreState) => storeState.fixRequest.fixRequestObj);
+  const [schedules, setSchedules] = useState<Array<Schedule>>([]);
 
   const handleNextStep = () : void => {
+    dispatch(fixRequestActions.setFixRequestSchedules(schedules));
     navigation.navigate('FixRequestReview');
   };
+  const handleBackStep = (): void => {
+    dispatch(fixRequestActions.setFixRequestSchedules(schedules));
+    if (navigation.canGoBack()) navigation.goBack();
+  };
+  useEffect(() => {
+    setSchedules(fixRequest.schedule || []);
+  }, [fixRequest.schedule]);
 
   return (
     <>
@@ -33,7 +43,8 @@ const FixRequestScheduleStep: FunctionComponent = () : JSX.Element => {
         showBackBtn={true}
         navigation={navigation}
         screenTitle="Create a Fixit Template and your Fixit Request"
-        textHeight={60}/>
+        textHeight={60}
+        backFunction={handleBackStep}/>
       <StyledPageWrapper>
         <StepIndicator
           numberSteps={constants.NUMBER_OF_STEPS}
@@ -42,13 +53,10 @@ const FixRequestScheduleStep: FunctionComponent = () : JSX.Element => {
           <StyledContentWrapper>
             <H2 style={FixRequestStyles.titleWithAction}>Availability</H2>
             <Calendar
-              startDate={
-                new Date(fixRequest.schedule[0].startTimestampUtc * 1000)
-              }
-              endDate={
-                new Date(fixRequest.schedule[0].endTimestampUtc * 1000)
-              }
-              canUpdate={true}/>
+              parentSchedules={schedules}
+              canUpdate={true}
+              parentSetSchedules={setSchedules}
+            />
             <Spacer height="40px" />
             <H2 style={{
               fontWeight: 'bold',
@@ -79,7 +87,7 @@ const FixRequestScheduleStep: FunctionComponent = () : JSX.Element => {
                       )
                   }
                   value={(fixRequest.clientEstimatedCost.minimumCost === 0)
-                    ? '' : fixRequest.clientEstimatedCost.minimumCost} />
+                    ? '' : fixRequest.clientEstimatedCost.minimumCost.toString()} />
                 <Icon library="FontAwesome5" name="dollar-sign" color={'dark'} size={20} style={{
                   marginTop: -35,
                   marginLeft: 8,
@@ -107,7 +115,7 @@ const FixRequestScheduleStep: FunctionComponent = () : JSX.Element => {
                       )
                   }
                   value={(fixRequest.clientEstimatedCost.maximumCost === 0)
-                    ? '' : fixRequest.clientEstimatedCost.maximumCost} />
+                    ? '' : fixRequest.clientEstimatedCost.maximumCost.toString()} />
                 <Icon library="FontAwesome5" name="dollar-sign" color={'dark'} size={20} style={{
                   marginTop: -35,
                   marginLeft: 8,

@@ -21,7 +21,6 @@ import FixRequestHeader from '../components/fixRequestHeader';
 import { FixTemplateFormTextInput } from '../components';
 import constants from './constants';
 
-// eslint-disable-next-line max-len
 const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
   const navigation = useNavigation();
   const fixTemplate = useSelector((storeState: StoreState) => storeState.fixTemplate);

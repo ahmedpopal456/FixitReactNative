@@ -1,288 +1,354 @@
-import { fixRequestActions, store } from 'fixit-common-data-store';
+import { Schedule } from 'fixit-common-data-store';
 import { colors, Icon } from 'fixit-common-ui';
-import React from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
+
 import {
   Text, View, TouchableOpacity,
 } from 'react-native';
 
-type CalendarStateModel = {
-  activeDate: Date,
-  startDate: Date | null,
-  endDate: Date | null,
+interface Item {
+  label: string,
+  type: string,
+  date: Date,
 }
 
-export default class Calendar extends
-  React.Component<{startDate?:Date, endDate?:Date, canUpdate?:boolean}> {
-    state : CalendarStateModel = {
-      activeDate: new Date(),
-      startDate: (this.props.startDate) ? this.props.startDate : null,
-      endDate: (this.props.endDate) ? this.props.endDate : null,
+interface RowColumn {
+  label: string,
+  type: string,
+  date: Date,
+}
+type Matrix = Array<Array<RowColumn>>;
+
+interface Props {
+  parentSchedules: Array<Schedule>,
+  parentSetSchedules?: React.Dispatch<React.SetStateAction<Schedule[]>>,
+  canUpdate?:boolean
+}
+
+const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedules, canUpdate }:Props): JSX.Element => {
+  const [schedules, setSchedules] = useState(parentSchedules);
+  const [activeDate, setActiveDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<number>();
+  const [startDates, setStartDates] = useState<Array<number>>([]);
+  const [endDates, setEndDates] = useState<Array<number>>([]);
+
+  useEffect(() => {
+    if (!startDates.length && !endDates.length) {
+      const updateStartDates = [...startDates];
+      const updateEndDates = [...endDates];
+      setSchedules(parentSchedules);
+      parentSchedules.forEach((schedule) => {
+        updateStartDates.push(schedule.startTimestampUtc);
+        updateEndDates.push(schedule.endTimestampUtc);
+      });
+      setStartDates(updateStartDates);
+      setEndDates(updateEndDates);
     }
+  }, [parentSchedules]);
 
-    months = ['January', 'February', 'March', 'April',
-      'May', 'June', 'July', 'August', 'September', 'October',
-      'November', 'December'];
+  const months = ['January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August', 'September', 'October',
+    'November', 'December'];
 
-    weekDays = [
-      {
-        label: 'SUN',
-        type: 'header',
-        date: new Date(),
-      },
-      {
-        label: 'MON',
-        type: 'header',
-        date: new Date(),
-      },
-      {
-        label: 'TUE',
-        type: 'header',
-        date: new Date(),
-      },
-      {
-        label: 'WED',
-        type: 'header',
-        date: new Date(),
-      },
-      {
-        label: 'THU',
-        type: 'header',
-        date: new Date(),
-      },
-      {
-        label: 'FRI',
-        type: 'header',
-        date: new Date(),
-      },
-      {
-        label: 'SAT',
-        type: 'header',
-        date: new Date(),
-      },
-    ];
+  const weekDays = [
+    {
+      label: 'SUN',
+      type: 'header',
+      date: new Date(),
+    },
+    {
+      label: 'MON',
+      type: 'header',
+      date: new Date(),
+    },
+    {
+      label: 'TUE',
+      type: 'header',
+      date: new Date(),
+    },
+    {
+      label: 'WED',
+      type: 'header',
+      date: new Date(),
+    },
+    {
+      label: 'THU',
+      type: 'header',
+      date: new Date(),
+    },
+    {
+      label: 'FRI',
+      type: 'header',
+      date: new Date(),
+    },
+    {
+      label: 'SAT',
+      type: 'header',
+      date: new Date(),
+    },
+  ];
 
-    nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const numberOfDaysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-    generateMatrix = () : {
-      label: string,
-      type: string,
-      date: Date,
-    }[][] => {
-      const matrix = [];
-      // Create header
-      matrix[0] = this.weekDays;
+  const generateMatrix = () : Matrix => {
+    const matrix = [];
+    // Create header
+    matrix[0] = weekDays;
 
-      const year = this.state.activeDate.getFullYear();
-      const month = this.state.activeDate.getMonth();
-      const firstDay = new Date(year, month, 1).getDay();
+    const year = activeDate.getFullYear();
+    const month = activeDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
 
-      const prevMonth = (month === 0) ? 11 : month - 1;
-      const nextMonth = (month === 11) ? 0 : month + 1;
-      let prevMonthYear = year;
-      let nextMonthYear = year;
-      if (month === 0) {
-        prevMonthYear = year - 1;
-      } else if (month === 11) {
-        nextMonthYear = year + 1;
-      }
-      let prevMonthMaxDays = this.nDays[prevMonth];
-      let maxDays = this.nDays[month];
-      if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
-        if (month === 1) {
-          maxDays += 1;
-        }
-        if (prevMonth === 1) {
-          prevMonthMaxDays += 1;
-        }
-      }
-      let counter = -firstDay;
-      for (let row = 1; row < 7; row += 1) {
-        matrix[row] = [];
-        for (let col = 0; col < 7; col += 1) {
-          if (counter <= 0) {
-            matrix[row][col] = {
-              label: `${prevMonthMaxDays + counter}`,
-              type: 'overflow',
-              date: new Date(prevMonthYear, prevMonth, prevMonthMaxDays + counter),
-            };
-          } else if (counter <= maxDays) {
-            matrix[row][col] = {
-              label: `${counter}`,
-              type: 'normal',
-              date: new Date(year, month, counter),
-            };
-          } else {
-            matrix[row][col] = {
-              label: `${counter - maxDays}`,
-              type: 'overflow',
-              date: new Date(nextMonthYear, nextMonth, counter - maxDays),
-            };
-          }
-          counter += 1;
-        }
-      }
-
-      return matrix;
+    const prevMonth = (month === 0) ? 11 : month - 1;
+    const nextMonth = (month === 11) ? 0 : month + 1;
+    let prevMonthYear = year;
+    let nextMonthYear = year;
+    if (month === 0) {
+      prevMonthYear = year - 1;
+    } else if (month === 11) {
+      nextMonthYear = year + 1;
     }
-
-    onPress = (item: {
-      label: string,
-      type: string,
-      date: Date,
-    }) : void => {
-      if (item.type === 'normal') {
-        const utcTimestamp = Math.floor((item.date).getTime() / 1000);
-        if (!this.state.startDate) {
-          this.setState({ startDate: item.date });
-          store.dispatch(fixRequestActions.setFixStartDate({ startTimestamp: utcTimestamp }));
-        } else if (!this.state.endDate && item.date > this.state.startDate) {
-          this.setState({ endDate: item.date });
-          store.dispatch(fixRequestActions.setFixEndDate({ endTimestamp: utcTimestamp }));
+    let prevMonthMaxDays = numberOfDaysPerMonth[prevMonth];
+    let maxDays = numberOfDaysPerMonth[month];
+    if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
+      if (month === 1) {
+        maxDays += 1;
+      }
+      if (prevMonth === 1) {
+        prevMonthMaxDays += 1;
+      }
+    }
+    let counter = -firstDay;
+    const numberOfDaysPerWeek = 7;
+    for (let row = 1; row < numberOfDaysPerWeek; row += 1) {
+      matrix[row] = [];
+      for (let col = 0; col < numberOfDaysPerWeek; col += 1) {
+        if (counter <= 0) {
+          matrix[row][col] = {
+            label: `${prevMonthMaxDays + counter}`,
+            type: 'overflow',
+            date: new Date(prevMonthYear, prevMonth, prevMonthMaxDays + counter),
+          };
+        } else if (counter <= maxDays) {
+          matrix[row][col] = {
+            label: `${counter}`,
+            type: 'normal',
+            date: new Date(year, month, counter),
+          };
         } else {
-          this.setState({ startDate: item.date, endDate: null });
-          store.dispatch(fixRequestActions.setFixStartDate({ startTimestamp: utcTimestamp }));
-          store.dispatch(fixRequestActions.setFixEndDate({ endTimestamp: 0 }));
+          matrix[row][col] = {
+            label: `${counter - maxDays}`,
+            type: 'overflow',
+            date: new Date(nextMonthYear, nextMonth, counter - maxDays),
+          };
         }
+        counter += 1;
       }
-    };
+    }
 
-    changeMonth = (n : number) : void => {
-      this.setState(() => {
-        this.state.activeDate.setMonth(
-          this.state.activeDate.getMonth() + n,
-        );
-        return this.state;
+    return matrix;
+  };
+
+  const updateStates = (schedule: Schedule, updateSchedules:Array<Schedule>, updateStartDates: Array<number>,
+    updateEndDates: Array<number>, index: number, removeStartTime = false) => {
+    if (startDate && removeStartTime) {
+      const toRemove = updateStartDates.indexOf(startDate);
+      if (toRemove > -1) {
+        updateStartDates.splice(toRemove, 1);
+      }
+    }
+    const startDateToRemove = updateStartDates.indexOf(schedule.startTimestampUtc);
+    if (startDateToRemove > -1) {
+      updateStartDates.splice(startDateToRemove, 1);
+    }
+    setStartDates(updateStartDates);
+
+    const endDateToRemove = updateEndDates.indexOf(schedule.endTimestampUtc);
+    if (endDateToRemove > -1) {
+      updateEndDates.splice(endDateToRemove, 1);
+      setEndDates(updateEndDates);
+    }
+
+    if (index > -1) {
+      updateSchedules.splice(index, 1);
+      setSchedules(updateSchedules);
+      if (parentSetSchedules) parentSetSchedules(updateSchedules);
+    }
+  };
+
+  const onPress = (item: Item) : void => {
+    if (item.type === 'normal') {
+      const utcTimestamp = Math.floor((item.date).getTime() / 1000);
+      const updateSchedules = [...schedules];
+      const updateStartDates = [...startDates];
+      const updateEndDates = [...endDates];
+
+      let isNotInBetweenRange = true;
+      let isNotOverLapping = true;
+      schedules.forEach((schedule, index) => {
+        // if chosen time is in between a pre existing range, delete the pre existing range
+        if (schedule && utcTimestamp >= schedule.startTimestampUtc && utcTimestamp <= schedule.endTimestampUtc) {
+          isNotInBetweenRange = false;
+          updateStates(schedule, updateSchedules, updateStartDates, updateEndDates, index, true);
+          setStartDate(undefined);
+        }
+        // if chosen time overlaps another range
+        if (schedule && startDate
+          && schedule.startTimestampUtc > startDate && schedule.endTimestampUtc < utcTimestamp) {
+          isNotOverLapping = false;
+          updateStates(schedule, updateSchedules, updateStartDates, updateEndDates, index);
+
+          updateSchedules.push({ startTimestampUtc: startDate, endTimestampUtc: utcTimestamp });
+          setSchedules(updateSchedules);
+          if (parentSetSchedules) parentSetSchedules(updateSchedules);
+          updateEndDates.push(utcTimestamp);
+          setEndDates(updateEndDates);
+
+          setStartDate(undefined);
+        }
+      });
+      if (isNotOverLapping && isNotInBetweenRange && !startDate) {
+        setStartDate(utcTimestamp);
+        updateStartDates.push(utcTimestamp);
+        setStartDates(updateStartDates);
+      } else if (isNotOverLapping && isNotInBetweenRange && startDate && utcTimestamp > startDate) {
+        updateSchedules.push({ startTimestampUtc: startDate, endTimestampUtc: utcTimestamp });
+        updateEndDates.push(utcTimestamp);
+        setSchedules(updateSchedules);
+        if (parentSetSchedules) parentSetSchedules(updateSchedules);
+        setStartDate(undefined);
+        setEndDates(updateEndDates);
+      }
+    }
+  };
+
+  const changeMonth = (goTo : number) : void => {
+    activeDate.setMonth(activeDate.getMonth() + goTo);
+    setActiveDate(new Date(activeDate));
+  };
+
+  const dateIsHighlighted = (item : Item) : boolean => {
+    let isHighlighted = false;
+    if (item.type !== 'header') {
+      const utcTimestamp = Math.floor((item.date).getTime() / 1000);
+      schedules.forEach((schedule) => {
+        if (schedule && utcTimestamp >= schedule.startTimestampUtc && utcTimestamp <= schedule.endTimestampUtc) {
+          isHighlighted = true;
+        }
       });
     }
+    return isHighlighted;
+  };
 
-    dateIsHighlighted = (item : {
-      label: string,
-      type: string,
-      date: Date,
-    }) : boolean => {
-      if (this.state.startDate && this.state.endDate && item.type !== 'header') {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (item.date >= this.state.startDate! && item.date <= this.state.endDate!) {
-          return true;
-        }
-      }
-      return false;
+  const dateIsStartDate = (item : Item) : boolean => {
+    const utcTimestamp = Math.floor((item.date).getTime() / 1000);
+    if (utcTimestamp && startDates.includes(utcTimestamp)) {
+      return true;
     }
+    return false;
+  };
 
-    dateIsStartDate = (item : {
-      label: string,
-      type: string,
-      date: Date,
-    }) : boolean => {
-      if (item.date && this.state.startDate) {
-        if (item.date.getTime() === this.state.startDate.getTime()) {
-          return true;
-        }
-      }
-      return false;
+  const dateIsEndDate = (item : Item) : boolean => {
+    const utcTimestamp = Math.floor((item.date).getTime() / 1000);
+    if (utcTimestamp && endDates.includes(utcTimestamp)) {
+      return true;
     }
+    return false;
+  };
 
-    dateIsEndDate = (item : {
-      label: string,
-      type: string,
-      date: Date,
-    }) : boolean => {
-      if (item.date && this.state.endDate) {
-        if (item.date.getTime() === this.state.endDate.getTime()) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    render() : JSX.Element {
-      const matrix = this.generateMatrix();
-      let rows = [];
-      rows = matrix.map((row, rowIndex) => {
-        const rowItems = row.map((item, colIndex) => (
-          <TouchableOpacity
-            key={`${rowIndex}_${colIndex}`}
-            style={{
-              flex: 1,
-              flexGrow: 1,
-              backgroundColor: (this.dateIsHighlighted(item)) ? 'rgba(255,209,74,0.17)' : 'transparent',
-              borderTopLeftRadius: (this.dateIsStartDate(item)) ? 100 : 0,
-              borderBottomLeftRadius: (this.dateIsStartDate(item)) ? 100 : 0,
-              borderTopRightRadius: (this.dateIsEndDate(item)) ? 100 : 0,
-              borderBottomRightRadius: (this.dateIsEndDate(item)) ? 100 : 0,
-            }}
-            onPress={() => this.props.canUpdate && this.onPress(item)}>
-            <Text style={{
-              textAlign: 'center',
-              height: 34,
-              paddingTop: 6,
-              paddingBottom: 8,
-              fontSize: rowIndex === 0 ? 12 : 15,
-              fontWeight: rowIndex === 0 ? '700' : '400',
-              color: (this.dateIsHighlighted(item)
-              || this.dateIsStartDate(item)
-              || this.dateIsEndDate(item)) ? colors.accent : '#fff',
-              opacity: item.type === 'overflow' ? 0.2 : 1,
-              borderStyle: 'solid',
-              borderWidth: (this.dateIsStartDate(item) || this.dateIsEndDate(item)) ? 2 : 0,
-              borderRadius: 100,
-              borderColor: colors.accent,
-            }}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ));
-        return (
-          <View
-            key={rowIndex}
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              padding: 7,
-              justifyContent: 'space-around',
-              alignItems: 'center',
-            }}>
-            {rowItems}
-          </View>
-        );
-      });
-      return (
-        <>
-          <View style={{
-            backgroundColor: colors.dark,
-            borderRadius: 8,
-            padding: 5,
-            paddingTop: 20,
-            paddingBottom: 10,
+  const render = (): JSX.Element => {
+    const matrix = generateMatrix();
+    const rows = matrix.map((row, rowIndex) => {
+      const rowItems = row.map((item, colIndex) => (
+        <TouchableOpacity
+          key={`${rowIndex}_${colIndex}`}
+          style={{
+            flex: 1,
+            flexGrow: 1,
+            backgroundColor: (dateIsHighlighted(item)) ? 'rgba(255,209,74,0.17)' : 'transparent',
+            borderTopLeftRadius: (dateIsStartDate(item)) ? 100 : 0,
+            borderBottomLeftRadius: (dateIsStartDate(item)) ? 100 : 0,
+            borderTopRightRadius: (dateIsEndDate(item)) ? 100 : 0,
+            borderBottomRightRadius: (dateIsEndDate(item)) ? 100 : 0,
+          }}
+          onPress={() => canUpdate && onPress(item)}>
+          <Text style={{
+            textAlign: 'center',
+            height: 34,
+            paddingTop: 6,
+            paddingBottom: 8,
+            fontSize: rowIndex === 0 ? 12 : 15,
+            fontWeight: rowIndex === 0 ? '700' : '400',
+            color: (dateIsHighlighted(item)
+              || dateIsStartDate(item)
+              || dateIsEndDate(item)) ? colors.accent : '#fff',
+            opacity: item.type === 'overflow' ? 0.2 : 1,
+            borderStyle: 'solid',
+            borderWidth: (dateIsStartDate(item) || dateIsEndDate(item)) ? 2 : 0,
+            borderRadius: 100,
+            borderColor: colors.accent,
           }}>
-            <View style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 10,
-            }}>
-              <TouchableOpacity
-                onPress={() => this.changeMonth(-1)}>
-                <Icon library="FontAwesome5" name="chevron-left" color={'accent'} size={15} />
-              </TouchableOpacity>
-              <Text style={{
-                color: '#fff',
-                fontSize: 20,
-                marginLeft: 15,
-                marginRight: 15,
-              }}>
-                {this.months[this.state.activeDate.getMonth()]} &nbsp;
-                {this.state.activeDate.getFullYear()}
-              </Text>
-              <TouchableOpacity
-                onPress={() => this.changeMonth(+1)}>
-                <Icon library="FontAwesome5" name="chevron-right" color={'accent'} size={15} />
-              </TouchableOpacity>
-            </View>
-            { rows }
-          </View>
-        </>
+            {item.label}
+          </Text>
+        </TouchableOpacity>
+      ));
+      return (
+        <View
+          key={rowIndex}
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            padding: 7,
+            justifyContent: 'space-around',
+            alignItems: 'center',
+          }}>
+          {rowItems}
+        </View>
       );
-    }
-}
+    });
+    return (
+      <>
+        <View style={{
+          backgroundColor: colors.dark,
+          borderRadius: 8,
+          padding: 5,
+          paddingTop: 20,
+          paddingBottom: 10,
+        }}>
+          <View style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10,
+          }}>
+            {/* Go back a month */}
+            <TouchableOpacity
+              onPress={() => changeMonth(-1)}>
+              <Icon library="FontAwesome5" name="chevron-left" color={'accent'} size={15} />
+            </TouchableOpacity>
+            <Text style={{
+              color: '#fff',
+              fontSize: 20,
+              marginLeft: 15,
+              marginRight: 15,
+            }}>
+              {/* Get current month */}
+              {months[activeDate.getMonth()]} &nbsp;
+              {activeDate.getFullYear()}
+            </Text>
+            {/* Go forward a month */}
+            <TouchableOpacity
+              onPress={() => changeMonth(+1)}>
+              <Icon library="FontAwesome5" name="chevron-right" color={'accent'} size={15} />
+            </TouchableOpacity>
+          </View>
+          { rows }
+        </View>
+      </>
+    );
+  };
+  return render();
+};
+
+export default Calendar;

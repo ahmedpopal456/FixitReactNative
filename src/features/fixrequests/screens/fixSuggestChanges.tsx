@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import {
   TouchableOpacity, View, Image,
 } from 'react-native';
@@ -9,9 +9,10 @@ import {
   H2, Icon, P, Spacer,
 } from 'fixit-common-ui';
 import {
-  StoreState, connect, fixRequestActions, store, FixesModel, FixRequestModel,
+  StoreState, fixRequestActions, FixesModel, FixRequestModel, useDispatch, useSelector,
 } from 'fixit-common-data-store';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
 import { FormTextInput } from '../../../components/forms/index';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import StyledScrollView from '../../../components/styledElements/styledScrollView';
@@ -31,32 +32,31 @@ export type FixSuggestChangesProps = {
   fixRequestObj: FixRequestModel,
 };
 
-class FixSuggestChanges extends
-  React.Component<FixSuggestChangesProps> {
-state={
-  cost: '',
-  comments: '',
-}
+const FixSuggestChanges: FunctionComponent<any> = (props) => {
+  const fixRequest = useSelector((storeState: StoreState) => storeState.fixRequest.fixRequestObj);
+  const { passedFix } = props.route.params;
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const [cost, setCost] = useState<string>('');
+  const [comments, setComments] = useState<string>('');
 
-componentDidMount() : void {
-  store.dispatch(
-    fixRequestActions.setFixStartDate({ startTimestamp: this.props.passedFix.schedule[0].startTimestampUtc }),
-  );
-  store.dispatch(
-    fixRequestActions.setFixEndDate({ endTimestamp: this.props.passedFix.schedule[0].endTimestampUtc }),
-  );
-  this.forceUpdate();
-}
+  useEffect(() => {
+    dispatch(
+      fixRequestActions.setFixStartDate({ startTimestamp: passedFix.schedule[0].startTimestampUtc }),
+    );
+    dispatch(
+      fixRequestActions.setFixEndDate({ endTimestamp: passedFix.schedule[0].endTimestampUtc }),
+    );
+  }, []);
 
-handleDone() : void {
-  this.props.navigation.navigate('FixSuggestChangesReview', {
-    passedFix: this.props.passedFix,
-    cost: this.state.cost,
-    comments: this.state.comments,
-  });
-}
+  const handleDone = (): void => {
+    navigation.navigate('FixSuggestChangesReview', {
+      passedFix,
+      cost,
+      comments,
+    });
+  };
 
-render() : JSX.Element {
   return (
     <>
       <View style={{
@@ -83,8 +83,8 @@ render() : JSX.Element {
           left: 20,
         }}
         onPress={() => {
-          if (this.props.navigation.canGoBack()) {
-            this.props.navigation.goBack();
+          if (navigation.canGoBack()) {
+            navigation.goBack();
           }
         }}>
           <Image source={backArrowIcon} />
@@ -100,25 +100,18 @@ render() : JSX.Element {
           <StyledContentWrapper>
             <H2>Fix Plan Timeline</H2>
             <Calendar
-              startDate={
-                new Date(this.props.fixRequestObj.schedule[0].startTimestampUtc * 1000)
-
-              }
-              endDate={
-                new Date(this.props.fixRequestObj.schedule[0].endTimestampUtc * 1000)
-
-              }
+              parentSchedules={fixRequest.schedule}
               canUpdate={true}/>
             <Spacer height={'40px'} />
             <H2>Fix Cost</H2>
-            <P>{`Estimated Budget ${this.props.passedFix.systemCalculatedCost.toString()}`}</P>
+            <P>{`Estimated Budget ${passedFix.systemCalculatedCost.toString()}`}</P>
             <FormTextInput
               numeric
               padLeft
               onChange={
-                (cost : string) => this.setState({ cost })
+                (value : string) => setCost(value)
               }
-              value={this.state.cost} />
+              value={cost} />
             <Icon library="FontAwesome5" name="dollar-sign" color={'dark'} size={20} style={{
               marginTop: -35,
               marginLeft: 8,
@@ -128,26 +121,16 @@ render() : JSX.Element {
             <H2>Comments</H2>
             <FormTextInput big
               onChange={
-                (text : string) => this.setState({ comments: text })
+                (text : string) => setComments(text)
               }
-              value={this.state.comments} />
+              value={comments} />
             <Spacer height={'15px'}/>
-            <Button onPress={() => this.handleDone()} block>DONE</Button>
+            <Button onPress={() => handleDone()} block>DONE</Button>
           </StyledContentWrapper>
         </StyledScrollView>
       </StyledPageWrapper>
     </>
   );
-}
-}
+};
 
-function mapStateToProps(state : StoreState, ownProps : any) {
-  return {
-    fixRequestObj: {
-      ...state.fixRequest.fixRequestObj,
-    },
-    passedFix: ownProps.route.params.passedFix ? ownProps.route.params.passedFix : undefined,
-  };
-}
-
-export default connect(mapStateToProps)(FixSuggestChanges);
+export default FixSuggestChanges;

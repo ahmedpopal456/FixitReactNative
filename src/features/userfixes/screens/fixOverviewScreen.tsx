@@ -291,12 +291,7 @@ const FixOverviewScreen : FunctionComponent<any> = (props) => {
             <Text style={[styles.title, { alignSelf: 'center' }]}>Schedule</Text>
             <View testID='calendar'>
               <Calendar
-                startDate={
-                  new Date(props.route.params.fix.schedule[0].startTimestampUtc * 1000)
-                }
-                endDate={
-                  new Date(props.route.params.fix.schedule[0].endTimestampUtc * 1000)
-                }
+                parentSchedules={props.route.params.fix.schedule}
                 canUpdate={false}
               />
             </View>

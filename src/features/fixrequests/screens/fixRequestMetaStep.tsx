@@ -9,13 +9,12 @@ import {
   store,
   fixRequestActions,
   fixTemplateActions,
-  connect, StoreState, FixRequestService, FixRequestModel, Category, Type, Unit, useSelector,
+  StoreState, FixRequestService, Category, Type, Unit, useSelector,
 } from 'fixit-common-data-store';
-import { StackNavigationProp } from '@react-navigation/stack';
 import useAsyncEffect from 'use-async-effect';
 
+import { useNavigation } from '@react-navigation/native';
 import { FormNextPageArrows } from '../../../components/forms';
-import { HomeStackNavigatorProps } from '../../../common/models/navigators/homeStackNavigatorModel';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import GlobalStyles from '../../../common/styles/globalStyles';
 import FadeInAnimator from '../../../common/animators/fadeInAnimator';
@@ -26,21 +25,10 @@ import FixRequestStyles from '../styles/fixRequestStyles';
 import { FixRequestHeader, FixTemplateFormTextInput, FixTemplatePicker } from '../components';
 import fixRequestConstants from './constants';
 
-type FixRequestMetaStepScreenNavigationProps = StackNavigationProp<
-  HomeStackNavigatorProps,
-  'FixRequestMetaStep'
->;
-
-export type FixRequestMetaStepScreenProps = {
-  navigation: FixRequestMetaStepScreenNavigationProps;
-  numberOfSteps: number;
-  fixObj: FixRequestModel;
-};
-
-const FixRequestMetaStep: FunctionComponent<FixRequestMetaStepScreenProps> = (props: FixRequestMetaStepScreenProps):
+const FixRequestMetaStep: FunctionComponent = ():
 JSX.Element => {
+  const navigation = useNavigation();
   const fixTemplate = useSelector((storeState: StoreState) => (storeState.fixTemplate));
-
   const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
   const [tagInputText, setTagInputText] = useState<string>('');
   const [suggestedTags, setSuggestedTags] = useState<Array<string>>([]);
@@ -81,7 +69,7 @@ JSX.Element => {
       tags: templateTags,
     }));
 
-    props.navigation.navigate('FixRequestDescriptionStep');
+    navigation.navigate('FixRequestDescriptionStep');
   };
 
   const addTag = () : void => {
@@ -185,7 +173,7 @@ JSX.Element => {
     <>
       <FixRequestHeader
         showBackBtn={true}
-        navigation={props.navigation}
+        navigation={navigation}
         screenTitle="Create a Fixit Template and your Fixit Request"
         textHeight={60}/>
       <StyledPageWrapper>
@@ -233,11 +221,4 @@ JSX.Element => {
   return render();
 };
 
-function mapStateToProps(state : StoreState) {
-  return {
-    numberOfSteps: state.fixRequest.numberOfSteps,
-    fixObj: state.fixRequest.fixRequestObj,
-  };
-}
-
-export default connect(mapStateToProps)(FixRequestMetaStep);
+export default FixRequestMetaStep;

@@ -6,7 +6,8 @@ import {
   H2, H3, Icon, P, Spacer, Tag,
 } from 'fixit-common-ui';
 import {
-  connect, FixRequestService, store, StoreState, FixRequestModel, FixesModel, useSelector, TagModel, SectionModel,
+  FixRequestService,
+  store, StoreState, FixRequestModel, FixesModel, useSelector, TagModel, SectionModel, fixRequestActions, useDispatch,
 } from 'fixit-common-data-store';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
@@ -26,6 +27,7 @@ export type FixRequestReviewProps = {
 
 const FixRequestReview: FunctionComponent<FixRequestReviewProps> = (props: FixRequestReviewProps): JSX.Element => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const fixRequest = useSelector((storeState: StoreState) => ({
     category: storeState.fixTemplate.workCategory,
     type: storeState.fixTemplate.workType,
@@ -52,6 +54,14 @@ const FixRequestReview: FunctionComponent<FixRequestReviewProps> = (props: FixRe
       tags.push({ name: tag });
     });
 
+    const updateSchedules = fixRequest.schedule;
+    updateSchedules.forEach((updateSchedule, index) => {
+      if (updateSchedule.startTimestampUtc === 0 || updateSchedule.endTimestampUtc === 0) {
+        updateSchedules.splice(index, 1);
+      }
+    });
+
+    dispatch(fixRequestActions.setFixRequestSchedules(updateSchedules));
     const fixRequestSections: Array<SectionModel> = [];
     fixRequest.sections.forEach((section) => {
       const fixRequestSection = {
@@ -89,7 +99,7 @@ const FixRequestReview: FunctionComponent<FixRequestReviewProps> = (props: FixRe
       createdByClient,
       updatedByUser,
       clientEstimatedCost: fixRequest.clientEstimatedCost,
-      schedule: fixRequest.schedule,
+      schedule: updateSchedules,
       status: 0,
     };
 
@@ -146,6 +156,26 @@ const FixRequestReview: FunctionComponent<FixRequestReviewProps> = (props: FixRe
     )
       .then(() => setAcceptCraftsmanModalOpen(true))
       .catch((error) => console.error(error));
+  };
+
+  const getExpectedDeliveryDate = (): string => {
+    let expectedDeliveryDate = 0;
+    if (props.passedFix?.schedule) {
+      props.passedFix.schedule.forEach((sch) => {
+        if (expectedDeliveryDate < sch.endTimestampUtc) {
+          expectedDeliveryDate = sch.endTimestampUtc;
+        }
+      });
+    } else if (fixRequest.schedule) {
+      fixRequest.schedule.forEach((sch) => {
+        if (expectedDeliveryDate < sch.endTimestampUtc) {
+          expectedDeliveryDate = sch.endTimestampUtc;
+        }
+      });
+    }
+    return new Date(expectedDeliveryDate * 1000).toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
   };
 
   return (
@@ -272,32 +302,12 @@ const FixRequestReview: FunctionComponent<FixRequestReviewProps> = (props: FixRe
             <H2 style={globalStyles.boldTitle}>Availability</H2>
             <Divider />
             <Calendar
-              startDate={
-                props.passedFix
-                  ? new Date(props.passedFix.schedule[0].startTimestampUtc * 1000)
-                  : new Date(fixRequest.schedule[0].startTimestampUtc * 1000)
-              }
-              endDate={
-                props.passedFix
-                  ? new Date(props.passedFix.schedule[0].endTimestampUtc * 1000)
-                  : new Date(fixRequest.schedule[0].endTimestampUtc * 1000)
-              }
+              parentSchedules={props.passedFix ? props.passedFix.schedule : fixRequest.schedule}
               canUpdate={false}/>
             <Spacer height={'40px'} />
             <H2 style={globalStyles.boldTitle}>Expected Delivery Date</H2>
             <Divider />
-            <P>{
-              props.passedFix
-                ? new Date(props.passedFix.schedule[0].endTimestampUtc * 1000)
-                  .toLocaleDateString('en-US', {
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                  })
-                : new Date(
-                  fixRequest.schedule[0].endTimestampUtc * 1000,
-                ).toLocaleDateString('en-US', {
-                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                })
-            }</P>
+            <P>{getExpectedDeliveryDate()}</P>
             <Spacer height={'40px'} />
             <H2 style={globalStyles.boldTitle}>Budget</H2>
             <Divider />
@@ -549,17 +559,4 @@ const FixRequestReview: FunctionComponent<FixRequestReviewProps> = (props: FixRe
   );
 };
 
-function mapStateToProps(state : StoreState, ownProps : any) {
-  return {
-    fixRequestObj: {
-      ...state.fixRequest.fixRequestObj,
-    },
-    passedFix: ownProps.route.params ? ownProps.route.params.passedFix : undefined,
-    isFixCraftsmanResponseNotification:
-    ownProps.route.params
-      ? ownProps.route.params.isFixCraftsmanResponseNotification
-      : undefined,
-  };
-}
-
-export default connect(mapStateToProps)(FixRequestReview);
+export default FixRequestReview;
