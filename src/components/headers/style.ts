@@ -4,8 +4,9 @@ import { HeaderProps } from './headerProps';
 const ViewWrapper = styled.View`
     display: flex;
     flexDirection: row;
+    flexWrap: wrap;
     width:100%;
-    justify-content: space-between;
+    justifyContent: space-between;
     ${(props:HeaderProps) => `
         backgroundColor: ${props.backgroundColor};
         height: ${props.height}px;

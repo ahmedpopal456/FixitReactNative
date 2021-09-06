@@ -65,7 +65,7 @@ export default class NativeAuthService {
       userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }),
     );
     // TODO: Make this api call in FixitCommonDataStore
-    axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${userId}/account/profile/summary`)
+    axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/users/${userId}/account/profile/summary`)
       .then((response) => {
         store.dispatch(userActions.setUserInfo({
           userId: response.data.id,
@@ -102,7 +102,7 @@ export default class NativeAuthService {
       );
 
       // TODO: Make this api call in FixitCommonDataStore
-      axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/${userId}/account/profile/summary`)
+      axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/users/${userId}/account/profile/summary`)
         .then((response) => {
           store.dispatch(userActions.FETCH_USERINFO_SUCCESS({
             userId: response.data.id,

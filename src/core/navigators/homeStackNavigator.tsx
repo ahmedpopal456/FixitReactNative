@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import { connect, StoreState } from 'fixit-common-data-store';
+import AddressDetailsScreen from '../../screens/address/addressDetailsScreen';
 import Header from '../../components/headers/header';
 import FixRequestMetaStep from '../../features/fixrequests/screens/fixRequestMetaStep';
 import HomeScreenClient from '../../screens/homeScreenClient';
@@ -15,6 +16,7 @@ import FixSuggestChangesReview from '../../features/fixrequests/screens/fixSugge
 import UserRoles from '../../common/models/users/userRolesEnum';
 import HomeScreenCraftsman from '../../screens/homeScreenCraftsman';
 import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
+import AddressSelectorScreen from '../../screens/address/addressSelectorScreen';
 
 const Stack = createStackNavigator();
 
@@ -103,6 +105,12 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
         options={{
           animationEnabled: false,
         }}/>
+      <Stack.Screen
+        name="AddressSelector"
+        component={AddressSelectorScreen}/>
+      <Stack.Screen
+        name="AddressDetails"
+        component={AddressDetailsScreen}/>
     </Stack.Navigator>
   );
 

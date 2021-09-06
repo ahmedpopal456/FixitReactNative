@@ -17,4 +17,8 @@ export interface HeaderProps extends PropsWithChildren<any>{
     userRatings?:number,
     /** User's First Name */
     userFirstName?:string
+    /** User's Last Name */
+    userLastName?:string
+    /** User's rating count */
+    ratingCount?:number
   }

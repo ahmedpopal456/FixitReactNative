@@ -92,7 +92,7 @@ const initialState = {
 const ProfileScreen : FunctionComponent<any> = (props) => {
   const [state, setState] = useState<ProfileScreenState>(initialState);
   const user = useSelector((storeState: StoreState) => storeState.user);
-
+  console.log(user);
   useAsyncEffect(async () => {
     const response = await profileService.getUserProfile(user.userId as string);
     setState({
