@@ -1,5 +1,7 @@
 import PublicClientApplication from 'react-native-msal';
-import { store, userActions } from 'fixit-common-data-store';
+import {
+  ConfigFactory, store, userActions, UserService,
+} from 'fixit-common-data-store';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import * as constants from '../constants/authConstants';
@@ -10,6 +12,8 @@ import {
   MSALResult,
   MSALWebviewParams,
 } from '../../../common/models/auth/B2CTypes';
+
+const userService = new UserService(new ConfigFactory(), store);
 
 export default class NativeAuthService {
   // This error code is returned when the user clicks on Forgot Password button.
@@ -64,18 +68,8 @@ export default class NativeAuthService {
     store.dispatch(
       userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }),
     );
-    // TODO: Make this api call in FixitCommonDataStore
-    axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/users/${userId}/account/profile/summary`)
-      .then((response) => {
-        store.dispatch(userActions.setUserInfo({
-          userId: response.data.id,
-          firstName: response.data.firstName,
-          lastName: response.data.lastName,
-          email: response.data.userPrincipalName,
-          role: response.data.role,
-          status: response.data.status,
-        }));
-      });
+
+    userService.fetchUser(userId);
     return msalResult;
   }
 
@@ -101,19 +95,7 @@ export default class NativeAuthService {
         userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }),
       );
 
-      // TODO: Make this api call in FixitCommonDataStore
-      axios.get(`https://fixit-dev-ums-api.azurewebsites.net/api/users/${userId}/account/profile/summary`)
-        .then((response) => {
-          store.dispatch(userActions.FETCH_USERINFO_SUCCESS({
-            userId: response.data.id,
-            firstName: response.data.firstName,
-            lastName: response.data.lastName,
-            email: response.data.userPrincipalName,
-            role: response.data.role,
-            status: response.data.status,
-          }));
-          return response;
-        });
+      userService.fetchUser(userId);
       return msalResult;
     } catch (error) {
       if (

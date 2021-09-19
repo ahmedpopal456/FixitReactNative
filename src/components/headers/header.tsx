@@ -7,6 +7,7 @@ import {
 import { colors, Icon, NotificationBell } from 'fixit-common-ui';
 import { Rating } from 'react-native-ratings';
 import { Avatar } from 'react-native-elements';
+import { StoreState, useSelector } from 'fixit-common-data-store';
 import { HeaderProps } from './headerProps';
 import ViewWrapper from './style';
 
@@ -26,6 +27,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   input: {
+    width: '100%',
     textAlign: 'left',
     color: colors.dark,
   },
@@ -40,13 +42,15 @@ const styles = StyleSheet.create({
 });
 
 const Header: FunctionComponent<HeaderProps> = (props) => {
+  const currentFixLocation = useSelector((storeState: StoreState) => storeState.persist.currentFixLocation);
+
   const render = () : JSX.Element => (
     <ViewWrapper {...props}>
       <View style={styles.searchSection}>
         <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
         <TextInput
           style={styles.input}
-          defaultValue="1175 Place du Frere Andre"
+          defaultValue={currentFixLocation?.address.formattedAddress}
           allowFontScaling={true}
           maxLength={30}
           onTouchEnd={() => props.navigation.navigate('AddressSelector')}

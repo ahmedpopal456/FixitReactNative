@@ -2,26 +2,29 @@
 import React, { useState, FunctionComponent, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
-  Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView, Dimensions, TextInput, FlatList, ListRenderItem,
+  Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView,
+  TextInput, FlatList, ListRenderItem,
 } from 'react-native';
 import {
   AddressQueryItemModel,
   AddressService,
   ConfigFactory,
+  persistentActions,
   store,
   StoreState,
+  UserAddressModel,
+  UserService,
   useSelector,
 } from 'fixit-common-data-store';
 import {
-  Button, colors, Icon, Tag,
+  Button, colors, Icon,
 } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import { Divider } from 'react-native-elements';
-import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
-import SearchTextInput from '../../components/searchTextInput';
 
 const addressService = new AddressService(new ConfigFactory(), store);
+const userService = new UserService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   title: {
@@ -68,7 +71,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     color: colors.dark,
   },
-  recentLocations: {
+  savedLocations: {
     borderTopColor: '#EEEEEE',
     borderTopWidth: 1,
     flexBasis: '80%',
@@ -87,6 +90,7 @@ const styles = StyleSheet.create({
 const AddressSelectorScreen: FunctionComponent = () => {
   const navigation = useNavigation();
   const queriedAddressesStoreState = useSelector((storeState: StoreState) => storeState.address.queriedAddresses);
+  const user = useSelector((storeState: StoreState) => storeState.user);
 
   const [searchTimer, setSearchTimer] = useState<NodeJS.Timeout>(setTimeout(() => 1000));
   const [refreshState, setRefreshState] = useState<boolean>(false);
@@ -99,14 +103,55 @@ const AddressSelectorScreen: FunctionComponent = () => {
     }
   }, [queriedAddressesStoreState]);
 
-  useEffect(() => () => clearTimeout(searchTimer), []);
+  useAsyncEffect(async () => {
+    await userService.fetchUser(user.userId as string);
+    clearTimeout(searchTimer);
+  }, []);
 
   const onRefresh = async () => {
     setRefreshState(true);
     setRefreshState(false);
   };
 
-  const renderItem : ListRenderItem<AddressQueryItemModel> = ({ item }) => {
+  const renderAddressItem : ListRenderItem<UserAddressModel> = ({ item }) => {
+    const splitAddress = item.address.formattedAddress?.split(',');
+
+    const country = splitAddress.pop();
+    const region = splitAddress.pop();
+    const address = splitAddress.join();
+
+    return (
+      <View style={{
+        flexDirection: 'row',
+        paddingTop: 10,
+        paddingBottom: 10,
+      }}>
+        <Icon style={{
+          marginRight: 15,
+          marginTop: 10,
+        }}
+        library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => {
+            store.dispatch(
+              persistentActions.default.setCurrentFixLocations(item),
+            );
+            navigation.navigate('HomeScreen', { address: item.address });
+          }}
+          style={{ width: '100%' }}>
+          <Text style= {{ fontSize: 14, fontWeight: 'bold' }}>{address}</Text>
+          <Text style= {{ fontSize: 12, color: 'grey' }}>{country?.trim()},{region}</Text>
+          <Text style= {{ fontSize: 12, color: 'grey' }}>{item.label}</Text>
+          <Divider
+            style={{ marginTop: 15 }}
+            orientation="horizontal"
+          />
+        </TouchableOpacity >
+      </View>);
+  };
+
+  const renderAddressQueryItem : ListRenderItem<AddressQueryItemModel> = ({ item }) => {
     const splitAddress = item.description?.split(',');
 
     const country = splitAddress.pop();
@@ -179,11 +224,11 @@ const AddressSelectorScreen: FunctionComponent = () => {
           focusable
           contentContainerStyle={{ justifyContent: 'space-evenly' }}
           data={queriedAddresses}
-          renderItem={renderItem}
+          renderItem={renderAddressQueryItem}
           keyExtractor={(item) => item.placeId}
         /> : <></>}
       </View>
-      {!queriedAddresses?.length ? <View style={styles.recentLocations}>
+      {!queriedAddresses?.length ? <View style={styles.savedLocations}>
         <ScrollView
           refreshControl={
             <RefreshControl
@@ -192,7 +237,18 @@ const AddressSelectorScreen: FunctionComponent = () => {
               colors={[colors.orange]}/>
           }
           showsVerticalScrollIndicator={false}>
-          <Text style={{ fontSize: 14, fontWeight: '100', color: 'black' }}>Recent locations</Text>
+          <Text style={{ fontSize: 14, fontWeight: '100', color: 'black' }}>Saved locations</Text>
+          <FlatList
+            style={{
+              marginTop: 20,
+              marginLeft: 10,
+            }}
+            focusable
+            contentContainerStyle={{ justifyContent: 'space-evenly' }}
+            data={user.savedAddresses}
+            renderItem={renderAddressItem}
+            keyExtractor={(item) => item.id}
+          />
         </ScrollView>
       </View> : <></>}
       <Toast ref={(ref) => Toast.setRef(ref)} />
