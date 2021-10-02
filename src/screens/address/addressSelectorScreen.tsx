@@ -22,10 +22,11 @@ import {
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import { Divider } from 'react-native-elements';
+import { AddressSelectorScreenProps } from './addressSelectorScreenProps';
+import { AddressEditionScreenProps } from './addressEditionScreenProps';
 
 const addressService = new AddressService(new ConfigFactory(), store);
 const userService = new UserService(new ConfigFactory(), store);
-
 const styles = StyleSheet.create({
   title: {
     fontSize: 20,
@@ -87,8 +88,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const AddressSelectorScreen: FunctionComponent = () => {
-  const navigation = useNavigation();
+const AddressSelectorScreen: FunctionComponent<AddressSelectorScreenProps> = (props) => {
   const queriedAddressesStoreState = useSelector((storeState: StoreState) => storeState.address.queriedAddresses);
   const user = useSelector((storeState: StoreState) => storeState.user);
 
@@ -113,9 +113,8 @@ const AddressSelectorScreen: FunctionComponent = () => {
     setRefreshState(false);
   };
 
-  const renderAddressItem : ListRenderItem<UserAddressModel> = ({ item }) => {
-    const splitAddress = item.address.formattedAddress?.split(',');
-
+  const renderExistingAddress : ListRenderItem<UserAddressModel> = ({ item }) => {
+    const splitAddress = item.address.formattedAddress.split(',');
     const country = splitAddress.pop();
     const region = splitAddress.pop();
     const address = splitAddress.join();
@@ -137,10 +136,10 @@ const AddressSelectorScreen: FunctionComponent = () => {
             store.dispatch(
               persistentActions.default.setCurrentFixLocations(item),
             );
-            navigation.navigate('HomeScreen', { address: item.address });
+            props.navigation.goBack();
           }}
-          style={{ width: '100%' }}>
-          <Text style= {{ fontSize: 14, fontWeight: 'bold' }}>{address}</Text>
+          style={{ width: '75%' }}>
+          <Text style= {{ fontSize: 14, fontWeight: 'bold' }}>{address.trimEllip(35)}</Text>
           <Text style= {{ fontSize: 12, color: 'grey' }}>{country?.trim()},{region}</Text>
           <Text style= {{ fontSize: 12, color: 'grey' }}>{item.label}</Text>
           <Divider
@@ -148,12 +147,24 @@ const AddressSelectorScreen: FunctionComponent = () => {
             orientation="horizontal"
           />
         </TouchableOpacity >
+        <Button
+          style={{ borderRadius: 15 }}
+          onPress={() => {
+            props.navigation.navigate('AddressDetails',
+              {
+                address: item,
+                navigation: props.navigation,
+                IsEdit: true,
+              });
+          }}
+          color='light'>
+          <Icon library="FontAwesome5" name="edit" color={'dark'} size={15}/>
+        </Button>
       </View>);
   };
 
-  const renderAddressQueryItem : ListRenderItem<AddressQueryItemModel> = ({ item }) => {
+  const renderNewAddress : ListRenderItem<AddressQueryItemModel> = ({ item }) => {
     const splitAddress = item.description?.split(',');
-
     const country = splitAddress.pop();
     const region = splitAddress.pop();
     const address = splitAddress.join();
@@ -171,8 +182,16 @@ const AddressSelectorScreen: FunctionComponent = () => {
         library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => {
-            navigation.navigate('AddressDetails', { address: item });
+          onPress={async () => {
+            const fullAddress = await addressService.getAddressById(item.placeId);
+            props.navigation.navigate('AddressDetails',
+              {
+                address: {
+                  address: fullAddress,
+                },
+                navigation: props.navigation,
+                IsEdit: false,
+              });
           }}
           style={{ width: '100%' }}>
           <Text style= {{ fontSize: 14, fontWeight: 'bold' }}>{address}</Text>
@@ -191,7 +210,7 @@ const AddressSelectorScreen: FunctionComponent = () => {
       <View style={styles.header}>
         <Button onPress={() => {
           setQueriedAddressesState([]);
-          navigation.goBack();
+          props.navigation.goBack();
         }} color='accent'>
           <Icon library='AntDesign' name='back' />
         </Button>
@@ -224,11 +243,11 @@ const AddressSelectorScreen: FunctionComponent = () => {
           focusable
           contentContainerStyle={{ justifyContent: 'space-evenly' }}
           data={queriedAddresses}
-          renderItem={renderAddressQueryItem}
+          renderItem={renderNewAddress}
           keyExtractor={(item) => item.placeId}
         /> : <></>}
       </View>
-      {!queriedAddresses?.length ? <View style={styles.savedLocations}>
+      {queriedAddresses.length <= 0 ? <View style={styles.savedLocations}>
         <ScrollView
           refreshControl={
             <RefreshControl
@@ -246,7 +265,7 @@ const AddressSelectorScreen: FunctionComponent = () => {
             focusable
             contentContainerStyle={{ justifyContent: 'space-evenly' }}
             data={user.savedAddresses}
-            renderItem={renderAddressItem}
+            renderItem={renderExistingAddress}
             keyExtractor={(item) => item.id}
           />
         </ScrollView>

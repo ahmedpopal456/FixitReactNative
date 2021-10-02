@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// TODO: Move address search in its own component for re-usability
 const Header: FunctionComponent<HeaderProps> = (props) => {
   const currentFixLocation = useSelector((storeState: StoreState) => storeState.persist.currentFixLocation);
 
@@ -50,7 +51,7 @@ const Header: FunctionComponent<HeaderProps> = (props) => {
         <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
         <TextInput
           style={styles.input}
-          defaultValue={currentFixLocation?.address.formattedAddress}
+          defaultValue={currentFixLocation?.address?.formattedAddress}
           allowFontScaling={true}
           maxLength={30}
           onTouchEnd={() => props.navigation.navigate('AddressSelector')}

@@ -11,6 +11,8 @@ import {
   StoreState,
   UserService,
   useSelector,
+  persistentActions,
+  UserAddressModel,
 } from 'fixit-common-data-store';
 import {
   Button, colors, Icon,
@@ -18,6 +20,7 @@ import {
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import MapView from 'react-native-maps';
+import { AddressEditionScreenProps } from './addressEditionScreenProps';
 
 const addressService = new AddressService(new ConfigFactory(), store);
 const userService = new UserService(new ConfigFactory(), store);
@@ -87,7 +90,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     color: colors.dark,
   },
-  recentLocations: {
+  addressDetails: {
     borderTopColor: '#EEEEEE',
     borderTopWidth: 1,
     flexBasis: '35%',
@@ -103,19 +106,13 @@ const styles = StyleSheet.create({
   },
 });
 
-function AddressDetailsScreen({ route }) : JSX.Element {
-  const navigation = useNavigation();
-  const selectedAddressStoreState = useSelector((storeState: StoreState) => storeState.address.selectedAddress);
+function AddressEditionScreen({ route }) : JSX.Element {
   const user = useSelector((storeState: StoreState) => storeState.user);
+  const props = route.params as AddressEditionScreenProps;
 
-  const addressItem = route.params.address;
   const [refreshState, setRefreshState] = useState<boolean>(false);
   const [aptSuiteFloor, setAptSuiteFloor] = useState<string>('');
   const [label, setLabel] = useState<string>('');
-
-  useAsyncEffect(() => {
-    addressService.getAddressById(addressItem.placeId);
-  }, []);
 
   const onRefresh = async () => {
     setRefreshState(true);
@@ -126,7 +123,7 @@ function AddressDetailsScreen({ route }) : JSX.Element {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Button onPress={() => {
-          navigation.goBack();
+          props.navigation.goBack();
         }} color='accent'>
           <Icon library='AntDesign' name='back' />
         </Button>
@@ -143,7 +140,7 @@ function AddressDetailsScreen({ route }) : JSX.Element {
           }}
         />
       </View>
-      <View style={styles.recentLocations}>
+      <View style={styles.addressDetails}>
         <ScrollView
           refreshControl={
             <RefreshControl
@@ -152,11 +149,11 @@ function AddressDetailsScreen({ route }) : JSX.Element {
               colors={[colors.orange]}/>
           }
           showsVerticalScrollIndicator={true}>
-          <Text style={{ fontSize: 20, color: 'black' }}>{selectedAddressStoreState.address.formattedAddress}</Text>
+          <Text style={{ fontSize: 20, color: 'black' }}>{props.address.address.formattedAddress}</Text>
           <View style={styles.searchSection}>
             <TextInput
               style={styles.input}
-              defaultValue=""
+              defaultValue={props.address?.aptSuiteFloor}
               allowFontScaling={true}
               maxLength={30}
               onChangeText={(text) => setAptSuiteFloor(text)}
@@ -166,25 +163,37 @@ function AddressDetailsScreen({ route }) : JSX.Element {
           <View style={styles.searchSection}>
             <TextInput
               style={styles.input}
-              defaultValue=""
+              defaultValue={props.address?.label}
               allowFontScaling={true}
               maxLength={30}
               onChangeText={(text) => setLabel(text)}
             />
           </View>
           <Text style={{ fontSize: 12, color: 'grey' }}>Address Label</Text>
+          {props.IsEdit
+            ? <Button
+              onPress={async () => {
+                await userService.removeUserAddresses(user.userId as string, props.address.id);
+                // TODO: Find a better way to go back two screens
+                props.navigation.pop();
+              }}
+              color='red'
+              style={{ width: '100%', marginTop: 30 }}>
+              <Text style={{ fontSize: 18, color: colors.dark }}>Remove Address</Text>
+            </Button> : <></>}
         </ScrollView>
       </View>
       <View style={styles.footer}>
         <Button
-          onPress={() => {
-            userService.addUserAddresses(user.userId as string,
-              {
-                address: selectedAddressStoreState.address,
-                aptSuiteFloor,
-                label,
-              });
-            navigation.navigate('HomeScreen');
+          onPress={async () => {
+            const userAddress : UserAddressModel = await userService.addUserAddresses(user.userId as string, {
+              address: props.address.address,
+              aptSuiteFloor,
+              label,
+            });
+            store.dispatch(persistentActions.default.setCurrentFixLocations(userAddress));
+            // TODO: Find a better way to go back two screens
+            props.navigation.pop(2);
           }}
           color='dark'
           style={{ width: '90%' }}>
@@ -196,4 +205,4 @@ function AddressDetailsScreen({ route }) : JSX.Element {
   );
 }
 
-export default AddressDetailsScreen;
+export default AddressEditionScreen;

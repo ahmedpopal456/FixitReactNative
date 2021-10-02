@@ -16,8 +16,8 @@ import {
 } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
-import ProgressIndicatorFactory from '../components/progressIndicators/progressIndicatorFactory';
-import SearchTextInput from '../components/searchTextInput';
+import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
+import SearchTextInput from '../../components/searchTextInput';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
 

@@ -10,6 +10,7 @@ import {
 import RootStackNavigator from './core/navigators/rootStackNavigator';
 import SplashScreen from './screens/splashScreen';
 import NotificationRenderer from './components/notifications/notificationRenderer';
+import './core/extensions/string.extensions';
 
 const App = (): JSX.Element => {
   const navigationRef = React.useRef(null);
