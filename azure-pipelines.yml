@@ -8,7 +8,10 @@ trigger:
 variables:
   # Version Handling Variables
   majorProductVersion: 1
-  minorProductVersion: 0
+  minorProductVersion: 1
+  majorMinorProductVersion: $(majorProductVersion).$(minorProductVersion)
+  patchProductVersion: $[counter(variables['majorMinorProductVersion'], 0)]
+  buildProductVersion: 0
   projectName: FixIt-Capstone
   feedName: FixitFeed
   apkName: 'fixit'
