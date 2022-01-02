@@ -108,7 +108,6 @@ stages:
       - job: 'FixitMobileApp_IOS_Dev_Build'
         pool:
           vmImage: 'macOS-latest'
-        dependsOn: 'FixitMobileApp_Ionic_Dev_Build_and_Test'
         condition: succeeded()
         steps:
           - task: CmdLine@2
