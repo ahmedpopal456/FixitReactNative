@@ -24,89 +24,89 @@ stages:
       - job: 'FixitMobileApp_Android_Dev_Build'
         pool:
           vmImage: 'ubuntu-latest'
-          steps:
-            # Installer
-            - task: NodeTool@0
-              inputs:
-                versionSpec: '10.x'
-              displayName: 'Install Node.js'
+        steps:
+          # Installer
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '10.x'
+            displayName: 'Install Node.js'
 
-            - task: Npm@1
-              displayName: 'Npm install'
-              inputs:
-                command: 'install'
+          - task: Npm@1
+            displayName: 'Npm install'
+            inputs:
+              command: 'install'
 
-            # Run Unit Tests
-            - task: Npm@1
-              displayName: 'Npm test'
-              inputs:
-                command: 'custom'
-                customCommand: 'run test'
+          # Run Unit Tests
+          - task: Npm@1
+            displayName: 'Npm test'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test'
 
-            - task: Npm@1
-              displayName: 'Npm run coverage'
-              inputs:
-                command: 'custom'
-                customCommand: 'run test:ci'
+          - task: Npm@1
+            displayName: 'Npm run coverage'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test:ci'
 
-            # Publish Test Results
-            - task: PublishTestResults@2
-              displayName: 'Publish Test Results'
-              condition: succeededOrFailed()
-              inputs:
-                testResultsFiles: '**/junit.xml'
-                testResultsFormat: 'JUnit'
-                testRunTitle: 'Test Results'
+          # Publish Test Results
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: '**/junit.xml'
+              testResultsFormat: 'JUnit'
+              testRunTitle: 'Test Results'
 
-            - task: PublishCodeCoverageResults@1
-              inputs:
-                codeCoverageTool: 'Cobertura'
-                summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
-                reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
+              reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
-            # Npm Versioning
-            - task: Npm@1
-              displayName: 'Npm - Bump package version'
-              inputs:
-                command: 'custom'
-                workingDir: $(Build.SourcesDirectory)
-                verbose: false
-                customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
-                customRegistry: 'useFeed'
-                customFeed: '$(projectName)/$(feedName)'
+          # Npm Versioning
+          - task: Npm@1
+            displayName: 'Npm - Bump package version'
+            inputs:
+              command: 'custom'
+              workingDir: $(Build.SourcesDirectory)
+              verbose: false
+              customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
+              customRegistry: 'useFeed'
+              customFeed: '$(projectName)/$(feedName)'
 
-            - task: Gradle@2
-              inputs:
-                workingDirectory: 'android'
-                gradleWrapperFile: 'android/gradlew'
-                gradleOptions: '-Xmx3072m'
-                publishJUnitResults: false
-                testResultsFiles: '**/TEST-*.xml'
-                tasks: 'assembledevrelease'
-                options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
+          - task: Gradle@2
+            inputs:
+              workingDirectory: 'android'
+              gradleWrapperFile: 'android/gradlew'
+              gradleOptions: '-Xmx3072m'
+              publishJUnitResults: false
+              testResultsFiles: '**/TEST-*.xml'
+              tasks: 'assembledevrelease'
+              options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
 
-            - task: AndroidSigning@3
-              inputs:
-                apkFiles: '**/*.apk'
-                apksign: true
-                apksignerKeystoreFile: 'development-key.keystore'
-                apksignerKeystorePassword: '$(keystores-password)'
-                apksignerKeystoreAlias: 'devkey-alias'
-                apksignerKeyPassword: '$(keystores-password)'
-                apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev/release/${apkName}.dev.release.apk
-                zipalign: true
+          - task: AndroidSigning@3
+            inputs:
+              apkFiles: '**/*.apk'
+              apksign: true
+              apksignerKeystoreFile: 'development-key.keystore'
+              apksignerKeystorePassword: '$(keystores-password)'
+              apksignerKeystoreAlias: 'devkey-alias'
+              apksignerKeyPassword: '$(keystores-password)'
+              apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev/release/${apkName}.dev.release.apk
+              zipalign: true
 
-            - task: CopyFiles@2
-              inputs:
-                SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev'
-                Contents: '**/*.apk'
-                TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev'
+              Contents: '**/*.apk'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
 
-            - task: PublishBuildArtifacts@1
-              inputs:
-                pathToPublish: '$(Build.ArtifactStagingDirectory)'
-                artifactName: apks
-                publishLocation: 'container'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: apks
+              publishLocation: 'container'
 
       - job: 'FixitMobileApp_IOS_Dev_Build'
         pool:
@@ -124,89 +124,89 @@ stages:
       - job: 'FixitMobileApp_Android_Stage_Build'
         pool:
           vmImage: 'ubuntu-latest'
-          steps:
-            # Installer
-            - task: NodeTool@0
-              inputs:
-                versionSpec: '10.x'
-              displayName: 'Install Node.js'
+        steps:
+          # Installer
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '10.x'
+            displayName: 'Install Node.js'
 
-            - task: Npm@1
-              displayName: 'Npm install'
-              inputs:
-                command: 'install'
+          - task: Npm@1
+            displayName: 'Npm install'
+            inputs:
+              command: 'install'
 
-            # Run Unit Tests
-            - task: Npm@1
-              displayName: 'Npm test'
-              inputs:
-                command: 'custom'
-                customCommand: 'run test'
+          # Run Unit Tests
+          - task: Npm@1
+            displayName: 'Npm test'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test'
 
-            - task: Npm@1
-              displayName: 'Npm run coverage'
-              inputs:
-                command: 'custom'
-                customCommand: 'run test:ci'
+          - task: Npm@1
+            displayName: 'Npm run coverage'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test:ci'
 
-            # Publish Test Results
-            - task: PublishTestResults@2
-              displayName: 'Publish Test Results'
-              condition: succeededOrFailed()
-              inputs:
-                testResultsFiles: '**/junit.xml'
-                testResultsFormat: 'JUnit'
-                testRunTitle: 'Test Results'
+          # Publish Test Results
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: '**/junit.xml'
+              testResultsFormat: 'JUnit'
+              testRunTitle: 'Test Results'
 
-            - task: PublishCodeCoverageResults@1
-              inputs:
-                codeCoverageTool: 'Cobertura'
-                summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
-                reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
+              reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
-            # Npm Versioning
-            - task: Npm@1
-              displayName: 'Npm - Bump package version'
-              inputs:
-                command: 'custom'
-                workingDir: $(Build.SourcesDirectory)
-                verbose: false
-                customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
-                customRegistry: 'useFeed'
-                customFeed: '$(projectName)/$(feedName)'
+          # Npm Versioning
+          - task: Npm@1
+            displayName: 'Npm - Bump package version'
+            inputs:
+              command: 'custom'
+              workingDir: $(Build.SourcesDirectory)
+              verbose: false
+              customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
+              customRegistry: 'useFeed'
+              customFeed: '$(projectName)/$(feedName)'
 
-            - task: Gradle@2
-              inputs:
-                workingDirectory: 'android'
-                gradleWrapperFile: 'android/gradlew'
-                gradleOptions: '-Xmx3072m'
-                publishJUnitResults: false
-                testResultsFiles: '**/TEST-*.xml'
-                tasks: 'assemblestagerelease'
-                options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
+          - task: Gradle@2
+            inputs:
+              workingDirectory: 'android'
+              gradleWrapperFile: 'android/gradlew'
+              gradleOptions: '-Xmx3072m'
+              publishJUnitResults: false
+              testResultsFiles: '**/TEST-*.xml'
+              tasks: 'assemblestagerelease'
+              options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
 
-            - task: AndroidSigning@3
-              inputs:
-                apkFiles: '**/*.apk'
-                apksign: true
-                apksignerKeystoreFile: 'development-key.keystore'
-                apksignerKeystorePassword: '$(keystores-password)'
-                apksignerKeystoreAlias: 'devkey-alias'
-                apksignerKeyPassword: '$(keystores-password)'
-                apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/stage/release/${apkName}.stage.release.apk
-                zipalign: true
+          - task: AndroidSigning@3
+            inputs:
+              apkFiles: '**/*.apk'
+              apksign: true
+              apksignerKeystoreFile: 'development-key.keystore'
+              apksignerKeystorePassword: '$(keystores-password)'
+              apksignerKeystoreAlias: 'devkey-alias'
+              apksignerKeyPassword: '$(keystores-password)'
+              apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/stage/release/${apkName}.stage.release.apk
+              zipalign: true
 
-            - task: CopyFiles@2
-              inputs:
-                SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/stage'
-                Contents: '**/*.apk'
-                TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/stage'
+              Contents: '**/*.apk'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
 
-            - task: PublishBuildArtifacts@1
-              inputs:
-                pathToPublish: '$(Build.ArtifactStagingDirectory)'
-                artifactName: apks
-                publishLocation: 'container'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: apks
+              publishLocation: 'container'
 
       - job: 'FixitMobileApp_IOS_Stage_Build'
         pool:
@@ -224,89 +224,89 @@ stages:
       - job: 'FixitMobileApp_Android_Prod_Build'
         pool:
           vmImage: 'ubuntu-latest'
-          steps:
-            # Installer
-            - task: NodeTool@0
-              inputs:
-                versionSpec: '10.x'
-              displayName: 'Install Node.js'
+        steps:
+          # Installer
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '10.x'
+            displayName: 'Install Node.js'
 
-            - task: Npm@1
-              displayName: 'Npm install'
-              inputs:
-                command: 'install'
+          - task: Npm@1
+            displayName: 'Npm install'
+            inputs:
+              command: 'install'
 
-            # Run Unit Tests
-            - task: Npm@1
-              displayName: 'Npm test'
-              inputs:
-                command: 'custom'
-                customCommand: 'run test'
+          # Run Unit Tests
+          - task: Npm@1
+            displayName: 'Npm test'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test'
 
-            - task: Npm@1
-              displayName: 'Npm run coverage'
-              inputs:
-                command: 'custom'
-                customCommand: 'run test:ci'
+          - task: Npm@1
+            displayName: 'Npm run coverage'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test:ci'
 
-            # Publish Test Results
-            - task: PublishTestResults@2
-              displayName: 'Publish Test Results'
-              condition: succeededOrFailed()
-              inputs:
-                testResultsFiles: '**/junit.xml'
-                testResultsFormat: 'JUnit'
-                testRunTitle: 'Test Results'
+          # Publish Test Results
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: '**/junit.xml'
+              testResultsFormat: 'JUnit'
+              testRunTitle: 'Test Results'
 
-            - task: PublishCodeCoverageResults@1
-              inputs:
-                codeCoverageTool: 'Cobertura'
-                summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
-                reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
+              reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
-            # Npm Versioning
-            - task: Npm@1
-              displayName: 'Npm - Bump package version'
-              inputs:
-                command: 'custom'
-                workingDir: $(Build.SourcesDirectory)
-                verbose: false
-                customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
-                customRegistry: 'useFeed'
-                customFeed: '$(projectName)/$(feedName)'
+          # Npm Versioning
+          - task: Npm@1
+            displayName: 'Npm - Bump package version'
+            inputs:
+              command: 'custom'
+              workingDir: $(Build.SourcesDirectory)
+              verbose: false
+              customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
+              customRegistry: 'useFeed'
+              customFeed: '$(projectName)/$(feedName)'
 
-            - task: Gradle@2
-              inputs:
-                workingDirectory: 'android'
-                gradleWrapperFile: 'android/gradlew'
-                gradleOptions: '-Xmx3072m'
-                publishJUnitResults: false
-                testResultsFiles: '**/TEST-*.xml'
-                tasks: 'assembleprodrelease'
-                options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(patchProductVersion).$(buildProductVersion)'
+          - task: Gradle@2
+            inputs:
+              workingDirectory: 'android'
+              gradleWrapperFile: 'android/gradlew'
+              gradleOptions: '-Xmx3072m'
+              publishJUnitResults: false
+              testResultsFiles: '**/TEST-*.xml'
+              tasks: 'assembleprodrelease'
+              options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(patchProductVersion).$(buildProductVersion)'
 
-            - task: AndroidSigning@3
-              inputs:
-                apkFiles: '**/*.apk'
-                apksign: true
-                apksignerKeystoreFile: 'development-key.keystore'
-                apksignerKeystorePassword: '$(keystores-password)'
-                apksignerKeystoreAlias: 'devkey-alias'
-                apksignerKeyPassword: '$(keystores-password)'
-                apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/prod/release/${apkName}.release.apk
-                zipalign: true
+          - task: AndroidSigning@3
+            inputs:
+              apkFiles: '**/*.apk'
+              apksign: true
+              apksignerKeystoreFile: 'development-key.keystore'
+              apksignerKeystorePassword: '$(keystores-password)'
+              apksignerKeystoreAlias: 'devkey-alias'
+              apksignerKeyPassword: '$(keystores-password)'
+              apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/prod/release/${apkName}.release.apk
+              zipalign: true
 
-            - task: CopyFiles@2
-              inputs:
-                SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/prod'
-                Contents: '**/*.apk'
-                TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/prod'
+              Contents: '**/*.apk'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
 
-            - task: PublishBuildArtifacts@1
-              inputs:
-                pathToPublish: '$(Build.ArtifactStagingDirectory)'
-                artifactName: apks
-                publishLocation: 'container'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: apks
+              publishLocation: 'container'
 
       - job: 'FixitMobileApp_IOS_Prod_Build'
         pool:
