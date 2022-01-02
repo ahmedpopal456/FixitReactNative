@@ -33,7 +33,8 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
             navigation={navigation}
             userFirstName={props.otherProp.userFirstName}
             userLastName={props.otherProp.userLastName}
-            ratingCount={props.otherProp.ratingCount}>
+            ratingCount={props.otherProp.ratingCount}
+            userAddress={props.otherProp.userAddress}>
           </Header>),
       }}>
       {props.role === UserRoles.CLIENT

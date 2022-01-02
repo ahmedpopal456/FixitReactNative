@@ -85,7 +85,7 @@ const AccountScreen : FunctionComponent<any> = (props) => {
       <View style={styles.bodyContainer}>
         <View style={styles.buttonsContainer}>
           {option('profileBtn', 'My Profile', 'Profile', null, styles.buttonFirst)}
-          {option('loginSecurityBtn', 'Login & Security', 'Security', null, styles.button)}
+          {option('loginSecurityBtn', 'Login & Security', undefined, null, styles.button)}
           {option('paymentBtn', 'Payments', undefined, null, styles.button)}
           {option('ratingsBtn', 'Ratings', 'Ratings', null, styles.button)}
           {option('signOutBtn', 'Sign Out', undefined, async () => b2cClient.signOut(), styles.buttonLast)}

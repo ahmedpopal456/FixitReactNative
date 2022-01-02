@@ -43,8 +43,8 @@ const RootTabNavigator: FunctionComponent = () => {
       notificationCount,
       userFirstName: user.firstName,
       userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
       ratingCount: userRatingState.ratings.length,
-
     }} />,
   };
   const profile = {
@@ -56,6 +56,7 @@ const RootTabNavigator: FunctionComponent = () => {
       notificationCount,
       userFirstName: user.firstName,
       userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
       ratingCount: userRatingState.ratings.length,
     }} />,
   };
@@ -68,6 +69,7 @@ const RootTabNavigator: FunctionComponent = () => {
       notificationCount,
       userFirstName: user.firstName,
       userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
       ratingCount: userRatingState.ratings.length,
     }} />,
   };
@@ -80,6 +82,7 @@ const RootTabNavigator: FunctionComponent = () => {
       notificationCount,
       userFirstName: user.firstName,
       userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
       ratingCount: userRatingState.ratings.length,
     }} />,
   };

@@ -18,7 +18,8 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
           navigation={navigation}
           userFirstName={props.otherProp.userFirstName}
           userLastName={props.otherProp.userLastName}
-          ratingCount={props.otherProp.ratingCount}></Header>),
+          ratingCount={props.otherProp.ratingCount}
+          userAddress={props.otherProp.userAddress}></Header>),
     }}>
     <Stack.Screen
       name="Chat"

@@ -1,30 +1,24 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import {
   Text, StyleSheet, View, ScrollView, RefreshControl, SafeAreaView, TextInput,
 } from 'react-native';
 import {
-  AddressService,
   ConfigFactory,
   store,
   StoreState,
   UserService,
   useSelector,
-  persistentActions,
   UserAddressModel,
 } from 'fixit-common-data-store';
 import {
   Button, colors, Icon,
 } from 'fixit-common-ui';
-import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import MapView from 'react-native-maps';
 import { AddressEditionScreenProps } from './addressEditionScreenProps';
 
-const addressService = new AddressService(new ConfigFactory(), store);
 const userService = new UserService(new ConfigFactory(), store);
-
 const mapsStyles = StyleSheet.create({
   map: {
     position: 'absolute',
@@ -106,6 +100,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// TODO: Move parts of this screen to components
 function AddressEditionScreen({ route }) : JSX.Element {
   const user = useSelector((storeState: StoreState) => storeState.user);
   const props = route.params as AddressEditionScreenProps;
@@ -174,7 +169,6 @@ function AddressEditionScreen({ route }) : JSX.Element {
             ? <Button
               onPress={async () => {
                 await userService.removeUserAddresses(user.userId as string, props.address.id);
-                // TODO: Find a better way to go back two screens
                 props.navigation.pop();
               }}
               color='red'
@@ -186,12 +180,21 @@ function AddressEditionScreen({ route }) : JSX.Element {
       <View style={styles.footer}>
         <Button
           onPress={async () => {
-            const userAddress : UserAddressModel = await userService.addUserAddresses(user.userId as string, {
+            const createdUserAddress : UserAddressModel = await userService.addUserAddresses(user.userId as string, {
               address: props.address.address,
               aptSuiteFloor,
               label,
+              isCurrentAddress: false,
             });
-            store.dispatch(persistentActions.default.setCurrentFixLocations(userAddress));
+
+            await userService.updateUserAddresses(
+              user.userId as string,
+              createdUserAddress.id,
+              {
+                ...createdUserAddress,
+                isCurrentAddress: true,
+              },
+            );
             // TODO: Find a better way to go back two screens
             props.navigation.pop(2);
           }}

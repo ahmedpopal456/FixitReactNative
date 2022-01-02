@@ -1,5 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import AddressSelectorScreen from '../../../screens/address/addressSelectorScreen';
+import AddressEditionScreen from '../../../screens/address/addressEditionScreen';
 import Header from '../../../components/headers/header';
 import AccountScreen from '../screens/accountScreen';
 import ProfileScreen from '../screens/profileScreen';
@@ -22,7 +24,8 @@ const ProfileStackNavigator: FunctionComponent<any> = (props) => (
           navigation={navigation}
           userFirstName={props.otherProp.userFirstName}
           userLastName={props.otherProp.userLastName}
-          ratingCount={props.otherProp.ratingCount}></Header>),
+          ratingCount={props.otherProp.ratingCount}
+          userAddress={props.otherProp.userAddress}></Header>),
     }}>
     <Stack.Screen
       name="Account"
@@ -45,6 +48,12 @@ const ProfileStackNavigator: FunctionComponent<any> = (props) => (
     <Stack.Screen
       name="Notifications"
       component={NotificationsScreen} />
+    <Stack.Screen
+      name="AddressSelector"
+      component={AddressSelectorScreen}/>
+    <Stack.Screen
+      name="AddressDetails"
+      component={AddressEditionScreen}/>
   </Stack.Navigator>
 );
 

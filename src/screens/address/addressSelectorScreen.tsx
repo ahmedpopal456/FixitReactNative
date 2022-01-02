@@ -1,6 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useState, FunctionComponent, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, FunctionComponent } from 'react';
 import {
   Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView,
   TextInput, FlatList, ListRenderItem,
@@ -9,7 +8,6 @@ import {
   AddressQueryItemModel,
   AddressService,
   ConfigFactory,
-  persistentActions,
   store,
   StoreState,
   UserAddressModel,
@@ -23,7 +21,6 @@ import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import { Divider } from 'react-native-elements';
 import { AddressSelectorScreenProps } from './addressSelectorScreenProps';
-import { AddressEditionScreenProps } from './addressEditionScreenProps';
 
 const addressService = new AddressService(new ConfigFactory(), store);
 const userService = new UserService(new ConfigFactory(), store);
@@ -88,6 +85,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// TODO: Move parts of this screen to components
 const AddressSelectorScreen: FunctionComponent<AddressSelectorScreenProps> = (props) => {
   const queriedAddressesStoreState = useSelector((storeState: StoreState) => storeState.address.queriedAddresses);
   const user = useSelector((storeState: StoreState) => storeState.user);
@@ -132,9 +130,14 @@ const AddressSelectorScreen: FunctionComponent<AddressSelectorScreenProps> = (pr
         library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
         <TouchableOpacity
           activeOpacity={0.5}
-          onPress={() => {
-            store.dispatch(
-              persistentActions.default.setCurrentFixLocations(item),
+          onPress={async () => {
+            await userService.updateUserAddresses(
+              user.userId as string,
+              item.id,
+              {
+                ...item,
+                isCurrentAddress: true,
+              },
             );
             props.navigation.goBack();
           }}
