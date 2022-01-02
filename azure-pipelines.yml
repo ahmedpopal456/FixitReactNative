@@ -71,7 +71,7 @@ stages:
               sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
               versionCodeOption: 'buildid'
               versionCode: '$(Build.BuildId)'
-              versionName: '${{parameters.appVersion}}'
+              versionName: '$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
               printFile: true
 
           - task: Gradle@2
@@ -170,7 +170,7 @@ stages:
               sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
               versionCodeOption: 'buildid'
               versionCode: '$(Build.BuildId)'
-              versionName: '${{parameters.appVersion}}'
+              versionName: '$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
               printFile: true
 
           - task: Gradle@2
@@ -269,7 +269,7 @@ stages:
               sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
               versionCodeOption: 'buildid'
               versionCode: '$(Build.BuildId)'
-              versionName: '${{parameters.appVersion}}'
+              versionName: '$(majorProductVersion).$(minorProductVersion).$(patchProductVersion).$(buildProductVersion)'
               printFile: true
 
           - task: Gradle@2
