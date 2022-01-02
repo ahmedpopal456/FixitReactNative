@@ -6,7 +6,6 @@ import ChatProfileScreen from '../screens/chatProfileScreen';
 import ChatMessagingScreen from '../screens/chatMessagingScreen';
 
 const Stack = createStackNavigator();
-
 const ChatStackNavigator: FunctionComponent<any> = (props) => (
   <Stack.Navigator
     headerMode='screen'
@@ -17,7 +16,10 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
           notificationsBadgeCount={props.otherProp.notificationCount}
           userRatings={props.otherProp.averageRating}
           navigation={navigation}
-          userFirstName={props.otherProp.userFirstName}></Header>),
+          userFirstName={props.otherProp.userFirstName}
+          userLastName={props.otherProp.userLastName}
+          ratingCount={props.otherProp.ratingCount}
+          userAddress={props.otherProp.userAddress}></Header>),
     }}>
     <Stack.Screen
       name="Chat"
@@ -35,5 +37,4 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
     />
   </Stack.Navigator>
 );
-
 export default ChatStackNavigator;

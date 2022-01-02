@@ -5,17 +5,14 @@ import {
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, ProfileService, ConfigFactory, StoreState, AddressModel, useSelector,
+  store, ProfileService, ConfigFactory, StoreState, useSelector,
 } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';
 
 interface ProfileScreenState {
-  address: AddressModel,
-  profilePictureUrl: string
+  userAddress: string | undefined
 }
-
-const profileService = new ProfileService(new ConfigFactory(), store);
 
 const styles = StyleSheet.create({
   container: {
@@ -60,14 +57,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
   },
+  searchSection: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  searchIcon: {
+    padding: 10,
+  },
   formField: {
     width: '100%',
     borderWidth: 1,
+    flexShrink: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 10,
-    margin: 5,
     color: 'black',
+    marginBottom: 10,
   },
   text: {
     fontWeight: 'bold',
@@ -85,8 +91,7 @@ const styles = StyleSheet.create({
 });
 
 const initialState = {
-  address: store.getState().profile.address,
-  profilePictureUrl: store.getState().profile.profilePictureUrl,
+  userAddress: store.getState().profile?.address?.address?.formattedAddress,
 };
 
 const ProfileScreen : FunctionComponent<any> = (props) => {
@@ -94,10 +99,8 @@ const ProfileScreen : FunctionComponent<any> = (props) => {
   const user = useSelector((storeState: StoreState) => storeState.user);
 
   useAsyncEffect(async () => {
-    const response = await profileService.getUserProfile(user.userId as string);
     setState({
-      address: response.address,
-      profilePictureUrl: response.profilePictureUrl,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress)?.address?.formattedAddress,
     });
   }, [user]);
 
@@ -111,7 +114,6 @@ const ProfileScreen : FunctionComponent<any> = (props) => {
       </View>
 
       <View style={styles.bodyContainer}>
-
         <ScrollView
           contentContainerStyle={styles.scrollViewContent}>
           <Avatar
@@ -131,24 +133,27 @@ const ProfileScreen : FunctionComponent<any> = (props) => {
           <Text style={styles.text}>Email</Text>
           <TextInput
             editable={false}
+            selectTextOnFocus={false}
             style={styles.formField}
-            value={user.email}
+            value={user.userPrincipalName}
             placeholder="N/A"
+            accessible={false}
           />
           <Text style={styles.text}>Location</Text>
-          <TextInput
-            editable={false}
-            style={styles.formField}
-            value={ state.address === null ? ''
-            // eslint-disable-next-line max-len
-              : `${state.address.address}, ${state.address.city}, ${state.address.province}, ${state.address.postalCode}, ${state.address.country}`}
-            placeholder="N/A"
-          />
+          <View style={styles.searchSection}>
+            <TextInput
+              style={styles.formField}
+              defaultValue={state.userAddress}
+              allowFontScaling={true}
+              maxLength={30}
+              onTouchEnd={() => props.navigation.navigate('AddressSelector')}
+            />
+            <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
+          </View>
         </ScrollView>
       </View>
     </SafeAreaView>
   );
-
   return render();
 };
 

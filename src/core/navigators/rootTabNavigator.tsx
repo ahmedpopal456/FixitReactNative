@@ -42,6 +42,9 @@ const RootTabNavigator: FunctionComponent = () => {
       averageRating: userRatingState.averageRating,
       notificationCount,
       userFirstName: user.firstName,
+      userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
+      ratingCount: userRatingState.ratings.length,
     }} />,
   };
   const profile = {
@@ -52,6 +55,9 @@ const RootTabNavigator: FunctionComponent = () => {
       averageRating: userRatingState.averageRating,
       notificationCount,
       userFirstName: user.firstName,
+      userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
+      ratingCount: userRatingState.ratings.length,
     }} />,
   };
   const fixes = {
@@ -62,6 +68,9 @@ const RootTabNavigator: FunctionComponent = () => {
       averageRating: userRatingState.averageRating,
       notificationCount,
       userFirstName: user.firstName,
+      userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
+      ratingCount: userRatingState.ratings.length,
     }} />,
   };
   const chat = {
@@ -72,6 +81,9 @@ const RootTabNavigator: FunctionComponent = () => {
       averageRating: userRatingState.averageRating,
       notificationCount,
       userFirstName: user.firstName,
+      userLastName: user.lastName,
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
+      ratingCount: userRatingState.ratings.length,
     }} />,
   };
   return (

@@ -14,10 +14,10 @@ import {
 import useAsyncEffect from 'use-async-effect';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
-import SwipeableFlatList from '../components/lists/swipeableFlatList';
-import bgImage from '../common/assets/background-right.png';
-import image from '../common/assets/bedroom.jpg';
-import ProgressIndicatorFactory from '../components/progressIndicators/progressIndicatorFactory';
+import SwipeableFlatList from '../../components/lists/swipeableFlatList';
+import bgImage from '../../common/assets/background-right.png';
+import image from '../../common/assets/bedroom.jpg';
+import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
 const ratingsService = new RatingsService(new ConfigFactory(), store);

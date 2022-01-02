@@ -13,6 +13,8 @@ target 'FixitReactNative' do
 
   pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
 
+  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+
   target 'FixitReactNativeTests' do
     inherit! :complete
     # Pods for testing

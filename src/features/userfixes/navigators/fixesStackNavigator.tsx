@@ -17,7 +17,10 @@ const FixesStackNavigator: FunctionComponent<any> = (props) => (
           notificationsBadgeCount={props.otherProp.notificationCount}
           userRatings={props.otherProp.averageRating}
           navigation={navigation}
-          userFirstName={props.otherProp.userFirstName}></Header>),
+          userFirstName={props.otherProp.userFirstName}
+          userLastName={props.otherProp.userLastName}
+          ratingCount={props.otherProp.ratingCount}
+          userAddress={props.otherProp.userAddress}></Header>),
     }}>
     <Stack.Screen
       name="Fixes"

@@ -225,6 +225,7 @@ dependencies {
     }
 
     androidTestImplementation('com.wix:detox:+')
+    implementation project(':react-native-maps')
 }
 
 // Run this once to be able to run the application with BUCK

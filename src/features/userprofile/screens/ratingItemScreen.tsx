@@ -2,10 +2,9 @@ import React from 'react';
 import {
   Text, View, StyleSheet, SafeAreaView, Dimensions, Image,
 } from 'react-native';
-import { Button, Icon, NotificationBell } from 'fixit-common-ui';
-import { connect, StoreState } from 'fixit-common-data-store';
 import { Rating } from 'react-native-ratings';
 import { Avatar } from 'react-native-elements';
+import { Button, Icon } from 'fixit-common-ui';
 
 const styles = StyleSheet.create({
   container: {

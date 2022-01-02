@@ -1,9 +1,10 @@
 import React, { FunctionComponent } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { connect, StoreState } from 'fixit-common-data-store';
+import { createStackNavigator } from '@react-navigation/stack';
+import AddressEditionScreen from '../../screens/address/addressEditionScreen';
 import Header from '../../components/headers/header';
 import FixRequestMetaStep from '../../features/fixrequests/screens/fixRequestMetaStep';
-import HomeScreenClient from '../../screens/homeScreenClient';
+import HomeScreenClient from '../../screens/home/homeScreenClient';
 import FixSearchResultsScreen from '../../features/fixrequests/screens/fixSearchResultsScreen';
 import FixRequestDescriptionStep from '../../features/fixrequests/screens/fixRequestDescriptionStep';
 import FixRequestSectionsStep from '../../features/fixrequests/screens/fixRequestSectionsStep';
@@ -13,8 +14,9 @@ import FixRequestReview from '../../features/fixrequests/screens/fixRequestRevie
 import FixSuggestChanges from '../../features/fixrequests/screens/fixSuggestChanges';
 import FixSuggestChangesReview from '../../features/fixrequests/screens/fixSuggestChangesReview';
 import UserRoles from '../../common/models/users/userRolesEnum';
-import HomeScreenCraftsman from '../../screens/homeScreenCraftsman';
+import HomeScreenCraftsman from '../../screens/home/homeScreenCraftsman';
 import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
+import AddressSelectorScreen from '../../screens/address/addressSelectorScreen';
 
 const Stack = createStackNavigator();
 
@@ -29,7 +31,11 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
             notificationsBadgeCount={props.otherProp.notificationCount}
             userRatings={props.otherProp.averageRating}
             navigation={navigation}
-            userFirstName={props.otherProp.userFirstName}></Header>),
+            userFirstName={props.otherProp.userFirstName}
+            userLastName={props.otherProp.userLastName}
+            ratingCount={props.otherProp.ratingCount}
+            userAddress={props.otherProp.userAddress}>
+          </Header>),
       }}>
       {props.role === UserRoles.CLIENT
          && <Stack.Screen
@@ -103,6 +109,12 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
         options={{
           animationEnabled: false,
         }}/>
+      <Stack.Screen
+        name="AddressSelector"
+        component={AddressSelectorScreen}/>
+      <Stack.Screen
+        name="AddressDetails"
+        component={AddressEditionScreen}/>
     </Stack.Navigator>
   );
 
