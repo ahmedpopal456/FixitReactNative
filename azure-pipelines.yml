@@ -65,15 +65,14 @@ stages:
               reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
           # Npm Versioning
-          - task: Npm@1
-            displayName: 'Npm - Bump package version'
+          - task: android-manifest-version@1
+            displayName: 'Update Android version'
             inputs:
-              command: 'custom'
-              workingDir: $(Build.SourcesDirectory)
-              verbose: false
-              customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
-              customRegistry: 'useFeed'
-              customFeed: '$(projectName)/$(feedName)'
+              sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
+              versionCodeOption: 'buildid'
+              versionCode: '$(Build.BuildId)'
+              versionName: '${{parameters.appVersion}}'
+              printFile: true
 
           - task: Gradle@2
             inputs:
@@ -165,15 +164,14 @@ stages:
               reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
           # Npm Versioning
-          - task: Npm@1
-            displayName: 'Npm - Bump package version'
+          - task: android-manifest-version@1
+            displayName: 'Update Android version'
             inputs:
-              command: 'custom'
-              workingDir: $(Build.SourcesDirectory)
-              verbose: false
-              customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
-              customRegistry: 'useFeed'
-              customFeed: '$(projectName)/$(feedName)'
+              sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
+              versionCodeOption: 'buildid'
+              versionCode: '$(Build.BuildId)'
+              versionName: '${{parameters.appVersion}}'
+              printFile: true
 
           - task: Gradle@2
             inputs:
@@ -265,15 +263,14 @@ stages:
               reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
           # Npm Versioning
-          - task: Npm@1
-            displayName: 'Npm - Bump package version'
+          - task: android-manifest-version@1
+            displayName: 'Update Android version'
             inputs:
-              command: 'custom'
-              workingDir: $(Build.SourcesDirectory)
-              verbose: false
-              customCommand: 'version $(Build.BuildNumber) --no-git-tag-version --allow-same-version'
-              customRegistry: 'useFeed'
-              customFeed: '$(projectName)/$(feedName)'
+              sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
+              versionCodeOption: 'buildid'
+              versionCode: '$(Build.BuildId)'
+              versionName: '${{parameters.appVersion}}'
+              printFile: true
 
           - task: Gradle@2
             inputs:
