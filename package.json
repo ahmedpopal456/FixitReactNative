@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "npx react-native run-android -- --reset-cache",
+    "android-dev": "npx react-native run-android --variant=devdebug --appIdSuffix=.dev",
+    "android-stage": "npx react-native run-android --variant=stagerelease --appIdSuffix=.stage",
+    "android-prod": "npx react-native run-android --variant=prodrelease",
     "ios": "npx react-native run-ios",
     "start": "npx react-native start",
     "test": "jest --coverage",

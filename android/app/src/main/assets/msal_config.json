@@ -1,7 +1,7 @@
 {
   "client_id": "60d0d7ce-85ff-427d-ae26-8e1510bb776d",
   "authorization_user_agent": "DEFAULT",
-  "redirect_uri": "msauth://com.fixitreactnative/Xo8WBi6jzSxKDVR4drqm84yr9iU%3D",
+  "redirect_uri": "msauth://fixit.android/Xo8WBi6jzSxKDVR4drqm84yr9iU%3D",
   "authorities": [
     {
       "type": "B2C",

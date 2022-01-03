@@ -1,5 +1,5 @@
 // Replace "com.example" here and below with your app's package name from the top of MainActivity.java
-package com.fixitreactnative;
+package fixit.android;
 
 import com.wix.detox.Detox;
 import com.wix.detox.config.DetoxConfig;
@@ -16,7 +16,7 @@ import androidx.test.rule.ActivityTestRule;
 @LargeTest
 public class DetoxTest {
     @Rule
-    // Replace 'MainActivity' with the value of android:name entry in 
+    // Replace 'MainActivity' with the value of android:name entry in
     // <activity> in AndroidManifest.xml
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(MainActivity.class, false, false);
 
@@ -25,7 +25,7 @@ public class DetoxTest {
         DetoxConfig detoxConfig = new DetoxConfig();
         detoxConfig.idlePolicyConfig.masterTimeoutSec = 90;
         detoxConfig.idlePolicyConfig.idleResourceTimeoutSec = 60;
-        detoxConfig.rnContextLoadTimeoutSec = (com.fixitreactnative.BuildConfig.DEBUG ? 180 : 60);
+        detoxConfig.rnContextLoadTimeoutSec = (fixit.android.BuildConfig.DEBUG ? 180 : 60);
 
         Detox.runTests(mActivityRule, detoxConfig);
     }

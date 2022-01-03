@@ -1,4 +1,4 @@
-package com.fixitreactnative;
+package fixit.android;
 
 import com.facebook.react.ReactActivity;
 
@@ -21,7 +21,7 @@ public class MainActivity extends ReactActivity {
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
-       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {    
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
               NotificationChannel notificationChannel = new NotificationChannel("fixit-default-channel", "Fixit", NotificationManager.IMPORTANCE_HIGH);
               notificationChannel.setShowBadge(true);
               notificationChannel.setDescription("Default notification channel used by Fixit");
