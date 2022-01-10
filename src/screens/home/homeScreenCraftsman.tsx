@@ -1,16 +1,10 @@
 /* eslint-disable no-nested-ternary */
-import React, {
-  useState, FunctionComponent,
-} from 'react';
+import React, { useState, FunctionComponent } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import {
-  Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, RefreshControl,
-} from 'react-native';
+import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, RefreshControl } from 'react-native';
 import { colors, DonutChart, Tag } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  store, FixesService, ConfigFactory, StoreState, RatingsService, useSelector,
-} from 'fixit-common-data-store';
+import { store, FixesService, ConfigFactory, StoreState, RatingsService, useSelector } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
@@ -51,19 +45,16 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     elevation: 3,
   },
-  fixContainerView:
-  {
+  fixContainerView: {
     width: 200,
     paddingVertical: 5,
     margin: 7,
   },
-  fixContainerText:
-  {
+  fixContainerText: {
     fontWeight: 'bold',
     fontSize: 15,
   },
-  fixContainerDetailsView:
-  {
+  fixContainerDetailsView: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
@@ -122,7 +113,7 @@ const HomeScreenCraftsman: FunctionComponent = () => {
   const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
   const popularFixTags = useSelector((storeState: StoreState) => storeState.fixes.topFixTagsState);
 
-  const user = useSelector((storeState:StoreState) => storeState.user);
+  const user = useSelector((storeState: StoreState) => storeState.user);
 
   useAsyncEffect(async () => {
     await onRefresh();
@@ -140,31 +131,27 @@ const HomeScreenCraftsman: FunctionComponent = () => {
   const renderPendingFixItems = ({ item }: any): JSX.Element => (
     <View style={styles.fixContainer}>
       <View style={{ padding: 10 }}>
-        <DonutChart
-          value={75}
-          radius={50}
-          strokeWidth={7}
-          color='yellow'
-          textColor='dark'
-        />
+        <DonutChart value={75} radius={50} strokeWidth={7} color="yellow" textColor="dark" />
       </View>
       <View style={styles.fixContainerView}>
         <Text style={styles.fixContainerText}>{item.details.name}</Text>
         <View style={styles.fixContainerDetailsView}>
-          <Text
-            style={styles.fixContainerFinePrints}>
-              Started {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()} for
+          <Text style={styles.fixContainerFinePrints}>
+            Started {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()} for
           </Text>
-          <Text
-            style={styles.fixContainerFinePrints}>
+          <Text style={styles.fixContainerFinePrints}>
             {item.createdByClient.firstName} {item.createdByClient.lastName}
           </Text>
         </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Fixes', {
-          screen: 'FixOverview',
-          params: { fix: item },
-        })}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Fixes', {
+              screen: 'FixOverview',
+              params: { fix: item },
+            })
+          }
+        >
           <View style={styles.detail}>
             <Text style={styles.fixContainerDetailsButton}>See Details</Text>
           </View>
@@ -191,46 +178,54 @@ const HomeScreenCraftsman: FunctionComponent = () => {
       </View>
       <View style={styles.fixContainerView}>
         <Text style={styles.fixContainerText}>{item.details.name}</Text>
-        <Text >
-          {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()}
-           - {new Date(item.schedule[0].endTimestampUtc * 1000).toDateString()}
+        <Text>
+          {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()}-{' '}
+          {new Date(item.schedule[0].endTimestampUtc * 1000).toDateString()}
         </Text>
-        <Text
-          style={styles.fixContainerFinePrints}>
+        <Text style={styles.fixContainerFinePrints}>
           {item.createdByClient.firstName} {item.createdByClient.lastName}
         </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Fixes', {
-          screen: 'FixOverview',
-          params: { fix: item },
-        })}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Fixes', {
+              screen: 'FixOverview',
+              params: { fix: item },
+            })
+          }
+        >
           <View style={styles.detail}>
             <Text style={styles.fixContainerDetailsButton}>See Details</Text>
           </View>
         </TouchableOpacity>
       </View>
-    </View>);
+    </View>
+  );
 
-  const render = () : JSX.Element => {
-    const renderFixesFallback : boolean = pendingFixes.isLoading || inProgressFixes.isLoading;
-    const isFixesToShowEmpty : boolean = pendingFixes.fixes.length <= 0 && inProgressFixes.fixes.length <= 0;
-    const renderTagsFallback : boolean = popularFixTags.isLoading;
-    const isTagsToShowEmpty : boolean = popularFixTags.tags.length <= 0;
+  const render = (): JSX.Element => {
+    const renderFixesFallback: boolean = pendingFixes.isLoading || inProgressFixes.isLoading;
+    const isFixesToShowEmpty: boolean = pendingFixes.fixes.length <= 0 && inProgressFixes.fixes.length <= 0;
+    const renderTagsFallback: boolean = popularFixTags.isLoading;
+    const isTagsToShowEmpty: boolean = popularFixTags.tags.length <= 0;
 
-    const showPendingFixes = (pendingFixes.fixes.length > 0
-      ? <SwipeableFlatList
-        title={'Pending'}
-        navigationProps ={{ title: 'Fixes', navigation }}
-        data={pendingFixes.fixes}
-        renderItem={renderPendingFixItems}>
-      </SwipeableFlatList> : null);
+    const showPendingFixes =
+      pendingFixes.fixes.length > 0 ? (
+        <SwipeableFlatList
+          title={'Pending'}
+          navigationProps={{ title: 'Fixes', navigation }}
+          data={pendingFixes.fixes}
+          renderItem={renderPendingFixItems}
+        ></SwipeableFlatList>
+      ) : null;
 
-    const showNewFixes = (inProgressFixes.fixes.length > 0
-      ? <SwipeableFlatList
-        title={'On-Going'}
-        navigationProps ={{ title: 'Fixes', navigation }}
-        data={inProgressFixes.fixes}
-        renderItem={renderFixRequestItems}>
-      </SwipeableFlatList> : null);
+    const showNewFixes =
+      inProgressFixes.fixes.length > 0 ? (
+        <SwipeableFlatList
+          title={'On-Going'}
+          navigationProps={{ title: 'Fixes', navigation }}
+          data={inProgressFixes.fixes}
+          renderItem={renderFixRequestItems}
+        ></SwipeableFlatList>
+      ) : null;
 
     return (
       <SafeAreaView style={styles.container}>
@@ -243,58 +238,59 @@ const HomeScreenCraftsman: FunctionComponent = () => {
             }}
             style={styles.background}
           >
-            <ScrollView refreshControl={
-              <RefreshControl
-                refreshing={refreshState}
-                onRefresh={onRefresh}
-                size={1}
-                colors={[colors.orange]}
-              />
-            }>
+            <ScrollView>
               <Text style={styles.headers}>Your Fixes</Text>
-              {renderFixesFallback
-                ? <View style={styles.spinner}>
+              {renderFixesFallback ? (
+                <View style={styles.spinner}>
                   <ProgressIndicatorFactory
-                    type='indeterminate'
+                    type="indeterminate"
                     children={{
                       indicatorType: 'circular',
                       color: colors.orange,
-                    }}/>
-                </View> : isFixesToShowEmpty
-                  ? <View style={{ height: 100 }}>
-                    <Text style={styles.loadingMessage}> {t('home.craftsman.fixes.notavailable')}</Text>
-                  </View> : [
-                    showPendingFixes,
-                    showNewFixes,
-                  ]
-              }
+                    }}
+                  />
+                </View>
+              ) : isFixesToShowEmpty ? (
+                <View style={{ height: 100 }}>
+                  <Text style={styles.loadingMessage}> {t('home.craftsman.fixes.notavailable')}</Text>
+                </View>
+              ) : (
+                [showPendingFixes, showNewFixes]
+              )}
 
               <Text style={styles.headers}>Popular Tags</Text>
-              {renderTagsFallback
-                ? <View style={styles.spinner}>
+              {renderTagsFallback ? (
+                <View style={styles.spinner}>
                   <ProgressIndicatorFactory
-                    type='indeterminate'
+                    type="indeterminate"
                     children={{
                       indicatorType: 'linear',
                       color: colors.orange,
-                    }}/>
-                </View> : isTagsToShowEmpty
-                  ? <View style={{ height: 100 }}>
-                    <Text style={styles.loadingMessage}> Tags Information Unavailable...</Text>
-                  </View>
-                  : <View style={styles.tagsContainerView}>
-                    {popularFixTags.tags.map((tag: any) => (tag ? (
-                      <View
-                        key={tag.name}
-                        style={styles.tagsContainer}>
-                        <Tag backgroundColor={'dark'} textColor={'light'}>{tag.name}</Tag>
+                    }}
+                  />
+                </View>
+              ) : isTagsToShowEmpty ? (
+                <View style={{ height: 100 }}>
+                  <Text style={styles.loadingMessage}> Tags Information Unavailable...</Text>
+                </View>
+              ) : (
+                <View style={styles.tagsContainerView}>
+                  {popularFixTags.tags.map((tag: any) =>
+                    tag ? (
+                      <View key={tag.name} style={styles.tagsContainer}>
+                        <Tag backgroundColor={'dark'} textColor={'light'}>
+                          {tag.name}
+                        </Tag>
                       </View>
-                    ) : null))}
-                  </View>}
+                    ) : null
+                  )}
+                </View>
+              )}
             </ScrollView>
           </ImageBackground>
         </View>
-      </SafeAreaView>);
+      </SafeAreaView>
+    );
   };
   return render();
 };

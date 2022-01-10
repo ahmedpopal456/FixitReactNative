@@ -1,12 +1,8 @@
 import React, { FunctionComponent } from 'react';
-import {
-  Text, View, StyleSheet, Dimensions, Image, TouchableOpacity, FlatList,
-} from 'react-native';
+import { Text, View, StyleSheet, Dimensions, Image, TouchableOpacity, FlatList } from 'react-native';
 import { Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  store, FixesService, ConfigFactory, StoreState, useSelector,
-} from 'fixit-common-data-store';
+import { store, FixesService, ConfigFactory, StoreState, useSelector } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
@@ -66,7 +62,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ChatProfileScreen : FunctionComponent<any> = () => {
+const ChatProfileScreen: FunctionComponent<any> = () => {
   const profilePictureUrl = useSelector((storeState: StoreState) => storeState.profile);
   const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
 
@@ -74,20 +70,19 @@ const ChatProfileScreen : FunctionComponent<any> = () => {
     await fixesService.getPendingFixes('8b418766-4a99-42a8-b6d7-9fe52b88ea93');
   }, []);
 
-  const renderItem = ({ item }) : JSX.Element => (
+  const renderItem = ({ item }): JSX.Element => (
     <TouchableOpacity onPress={() => undefined} style={styles.fixContainer}>
       <View style={{ width: 200, paddingVertical: 5 }}>
         <Text>
           {item.assignedToCraftsman == null
             ? 'Not assigned'
-            : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`
-          }
+            : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`}
         </Text>
         <Text style={{ fontWeight: 'bold' }}>{item.details.name}</Text>
         <Text style={{ color: '#8B8B8B' }}>{item.details.category}</Text>
       </View>
       <View style={styles.arrow}>
-        <Icon library='AntDesign' name='arrowright' color='accent' />
+        <Icon library="AntDesign" name="arrowright" color="accent" />
       </View>
     </TouchableOpacity>
   );
@@ -95,28 +90,37 @@ const ChatProfileScreen : FunctionComponent<any> = () => {
   const render = () => (
     <SafeAreaView style={styles.container}>
       <View style={styles.bodyContainer}>
-        <Text style={{
-          alignSelf: 'center',
-          marginTop: 15,
-          color: 'gray',
-        }}>last seen today at 10:33</Text>
-        {profilePictureUrl
-          ? <View style={styles.image}>
-            <Image
-              style={styles.image}
-              source={{ uri: profilePictureUrl }}
-            />
+        <Text
+          style={{
+            alignSelf: 'center',
+            marginTop: 15,
+            color: 'gray',
+          }}
+        >
+          last seen today at 10:33
+        </Text>
+        {profilePictureUrl ? (
+          <View style={styles.image}>
+            <Image style={styles.image} source={{ uri: profilePictureUrl }} />
           </View>
-          : <View style={styles.image}>
+        ) : (
+          <View style={styles.image}>
             <Text>Image not found</Text>
           </View>
-        }
+        )}
         {/* Rating */}
         <Text style={styles.text}>Andy</Text>
         <Text style={styles.text}>Info</Text>
-        <Text style={{
-          color: 'gray', marginLeft: 50, alignSelf: 'flex-start', marginTop: 10,
-        }}>Your fixes with Andy:</Text>
+        <Text
+          style={{
+            color: 'gray',
+            marginLeft: 50,
+            alignSelf: 'flex-start',
+            marginTop: 10,
+          }}
+        >
+          Your fixes with Andy:
+        </Text>
         <View>
           {/* body of each section */}
           <FlatList

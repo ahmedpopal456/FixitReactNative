@@ -1,75 +1,181 @@
 import axios from 'axios';
 // import { persistentStore } from 'fixit-common-data-store';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { MessageModel, UserSummaryModel } from 'src/features/chat/models/chatModel';
+import * as signalR from '@microsoft/signalr';
+import { HubConnection } from '@microsoft/signalr';
+import {
+  ConversationMessageModel,
+  ConversationUpsertMessageModel,
+  UserSummaryModel,
+} from 'src/features/chat/models/chatModels';
 import config from '../../config/appConfig';
+
+export interface SignalRConnectionOptions {
+  rejoinGroupOnHubStart?: boolean;
+}
+
+export interface SignalRConnectionInfo {
+  url: string;
+  accessToken: string;
+}
+
+export type MessageCallbackType = (response: ConversationMessageModel) => void;
 
 export default class SignalRService {
   private userId: string | undefined;
 
   private conversationId: string | undefined;
 
-  private connection: HubConnection | undefined;
+  private callbackHook: MessageCallbackType;
 
-  constructor(userId: string, conversationId: string) {
+  private hubConnection: HubConnection | undefined;
+
+  constructor() {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    this.callbackHook = () => {};
+  }
+
+  public setGroup(userId: string, conversationId: string): void {
     this.userId = userId;
     if (this.userId === '') {
       console.error('user id cannot be empty');
     }
-
     this.conversationId = conversationId;
     if (this.conversationId === '') {
       console.error('conversation id cannot be empty');
     }
   }
 
-  getConnection(): HubConnection | undefined {
-    return this.connection;
+  public initializeGetConnectionInfoListener(
+    callbackFn: MessageCallbackType = this.callbackHook,
+    options?: SignalRConnectionOptions
+  ): Promise<any> {
+    return this.getConnectionInfo().then((connectionInfo: SignalRConnectionInfo) => {
+      console.debug('SignalR connection info:', connectionInfo);
+      this.defineHubConnection(connectionInfo);
+      this.connect(callbackFn, options);
+    });
   }
 
-  private getAxiosConfig() {
-    return {
-      headers: {
-        'x-ms-signalr-user-id': this.userId,
-      },
+  private defineHubConnection(connectionInfo: SignalRConnectionInfo) {
+    const options = {
+      accessTokenFactory: () => connectionInfo.accessToken,
     };
+    const builder = new signalR.HubConnectionBuilder();
+    const hubConnection = builder.withUrl(connectionInfo.url, options).withAutomaticReconnect([0, 2000, 5000]).build();
+
+    console.debug('Starting signalR connection...');
+
+    hubConnection.onreconnecting((error) => {
+      console.debug('SignalR connection lost', error);
+    });
+
+    hubConnection.onreconnected((connectionId) => {
+      console.debug('SignalR connection reestablished. Connected', connectionId);
+    });
+
+    hubConnection.onclose((error) => {
+      console.debug('SignalR connection close', error);
+      this.initializeGetConnectionInfoListener();
+    });
+
+    this.hubConnection = hubConnection;
   }
 
-  private getConnectionInfo(): Promise<Response> {
-    return (
-      axios.post(`${config.chatTriggerUrl}/negotiate`, null, this.getAxiosConfig())
-        .then((response) => response.data)
-        .catch((error) => console.error(error.response.data))
-    );
-  }
-
-  buildConnection(): Promise<void | Response> {
-    return this.getConnectionInfo()
-      .then((info) => {
-        const option = {
-          accessTokenFactory: () => info.accessToken,
-        };
-        this.connection = new HubConnectionBuilder()
-          .withUrl(info.url, option)
-          .build();
+  private connect(callbackFn: MessageCallbackType, options?: SignalRConnectionOptions): void {
+    this.hubConnection
+      ?.start()
+      .then(() => {
+        console.debug('SR connection started');
+        if (this.conversationId) {
+          this.joinGroup(this.conversationId, callbackFn);
+        }
       })
-      .catch((error) => console.error(error));
+      .catch((err) => {
+        console.debug(`Error while starting connection: ${err}`);
+      });
   }
 
-  sendMessage(sender: UserSummaryModel, recipient: UserSummaryModel, message: string) : void {
-    if (this.connection && message) {
-      this.connection.invoke('sendToUser', this.conversationId, sender, recipient, message)
-      // .then(() => console.log(`sent message ${message}`))
-        .catch((error) => console.error(error));
+  private getConnectionInfo(): Promise<any> {
+    return axios
+      .post(`${config.chatTriggerUrl}/chat/users/${this.userId}/negotiate`, null)
+      .then((response) => response.data)
+      .catch((error) => console.error(error.response.data));
+  }
+
+  private registerListener(callbackFn: MessageCallbackType, groupId: string): void {
+    this.callbackHook = callbackFn;
+    this.hubConnection?.on(groupId, (message: any) => {
+      this.newMessage(JSON.stringify(message));
+    });
+  }
+
+  private newMessage(message: string): void {
+    this.callbackHook(JSON.parse(message));
+  }
+
+  public sendMessage(groupId: string, message: ConversationUpsertMessageModel): void {
+    console.debug('Sending message to group:', groupId);
+    this.hubConnection
+      ?.invoke('SendMessageToGroup', groupId, message)
+      .then(() => {
+        console.debug('Message successfully sent!');
+      })
+      .catch((err) => {
+        console.error('Failed to send message to group:', groupId);
+        console.error(err);
+      });
+  }
+
+  public async joinGroup(
+    groupId: string = this.conversationId as string,
+    callbackFn: MessageCallbackType = this.callbackHook
+  ): Promise<void> {
+    this.conversationId = groupId;
+    console.debug('Waiting to join group:', groupId);
+    return new Promise((resolve, reject) => {
+      this.hubConnection
+        ?.invoke('joingroup', groupId, {
+          id: this.userId,
+        } as UserSummaryModel)
+        .then(() => {
+          console.debug(`Joined group ${groupId} successfully!`);
+          console.debug('Setting up conversation listener...');
+          this.registerListener(callbackFn, groupId);
+          resolve();
+        })
+        .catch((err) => {
+          console.error(`Failed joining group ${groupId}!`);
+          console.error(err);
+          reject(err);
+        });
+    });
+  }
+
+  public async leaveGroup(): Promise<void | undefined> {
+    console.debug('Leaving group:', this.conversationId);
+    const leavingGroup = this.conversationId;
+    if (!this.conversationId) {
+      return;
     }
+    this.hubConnection?.off(this.conversationId); // Remove Handlers for old group
+    this.hubConnection
+      ?.invoke('leavegroup', this.conversationId)
+      .then(() => {
+        console.debug(`Left group ${this.conversationId} successfully!`);
+        if (this.conversationId === leavingGroup) {
+          this.conversationId = undefined;
+          this.callbackHook = () => {
+            console.log('empty');
+          };
+        }
+      })
+      .catch((err) => {
+        console.error(`Failed leaving group ${this.conversationId}!`);
+        console.error(err);
+      });
   }
 
-  getMessages(pageNumber = 1, pageSize = 100): Promise<Array<MessageModel>> {
-    return (
-      axios.get(`${config.chatApiUrl}/users/me/conversations/${this.conversationId}
-      /messages?pageNumber=${pageNumber}&pageSize=${pageSize}`)
-        .then((response) => response.data.messages)
-        .catch((error) => { console.log('messages not found'); return []; })
-    );
+  getConnection(): HubConnection | undefined {
+    return this.hubConnection;
   }
 }

@@ -1,19 +1,9 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState, FunctionComponent, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import {
-  Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView,
-} from 'react-native';
-import {
-  ConfigFactory,
-  FixesService,
-  store,
-  StoreState,
-  useSelector,
-} from 'fixit-common-data-store';
-import {
-  Button, colors, Icon, Tag,
-} from 'fixit-common-ui';
+import { Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView } from 'react-native';
+import { ConfigFactory, FixesService, store, StoreState, useSelector } from 'fixit-common-data-store';
+import { Button, colors, Icon, Tag } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
@@ -176,7 +166,7 @@ const HomeScreenClient: FunctionComponent = () => {
     setSelectedTagsState([...selectedTags, tag]);
   };
 
-  const search = () : void => {
+  const search = (): void => {
     navigation.navigate('SearchResultsScreen', {
       tags: selectedTagsState,
     });
@@ -185,20 +175,9 @@ const HomeScreenClient: FunctionComponent = () => {
   return (
     <SafeAreaView style={styles.baseContainer}>
       <View style={styles.baseContainer_View}>
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshState}
-              onRefresh={onRefresh}
-              colors={[colors.orange]}/>
-          }
-          showsVerticalScrollIndicator={false}>
-        </ScrollView>
         <View style={styles.baseContainer_View_View}>
           <View style={styles.baseContainer_View_View_View}>
-            {suggestedTagsState.length > 0
-              ? <Text>Suggested Tags</Text>
-              : <></>}
+            {suggestedTagsState.length > 0 ? <Text>Suggested Tags</Text> : <></>}
             <View
               style={{
                 marginTop: 10,
@@ -206,22 +185,23 @@ const HomeScreenClient: FunctionComponent = () => {
                 flexWrap: 'wrap',
                 justifyContent: 'center',
                 flexGrow: 100,
-              }}>
-              {popularFixTags.isLoading
-                ? <ProgressIndicatorFactory
-                  type='indeterminate'
+              }}
+            >
+              {popularFixTags.isLoading ? (
+                <ProgressIndicatorFactory
+                  type="indeterminate"
                   children={{
                     indicatorType: 'circular',
                     color: colors.orange,
-                  }}/>
-                : suggestedTagsState.length < 0
-                  ? <></>
-                  : <View style={styles.tagsContainerView}>
-                    {suggestedTagsState.map((tag: any) => (tag ? (
-                      <View
-                        key={tag}
-                        style={styles.tagsContainer}>
-
+                  }}
+                />
+              ) : suggestedTagsState.length < 0 ? (
+                <></>
+              ) : (
+                <View style={styles.tagsContainerView}>
+                  {suggestedTagsState.map((tag: any) =>
+                    tag ? (
+                      <View key={tag} style={styles.tagsContainer}>
                         <TouchableOpacity
                           onPress={() => addSuggestedTagToTagList(tag)}
                           style={{
@@ -230,22 +210,23 @@ const HomeScreenClient: FunctionComponent = () => {
                             marginRight: -15,
                           }}
                         >
-                          <Tag
-                            backgroundColor={'grey'}
-                            textColor={'light'}>
+                          <Tag backgroundColor={'grey'} textColor={'light'}>
                             {tag}
                           </Tag>
                         </TouchableOpacity>
                       </View>
-                    ) : null))}
-                  </View>}
+                    ) : null
+                  )}
+                </View>
+              )}
             </View>
             <View>
-              <View style={{
-                position: 'absolute',
-                zIndex: -1,
-                paddingTop: 10,
-              }}
+              <View
+                style={{
+                  position: 'absolute',
+                  zIndex: -1,
+                  paddingTop: 10,
+                }}
               >
                 <SearchTextInput
                   onChange={(text: string) => setTagInputTextState(text)}
@@ -262,18 +243,8 @@ const HomeScreenClient: FunctionComponent = () => {
                   paddingBottom: 10,
                 }}
               >
-                <Button
-                  testID='searchBtn'
-                  onPress={search}
-                  color="primary"
-                  width={50}
-                  padding={0}
-                >
-                  <Icon
-                    library="Ionicons"
-                    name="hammer-outline"
-                    color="accent"
-                  />
+                <Button testID="searchBtn" onPress={search} color="primary" width={50} padding={0}>
+                  <Icon library="Ionicons" name="hammer-outline" color="accent" />
                 </Button>
               </View>
             </View>
@@ -284,29 +255,21 @@ const HomeScreenClient: FunctionComponent = () => {
                 flexWrap: 'wrap',
               }}
             >
-              {selectedTagsState.map((tag: any) => (tag ? (
-                <View
-                  key={tag}
-                  style={styles.selectedTagsContainer}>
-                  <Tag backgroundColor={'accent'} textColor={'dark'}>
-                    {tag}
-                  </Tag>
-                  <TouchableOpacity
-                    style={{ flexGrow: 0, marginLeft: -5 }}
-                    onPress={() => removeTag(tag)}
-                  >
-                    <Icon
-                      library="FontAwesome5"
-                      name="times-circle"
-                      color={'dark'}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ) : null))}
+              {selectedTagsState.map((tag: any) =>
+                tag ? (
+                  <View key={tag} style={styles.selectedTagsContainer}>
+                    <Tag backgroundColor={'accent'} textColor={'dark'}>
+                      {tag}
+                    </Tag>
+                    <TouchableOpacity style={{ flexGrow: 0, marginLeft: -5 }} onPress={() => removeTag(tag)}>
+                      <Icon library="FontAwesome5" name="times-circle" color={'dark'} />
+                    </TouchableOpacity>
+                  </View>
+                ) : null
+              )}
             </View>
           </View>
-          <View style={styles.footer}>
-          </View>
+          <View style={styles.footer}></View>
         </View>
       </View>
       <Toast ref={(ref) => Toast.setRef(ref)} />
