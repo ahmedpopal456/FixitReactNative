@@ -2,7 +2,6 @@ import PublicClientApplication from 'react-native-msal';
 import {
   ConfigFactory, store, userActions, UserService,
 } from 'fixit-common-data-store';
-import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import * as constants from '../constants/authConstants';
 import {
@@ -97,7 +96,7 @@ export default class NativeAuthService {
 
       userService.fetchUser(userId);
       return msalResult;
-    } catch (error) {
+    } catch (error: any) {
       if (
         error.message.includes(NativeAuthService.B2C_PASSWORD_CHANGE)
         && this.b2cConfig.auth.policies.passwordReset
@@ -141,7 +140,7 @@ export default class NativeAuthService {
   public async signOut(params?: B2CSignOutParams): Promise<boolean> {
     const accounts = await this.publicClientApplication.getAccounts();
     const signOutPromises = accounts.map(
-      (account) => this.publicClientApplication.signOut({ ...params, account }),
+      (account: any) => this.publicClientApplication.signOut({ ...params, account }),
     );
     await Promise.all(signOutPromises);
     store.dispatch(

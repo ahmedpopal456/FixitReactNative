@@ -1,26 +1,13 @@
 import React from 'react';
-import {
-  connect,
-  notificationActions,
-  StoreState,
-} from 'fixit-common-data-store';
+import { connect, notificationActions, StoreState } from 'fixit-common-data-store';
 import { NotificationProps } from '../../common/models/notifications/NotificationProps';
-import {
-  FixClientRequest,
-  FixCraftsmanResponse,
-} from '.';
+import { FixNotifications } from '.';
 
 class NotificationRenderer extends React.Component<any> {
   render() {
     const props = this.buildChildProps();
     if (props.message && props.message.data) {
-      switch (props.message.data.action) {
-        case 'FixCraftsmanResponse':
-          return <FixCraftsmanResponse {...props} />;
-        case 'FixClientRequest':
-          return <FixClientRequest {...props} />;
-        default:
-      }
+      return <FixNotifications {...props} />;
     }
     return <></>;
   }
@@ -38,7 +25,7 @@ class NotificationRenderer extends React.Component<any> {
 }
 
 const mapStateToProps = (state: StoreState) => ({
-  messages: state.notifications.messages,
+  messages: state.remoteMessages.messages,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

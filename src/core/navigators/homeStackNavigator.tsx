@@ -9,14 +9,13 @@ import FixSearchResultsScreen from '../../features/fixrequests/screens/fixSearch
 import FixRequestDescriptionStep from '../../features/fixrequests/screens/fixRequestDescriptionStep';
 import FixRequestSectionsStep from '../../features/fixrequests/screens/fixRequestSectionsStep';
 import FixRequestImagesLocationStep from '../../features/fixrequests/screens/fixRequestImagesLocationStep';
-import FixRequestScheduleStep from '../../features/fixrequests/screens/fixRequestScheduleStep';
-import FixRequestReview from '../../features/fixrequests/screens/fixRequestReview';
 import FixSuggestChanges from '../../features/fixrequests/screens/fixSuggestChanges';
 import FixSuggestChangesReview from '../../features/fixrequests/screens/fixSuggestChangesReview';
 import UserRoles from '../../common/models/users/userRolesEnum';
 import HomeScreenCraftsman from '../../screens/home/homeScreenCraftsman';
 import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
 import AddressSelectorScreen from '../../screens/address/addressSelectorScreen';
+import Fix from '../../features/fixrequests/components/Fix';
 
 const Stack = createStackNavigator();
 
@@ -80,14 +79,8 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
           animationEnabled: false,
         }} />
       <Stack.Screen
-        name="FixRequestScheduleStep"
-        component={FixRequestScheduleStep}
-        options={{
-          animationEnabled: false,
-        }} />
-      <Stack.Screen
-        name="FixRequestReview"
-        component={FixRequestReview}
+        name="Fix"
+        component={Fix}
         options={{
           animationEnabled: false,
         }} />

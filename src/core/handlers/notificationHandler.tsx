@@ -1,9 +1,4 @@
-import {
-  notificationActions,
-  store,
-  persistentActions,
-  NotificationModel,
-} from 'fixit-common-data-store';
+import { notificationActions, store, persistentActions, FixesModel } from 'fixit-common-data-store';
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
@@ -17,9 +12,7 @@ import Logger from '../../logger';
 export default class NotificationHandler {
   private static instance: NotificationHandler;
 
-  private notificationService = new NotificationService(
-    config.notificationApiUrl,
-  );
+  private notificationService = new NotificationService(config.notificationApiUrl);
 
   constructor() {
     this.onBackgroundNotificationOpened();
@@ -34,12 +27,12 @@ export default class NotificationHandler {
     return NotificationHandler.instance;
   }
 
-  public async registerDevice() : Promise<void> {
+  public async registerDevice(): Promise<void> {
     const token: any = await messaging().getToken();
     const platform = Platform.OS === 'ios' ? 'apns' : 'fcm';
     const state = store.getState();
     if (this.isTokenOutdated(token) && state.user.authToken) {
-      const decodedAuthToken: {sub: string} = jwtDecode(state.user.authToken);
+      const decodedAuthToken: { sub: string } = jwtDecode(state.user.authToken);
       const userId = decodedAuthToken.sub;
 
       const deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest = {
@@ -54,9 +47,7 @@ export default class NotificationHandler {
       this.notificationService
         .installDevice(deviceInstallationUpsertRequest)
         .then((_) => {
-          store.dispatch(
-            persistentActions.default.setPushChannelToken(token),
-          );
+          store.dispatch(persistentActions.default.setPushChannelToken(token));
         })
         .catch((err) => {
           Logger.instance.trackException({
@@ -69,55 +60,42 @@ export default class NotificationHandler {
     }
   }
 
-  public displayNotification(remoteMessage: FirebaseMessagingTypes.RemoteMessage) : void {
+  public displayNotification(remoteMessage: FirebaseMessagingTypes.RemoteMessage): void {
     if (!this.notificationCanBeDisplayed(remoteMessage)) {
       return;
     }
     store.dispatch(notificationActions.displayNotification({ messages: [remoteMessage] }));
-    const notificationModel : NotificationModel = {
-      ...remoteMessage,
-      requestSummary: remoteMessage,
+  }
+
+  addNotification(remoteMessage: FirebaseMessagingTypes.RemoteMessage): void {
+    const { unseenNotificationsNumber, notifications } = store.getState().persist;
+    notifications.unshift({
+      remoteMessage,
+      fix: JSON.parse(remoteMessage?.data?.fixitdata as string) as FixesModel,
       visited: false,
-    };
-    const { unseenNotificationsNumber } = store.getState().persist;
-    const { notifications } = store.getState().persist.notificationList;
-
-    let isAlreadyInList = false;
-    if (notifications) {
-      notifications.forEach((notification:any) => {
-        if (notification.messageId === notificationModel.messageId) {
-          isAlreadyInList = true;
-        }
-      });
-
-      if (!isAlreadyInList) {
-        notifications.unshift(notificationModel);
-      }
-    }
-    store.dispatch(persistentActions.default.setNotificationList(
-      { notifications },
-      isAlreadyInList ? unseenNotificationsNumber : unseenNotificationsNumber + 1,
-    ));
+    });
+    store.dispatch(persistentActions.default.setNotifications(notifications, unseenNotificationsNumber + 1));
   }
-
-  onForegroundNotification() : void {
-    messaging().onMessage(
-      (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-        this.displayNotification(remoteMessage);
-      },
-    );
-  }
-
-  onBackgroundNotificationOpened() : void {
-    messaging().onNotificationOpenedApp((remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+  onForegroundNotification(): void {
+    messaging().onMessage((remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+      this.addNotification(remoteMessage);
       this.displayNotification(remoteMessage);
     });
   }
 
-  onQuitNotificationOpened() : void {
-    messaging().getInitialNotification()
+  onBackgroundNotificationOpened(): void {
+    messaging().onNotificationOpenedApp((remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+      this.addNotification(remoteMessage);
+      this.displayNotification(remoteMessage);
+    });
+  }
+
+  onQuitNotificationOpened(): void {
+    messaging()
+      .getInitialNotification()
       .then((remoteMessage) => {
         if (remoteMessage) {
+          this.addNotification(remoteMessage);
           this.displayNotification(remoteMessage);
         }
       })
@@ -137,16 +115,13 @@ export default class NotificationHandler {
 
   public requestUserPermission = async (): Promise<boolean> => {
     const authStatus = await messaging().requestPermission();
-    const enabled: boolean = authStatus === messaging.AuthorizationStatus.AUTHORIZED
-      || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    const enabled: boolean =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
     return enabled;
-  }
+  };
 
-  private notificationCanBeDisplayed = (
-    remoteMessage: FirebaseMessagingTypes.RemoteMessage,
-  ) => remoteMessage
-    && remoteMessage.messageId
-    && remoteMessage.notification
-    && remoteMessage.notification.title;
+  private notificationCanBeDisplayed = (remoteMessage: FirebaseMessagingTypes.RemoteMessage) =>
+    remoteMessage && remoteMessage.messageId && remoteMessage.notification && remoteMessage.notification.title;
 }

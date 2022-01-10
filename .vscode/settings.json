@@ -2,8 +2,16 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
   "eslint.validate": [
-    "javascript"
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
   ],
-  "files.eol": "\n"
- }
+  "eslint.alwaysShowStatus": true,
+  "eslint.format.enable": true,
+  "eslint.run": "onSave",
+  "eslint.lintTask.enable": true,
+}

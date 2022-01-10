@@ -6,20 +6,11 @@ exports[`Fix Search Header renders correctly 1`] = `
     Object {
       "alignItems": "flex-start",
       "backgroundColor": "#FFD14A",
-      "elevation": 1,
-      "flex": 0,
-      "flexDirection": "column",
-      "padding": 20,
+      "flexDirection": "row",
       "paddingBottom": 40,
-      "paddingTop": 60,
+      "paddingLeft": 20,
+      "paddingTop": 20,
       "shadowColor": "#000",
-      "shadowOffset": Object {
-        "height": 1,
-        "width": 0,
-      },
-      "shadowOpacity": 0.2,
-      "shadowRadius": 1.41,
-      "zIndex": 1,
     }
   }
 >
@@ -27,6 +18,8 @@ exports[`Fix Search Header renders correctly 1`] = `
     style={
       Object {
         "height": 10,
+        "paddingLeft": 15,
+        "width": "80%",
       }
     }
   >

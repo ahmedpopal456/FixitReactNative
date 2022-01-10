@@ -1,8 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import {
-  SafeAreaView, Text, View, StyleSheet, TouchableOpacity,
-} from 'react-native';
-import { Button, Icon } from 'fixit-common-ui';
+import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Icon } from 'fixit-common-ui';
 import NativeAuthService from '../../../core/services/authentication/nativeAuthService';
 import { b2cConfig } from '../../../core/config/msalConfig';
 
@@ -68,17 +66,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const AccountScreen : FunctionComponent<any> = (props) => {
-  const option = (id : string,
-    title: string,
-    navigateTo: string | undefined,
-    action : any,
-    style: any) => (<TouchableOpacity testID={id} style={style}
-    // eslint-disable-next-line no-nested-ternary
-    onPress={() => (navigateTo ? props.navigation.navigate(navigateTo) : action !== null ? action() : null)}>
-    <Text>{title}</Text>
-    <Icon library='AntDesign' name='caretright' />
-  </TouchableOpacity>);
+const AccountScreen: FunctionComponent<any> = (props) => {
+  const option = (id: string, title: string, navigateTo: string | undefined, action: any, style: any) => (
+    <TouchableOpacity
+      testID={id}
+      style={style}
+      onPress={() => (navigateTo ? props.navigation.navigate(navigateTo) : action !== null ? action() : null)}>
+      <Text>{title}</Text>
+      <Icon library="AntDesign" name="caretright" />
+    </TouchableOpacity>
+  );
 
   const render = () => (
     <SafeAreaView style={styles.container}>
@@ -91,13 +88,13 @@ const AccountScreen : FunctionComponent<any> = (props) => {
           {option('signOutBtn', 'Sign Out', undefined, async () => b2cClient.signOut(), styles.buttonLast)}
         </View>
       </View>
-      <View style={{
-        alignItems: 'center',
-        alignContent: 'flex-end',
-        alignSelf: 'center',
-        height: '15%',
-      }}>
-      </View>
+      <View
+        style={{
+          alignItems: 'center',
+          alignContent: 'flex-end',
+          alignSelf: 'center',
+          height: '15%',
+        }}></View>
     </SafeAreaView>
   );
   return render();

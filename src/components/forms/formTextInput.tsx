@@ -12,6 +12,7 @@ export default class FormTextInput extends
     value?:string,
     title?:string,
     padLeft?:boolean,
+    top?: boolean,
     numeric?:boolean,
   }> {
     textInput: TextInput | null | undefined;
@@ -74,6 +75,7 @@ export default class FormTextInput extends
               style={{
                 height: (this.props.big) ? 150 : 50,
                 paddingLeft: (this.props.padLeft) ? 30 : 10,
+                textAlignVertical: (this.props.top) ? 'top' : 'center',
               }}
               multiline={this.props.big}
               selectionColor={colors.accent}

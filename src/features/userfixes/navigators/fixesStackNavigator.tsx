@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import FixesScreen from '../screens/fixesScreen';
-import FixOverviewScreen from '../screens/fixOverviewScreen';
 import NotificationsScreen from '../../notifications/screens/notificationsScreen';
 import Header from '../../../components/headers/header';
 
@@ -28,9 +27,6 @@ const FixesStackNavigator: FunctionComponent<any> = (props) => (
       options={{
         headerShown: true,
       }}/>
-    <Stack.Screen
-      name="FixOverview"
-      component={FixOverviewScreen}/>
     <Stack.Screen
       name="Notifications"
       component={NotificationsScreen}/>

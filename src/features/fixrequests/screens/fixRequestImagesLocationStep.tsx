@@ -1,15 +1,21 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
+import { H2, P, Spacer, Divider, Icon, Label, colors } from 'fixit-common-ui';
+import { TouchableOpacity, View, Text, StyleSheet, TextInput, ScrollView } from 'react-native';
 import {
-  H2, H3, P, Spacer, Divider,
-} from 'fixit-common-ui';
-import { TouchableOpacity, View, Text } from 'react-native';
-import {
-  fixRequestActions, store, StoreState, useSelector,
+  fixRequestActions,
+  store,
+  StoreState,
+  useSelector,
+  Schedule,
+  FixRequestModel,
+  SectionModel,
+  AddressModel,
+  UserSummaryModel,
 } from 'fixit-common-data-store';
 
 import { useNavigation } from '@react-navigation/native';
+import useAsyncEffect from 'use-async-effect';
 import StyledContentWrapper from '../../../components/styledElements/styledContentWrapper';
-import StyledScrollView from '../../../components/styledElements/styledScrollView';
 import StepIndicator from '../../../components/stepIndicator';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import GlobalStyles from '../../../common/styles/globalStyles';
@@ -17,29 +23,136 @@ import { FormTextInput, FormNextPageArrows } from '../../../components/forms/ind
 import FixRequestStyles from '../styles/fixRequestStyles';
 import FixRequestHeader from '../components/fixRequestHeader';
 import constants from './constants';
+import { FixTemplatePicker } from '../components';
+import Calendar from '../../../components/calendar/calendar';
+import NavigationEnum from '../../../common/enums/navigationEnum';
+import { TagModel } from 'fixit-common-data-store/src/slices/fixesSlice';
 
-const FixRequestImagesLocationStep: FunctionComponent = () : JSX.Element => {
+interface ScheduleType {
+  id: string;
+  name: string;
+}
+
+interface FixRequestImagesLocationStepState {
+  userAddress: AddressModel | undefined;
+}
+
+const scheduleTypes: Array<ScheduleType> = [
+  { id: 'right_away', name: 'Right away' },
+  { id: 'custom', name: 'Custom' },
+];
+
+const initialState = {
+  userAddress: store.getState().profile?.address?.address,
+};
+
+const styles = StyleSheet.create({
+  formField: {
+    width: '100%',
+    borderWidth: 1,
+    flexShrink: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    color: 'black',
+    marginBottom: 10,
+  },
+  searchSection: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  searchIcon: {
+    padding: 10,
+  },
+});
+const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
+  const [state, setState] = useState<FixRequestImagesLocationStepState>(initialState);
+  const user = useSelector((storeState: StoreState) => storeState.user);
+
+  useAsyncEffect(async () => {
+    setState({
+      userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress)?.address,
+    });
+  }, [user]);
+
   const navigation = useNavigation();
-  const fixRequest = useSelector((storeState: StoreState) => storeState.fixRequest.fixRequestObj);
-  const [address, setAddress] = useState<string>(fixRequest.location.address);
-  const [city, setCity] = useState<string>(fixRequest.location.city);
-  const [province, setProvince] = useState<string>(fixRequest.location.province);
-  const [postalCode, setPostalCode] = useState<string>(fixRequest.location.postalCode);
+  const fixTemplate = useSelector((storeState: StoreState) => storeState.fixTemplate);
+  const fixRequest = useSelector((storeState: StoreState) => storeState.fixRequest);
+  const [scheduleType, setScheduleType] = useState<ScheduleType>(scheduleTypes[0]);
+  const [schedules, setSchedules] = useState<Array<Schedule>>([]);
 
-  const handleNextStep = () : void => {
-    store.dispatch(fixRequestActions.setFixRequestAddress({ address }));
-    store.dispatch(fixRequestActions.setFixRequestCity({ city }));
-    store.dispatch(fixRequestActions.setFixRequestProvince({ province }));
-    store.dispatch(fixRequestActions.setFixRequestPostalCode({ postalCode }));
-    navigation.navigate('FixRequestScheduleStep');
+  const handleNextStep = (): void => {
+    let updatedSchedules;
+    if (scheduleType?.id === 'right_away') {
+      const date = new Date();
+      const utcTimestamp = Math.floor(date.getTime() / 1000);
+      updatedSchedules = [{ startTimestampUtc: utcTimestamp, endTimestampUtc: utcTimestamp }];
+    } else {
+      updatedSchedules = schedules;
+    }
+    const updateSchedules = schedules;
+    updateSchedules.forEach((updateSchedule, index) => {
+      if (updateSchedule.startTimestampUtc === 0 || updateSchedule.endTimestampUtc === 0) {
+        updateSchedules.splice(index, 1);
+      }
+    });
+
+    store.dispatch(fixRequestActions.setFixRequestSchedules(updatedSchedules));
+
+    const fixRequestSections: Array<SectionModel> = [];
+    fixTemplate.sections?.forEach((section) => {
+      const fixRequestSection = {
+        name: section.name,
+        details: section.fields,
+      };
+      fixRequestSections.push(fixRequestSection);
+    });
+
+    const tags: Array<TagModel> = [];
+    fixTemplate.tags.forEach((tag) => {
+      tags.push({ name: tag });
+    });
+
+    const createdByClient: UserSummaryModel = {
+      id: user.userId,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      userPrincipalName: user.userPrincipalName || '',
+      savedAddresses: user.savedAddresses,
+      status: user.status || { status: 1, lastSeenTimestampUtc: 0 },
+      role: user.role,
+    };
+
+    const updatedByUser = createdByClient;
+
+    const fix: FixRequestModel = {
+      details: {
+        name: fixTemplate.name,
+        category: fixTemplate.workCategory.name,
+        description: fixTemplate.description,
+        type: fixTemplate.workType.name,
+        unit: fixTemplate.fixUnit.name,
+        sections: fixRequestSections,
+      },
+      tags,
+      clientEstimatedCost: {
+        minimumCost: fixRequest.clientEstimatedCost.minimumCost,
+        maximumCost: fixRequest.clientEstimatedCost.maximumCost,
+      },
+      schedule: updatedSchedules,
+      location: state.userAddress,
+      createdByClient,
+      updatedByUser,
+      status: 0,
+    };
+
+    navigation.navigate(NavigationEnum.FIX, { fix, title: 'Fix Request Review', id: 'fix_request' });
   };
 
   useEffect(() => {
-    setAddress(fixRequest.location.address);
-    setCity(fixRequest.location.city);
-    setProvince(fixRequest.location.province);
-    setPostalCode(fixRequest.location.postalCode);
-  }, [fixRequest.location]);
+    setSchedules(fixRequest.schedule || []);
+  }, [fixRequest.schedule]);
 
   return (
     <>
@@ -47,69 +160,172 @@ const FixRequestImagesLocationStep: FunctionComponent = () : JSX.Element => {
         showBackBtn={true}
         navigation={navigation}
         screenTitle="Create a Fixit Template and your Fixit Request"
-        textHeight={60}/>
+        textHeight={60}
+      />
       <StyledPageWrapper>
-        <StepIndicator
-          numberSteps={constants.NUMBER_OF_STEPS}
-          currentStep={4} />
-        <StyledScrollView>
+        <StepIndicator numberSteps={constants.NUMBER_OF_STEPS} currentStep={4} />
+        <ScrollView>
           <StyledContentWrapper>
-            <P>This section is not saved inside a Fixit Template.
-                The Information are required to complete your Fixit Request.</P>
+            <P>
+              This section is not saved inside a Fixit Template. The Information are required to complete your Fixit
+              Request.
+            </P>
             <Spacer height="20px" />
+            {/** Images */}
             <View style={GlobalStyles.flexRow}>
               <H2 style={FixRequestStyles.titleWithAction}>Images</H2>
               <TouchableOpacity style={FixRequestStyles.titleActionWrapper}>
                 <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
               </TouchableOpacity>
             </View>
-            <Spacer height="40px" />
-            <H2 style={{
-              fontWeight: 'bold',
-              marginBottom: -15,
-            }}>Location</H2>
             <Divider />
-            <H3 style={{ fontWeight: 'normal' }}>Address</H3>
-            <Spacer height="5px" />
-            <FormTextInput
-              onChange={(text : string) => setAddress(text)}
-              value={address} />
-            <Spacer height="20px" />
-            <H3 style={{ fontWeight: 'normal' }}>City</H3>
-            <Spacer height="5px" />
-            <FormTextInput
-              onChange={(text : string) => setCity(text)}
-              value={city} />
-            <Spacer height="20px" />
-            <View style={{
-              display: 'flex',
-              flexDirection: 'row',
-            }}>
-              <View style={{
-                flexGrow: 1,
-                marginRight: 10,
-              }}>
-                <H3 style={{ fontWeight: 'normal' }}>Province</H3>
-                <Spacer height="5px" />
-                <FormTextInput
-                  onChange={
-                    (text : string) => setProvince(text)}
-                  value={province} />
-              </View>
-              <View style={{
-                flexGrow: 1,
-                marginLeft: 10,
-              }}>
-                <H3 style={{ fontWeight: 'normal' }}>Postal code</H3>
-                <Spacer height="5px" />
-                <FormTextInput
-                  onChange={(text : string) => setPostalCode(text)}
-                  value={postalCode} />
+            {/** Location */}
+            <View>
+              <H2
+                style={{
+                  fontWeight: 'bold',
+                  paddingBottom: 10,
+                }}>
+                Location
+              </H2>
+              <View style={styles.searchSection}>
+                <TextInput
+                  style={styles.formField}
+                  defaultValue={state.userAddress?.formattedAddress}
+                  allowFontScaling={true}
+                  maxLength={30}
+                  onTouchEnd={() => navigation.navigate('AddressSelector')}
+                />
+                <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={30} />
               </View>
             </View>
-            <Spacer height="20px" />
+            <Divider />
+            {/** Budget */}
+            <View style={{ paddingBottom: 10 }}>
+              <H2
+                style={{
+                  fontWeight: 'bold',
+                  paddingBottom: 10,
+                }}>
+                Budget
+              </H2>
+              <Label
+                style={{
+                  fontWeight: 'normal',
+                  marginTop: -10,
+                }}>
+                Enter your budget range
+              </Label>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  paddingTop: 20,
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    flexGrow: 1,
+                  }}>
+                  <FormTextInput
+                    title={'Min'}
+                    numeric
+                    padLeft
+                    onChange={(cost: string) =>
+                      store.dispatch(
+                        fixRequestActions.setFixRequestClientMinEstimatedCost({ minimumCost: parseInt(cost, 10) }),
+                      )
+                    }
+                    value={
+                      fixRequest.clientEstimatedCost.minimumCost === 0
+                        ? ''
+                        : fixRequest.clientEstimatedCost.minimumCost.toString()
+                    }
+                  />
+                  <Icon
+                    library="FontAwesome5"
+                    name="dollar-sign"
+                    color={'dark'}
+                    size={20}
+                    style={{
+                      marginTop: -35,
+                      marginLeft: 8,
+                      width: 15,
+                    }}
+                  />
+                </View>
+                <View
+                  style={{
+                    width: 30,
+                    margin: 10,
+                    marginTop: 20,
+                    height: 2,
+                    backgroundColor: colors.grey,
+                  }}></View>
+                <View
+                  style={{
+                    flexGrow: 1,
+                  }}>
+                  <FormTextInput
+                    title={'Max'}
+                    numeric
+                    padLeft
+                    onChange={(cost: string) =>
+                      store.dispatch(
+                        fixRequestActions.setFixRequestClientMaxEstimatedCost({ maximumCost: parseInt(cost, 10) }),
+                      )
+                    }
+                    value={
+                      fixRequest.clientEstimatedCost.maximumCost === 0
+                        ? ''
+                        : fixRequest.clientEstimatedCost.maximumCost.toString()
+                    }
+                  />
+                  <Icon
+                    library="FontAwesome5"
+                    name="dollar-sign"
+                    color={'dark'}
+                    size={20}
+                    style={{
+                      marginTop: -35,
+                      marginLeft: 8,
+                      width: 15,
+                    }}
+                  />
+                </View>
+              </View>
+            </View>
+            <Divider />
+            {/** Schedules */}
+            <View>
+              <H2
+                style={{
+                  fontWeight: 'bold',
+                }}>
+                Schedules
+              </H2>
+              <FixTemplatePicker
+                selectedValue={scheduleType}
+                onChange={(value: ScheduleType) => setScheduleType(value)}
+                values={scheduleTypes}
+              />
+              {scheduleType && scheduleType.id === 'custom' ? (
+                <View>
+                  <Spacer height="20px" />
+                  <Label
+                    style={{
+                      fontWeight: 'normal',
+                      marginTop: -10,
+                    }}>
+                    Choose days from which the craftsman can pick to do the job
+                  </Label>
+                  <Spacer height="20px" />
+                  <Calendar parentSchedules={schedules} canUpdate={true} parentSetSchedules={setSchedules} />
+                </View>
+              ) : null}
+            </View>
           </StyledContentWrapper>
-        </StyledScrollView>
+        </ScrollView>
       </StyledPageWrapper>
 
       <FormNextPageArrows mainClick={handleNextStep} />

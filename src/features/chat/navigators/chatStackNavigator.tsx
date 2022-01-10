@@ -2,13 +2,12 @@ import React, { FunctionComponent } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import Header from '../../../components/headers/header';
 import ChatScreen from '../screens/chatScreen';
-import ChatProfileScreen from '../screens/chatProfileScreen';
 import ChatMessagingScreen from '../screens/chatMessagingScreen';
 
 const Stack = createStackNavigator();
 const ChatStackNavigator: FunctionComponent<any> = (props) => (
   <Stack.Navigator
-    headerMode='screen'
+    headerMode="screen"
     screenOptions={{
       headerShown: false,
       header: ({ navigation }) => (
@@ -19,7 +18,8 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
           userFirstName={props.otherProp.userFirstName}
           userLastName={props.otherProp.userLastName}
           ratingCount={props.otherProp.ratingCount}
-          userAddress={props.otherProp.userAddress}></Header>),
+          userAddress={props.otherProp.userAddress}></Header>
+      ),
     }}>
     <Stack.Screen
       name="Chat"
@@ -28,13 +28,7 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
         headerShown: true,
       }}
     />
-    <Stack.Screen
-      name="ChatProfile"
-      component={ChatProfileScreen}/>
-    <Stack.Screen
-      name="ChatMessage"
-      component={ChatMessagingScreen}
-    />
+    <Stack.Screen name="ChatMessage" component={ChatMessagingScreen} />
   </Stack.Navigator>
 );
 export default ChatStackNavigator;

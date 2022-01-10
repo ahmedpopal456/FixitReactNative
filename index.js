@@ -8,7 +8,9 @@ import NotificationHandler from './src/core/handlers/notificationHandler';
 import Logger from './src/logger';
 import './i18n';
 
-NotificationHandler.getInstance();
+const notificationInstance = NotificationHandler.getInstance();
+notificationInstance.registerDevice();
+
 LogBox.ignoreLogs(['Require cycle: node_modules\\react-native\\Libraries\\Network\\fetch.js']);
 Logger.instance.loadAppInsights();
 

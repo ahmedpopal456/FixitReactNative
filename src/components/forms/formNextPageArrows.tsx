@@ -83,7 +83,7 @@ export default class FormNextPageArrows extends
               width: 40,
               height: 40,
               borderRadius: 100,
-              backgroundColor: colors.primary,
+              backgroundColor: colors.dark,
             }}
             testID='fixTemplateNextOptionsBtn'
             onPress={this.showNextStepsOptions}>

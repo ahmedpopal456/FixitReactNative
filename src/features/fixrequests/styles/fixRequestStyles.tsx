@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-native';
 const FixRequestStyles = StyleSheet.create({
   titleWithAction: {
     fontWeight: 'bold',
-    flexGrow: 1,
   },
   titleActionWrapper: {
     flexGrow: 0,

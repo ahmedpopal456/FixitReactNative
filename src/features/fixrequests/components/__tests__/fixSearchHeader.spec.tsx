@@ -33,16 +33,12 @@ describe('Fix Search Header', () => {
   };
 
   it('renders correctly', async () => {
-    const fixSearchHeader = renderer.create(
-      <FixSearchHeader {...props} />,
-    ).toJSON();
+    const fixSearchHeader = renderer.create(<FixSearchHeader {...props} />).toJSON();
     expect(fixSearchHeader).toMatchSnapshot();
   });
 
   it('handle go back', async () => {
-    const wrapper = shallow(
-      <FixSearchHeader {...props} />,
-    );
+    const wrapper = shallow(<FixSearchHeader {...props} />);
     wrapper.instance().handleGoBack();
     expect(goBack).toHaveBeenCalledTimes(1);
   });

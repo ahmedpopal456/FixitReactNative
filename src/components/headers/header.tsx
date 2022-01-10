@@ -1,13 +1,8 @@
 import React, { FunctionComponent } from 'react';
-import {
-  Text, View, TouchableOpacity,
-  StyleSheet,
-  TextInput,
-} from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import { colors, Icon, NotificationBell } from 'fixit-common-ui';
 import { Rating } from 'react-native-ratings';
 import { Avatar } from 'react-native-elements';
-import { StoreState, useSelector } from 'fixit-common-data-store';
 import { HeaderProps } from './headerProps';
 import ViewWrapper from './style';
 
@@ -43,10 +38,10 @@ const styles = StyleSheet.create({
 
 // TODO: Move address search in its own component for re-usability
 const Header: FunctionComponent<HeaderProps> = (props) => {
-  const render = () : JSX.Element => (
+  const render = (): JSX.Element => (
     <ViewWrapper {...props}>
       <View style={styles.searchSection}>
-        <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
+        <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20} />
         <TextInput
           style={styles.input}
           defaultValue={props.userAddress?.address?.formattedAddress}
@@ -59,7 +54,10 @@ const Header: FunctionComponent<HeaderProps> = (props) => {
         <NotificationBell
           notifications={props.notificationsBadgeCount}
           onPress={() => props.navigation.navigate('Notifications')}
-        />) : (<></>)}
+        />
+      ) : (
+        <></>
+      )}
       <View style={styles.profileSection}>
         <Avatar
           size={80}
@@ -69,18 +67,20 @@ const Header: FunctionComponent<HeaderProps> = (props) => {
           activeOpacity={0.7}
           avatarStyle={{ resizeMode: 'cover', backgroundColor: '#EEEEEE', opacity: 0.75 }}
         />
-        <Text style={{
-          height: '30%',
-          fontSize: 25,
-          marginLeft: 10,
-        }}>{props.userFirstName} {props.userLastName}</Text>
+        <Text
+          style={{
+            height: '30%',
+            fontSize: 25,
+            marginLeft: 10,
+          }}>
+          {props.userFirstName} {props.userLastName}
+        </Text>
         <View style={{ width: '80%', flexDirection: 'row' }}>
           {props.userRatings !== undefined ? (
-            <TouchableOpacity
-              onPress={() => props.navigation.navigate('Ratings')}>
+            <TouchableOpacity onPress={() => props.navigation.navigate('Ratings')}>
               <Rating
                 style={{ marginLeft: 10, marginTop: 5 }}
-                type='custom'
+                type="custom"
                 ratingColor={'white'}
                 ratingBackgroundColor={'gray'}
                 tintColor={'#FFD14A'}
@@ -89,18 +89,20 @@ const Header: FunctionComponent<HeaderProps> = (props) => {
                 imageSize={15}
               />
             </TouchableOpacity>
-          )
-            : (<></>)}
-          <Text style={{
-            fontSize: 10,
-            marginLeft: 5,
-            marginTop: 8,
-            fontStyle: 'italic',
-          }}>{`${props.ratingCount} reviews`}</Text>
+          ) : (
+            <></>
+          )}
+          <Text
+            style={{
+              fontSize: 10,
+              marginLeft: 5,
+              marginTop: 8,
+              fontStyle: 'italic',
+            }}>{`${props.ratingCount} reviews`}</Text>
         </View>
       </View>
-
-    </ViewWrapper>);
+    </ViewWrapper>
+  );
 
   return render();
 };

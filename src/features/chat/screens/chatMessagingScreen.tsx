@@ -99,12 +99,12 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
       setNewMessage(jsonMessage as ConversationMessageModel);
       setMessage('');
     },
-    [messagesState]
+    [messagesState],
   );
 
   const getParticipant = (isSelf: boolean) => {
     const participantNeeded = conversation.participants.find((participant) =>
-      isSelf ? participant.user.id === user.userId : participant.user.id !== user.userId
+      isSelf ? participant.user.id === user.userId : participant.user.id !== user.userId,
     );
     if (participantNeeded == null) {
       throw new Error('cannot find user');
@@ -227,15 +227,20 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
         </View>
 
         <ScrollView
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh.bind(this)}></RefreshControl>}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh.bind(this)}
+              size={1}
+              colors={[colors.orange]}></RefreshControl>
+          }
           ref={scrollRef}
           style={{ marginBottom: 50 }}
           onContentSizeChange={() => {
             setTimeout(() => {
               scrollRef?.current?.scrollToEnd({ animated: false });
             });
-          }}
-        >
+          }}>
           {messagesState.length !== 0
             ? renderMessages()
             : renderNoMessage(otherParticipant?.user.firstName as string, otherParticipant?.user.lastName as string)}
@@ -250,8 +255,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
             bottom: 0,
             left: 0,
             right: 0,
-          }}
-        >
+          }}>
           <TextInput
             style={styles.input}
             placeholderTextColor="white"
@@ -264,8 +268,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                 sentByUser: selfParticipant.user,
                 attachments: [],
               });
-            }}
-          ></TextInput>
+            }}></TextInput>
           <Button style={styles.buttons}>
             <Icon library="FontAwesome" name="image" color="accent" size={20} />
           </Button>
@@ -277,8 +280,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                 sentByUser: selfParticipant.user,
                 attachments: [],
               });
-            }}
-          >
+            }}>
             <Icon library="FontAwesome" name="send" color="accent" size={20} />
           </Button>
         </View>
@@ -298,7 +300,7 @@ function messageBox(isSelf: boolean): ViewStyle {
     : { borderTopRightRadius: 10, backgroundColor: colors.dark };
 }
 
-function toCamel(o) {
+function toCamel(o: any) {
   let newO;
   let origKey;
   let newKey;

@@ -33,7 +33,7 @@ Array [
     onStartShouldSetResponder={[Function]}
     style={
       Object {
-        "backgroundColor": "#33343E",
+        "backgroundColor": "#1D1F2A",
         "borderRadius": 100,
         "bottom": 20,
         "elevation": 3,

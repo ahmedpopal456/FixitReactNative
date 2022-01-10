@@ -51,6 +51,7 @@ exports[`Form Text Input renders correctly 1`] = `
         Object {
           "height": 50,
           "paddingLeft": 10,
+          "textAlignVertical": "center",
         },
       ]
     }

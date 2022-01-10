@@ -1,7 +1,6 @@
-/* eslint-disable no-nested-ternary */
 import React, { useState, FunctionComponent, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, SafeAreaView } from 'react-native';
 import { ConfigFactory, FixesService, store, StoreState, useSelector } from 'fixit-common-data-store';
 import { Button, colors, Icon, Tag } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
@@ -82,11 +81,10 @@ const HomeScreenClient: FunctionComponent = () => {
   const navigation = useNavigation();
   const popularFixTags = useSelector((storeState: StoreState) => storeState.fixes.topFixTagsState);
 
-  const [refreshState, setRefreshState] = useState<boolean>(false);
   const [tagInputTextState, setTagInputTextState] = useState<string>('');
   const [selectedTagsState, setSelectedTagsState] = useState<Array<string>>(['']);
   const [suggestedTagsState, setSuggestedTagsState] = useState<Array<string>>(['']);
-  const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
+  const [_tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
 
   useAsyncEffect(async () => {
     await onRefresh();
@@ -100,9 +98,7 @@ const HomeScreenClient: FunctionComponent = () => {
   }, [popularFixTags]);
 
   const onRefresh = async () => {
-    setRefreshState(true);
     await fixesService.getPopularFixTags('5');
-    setRefreshState(false);
   };
 
   const addTag = (): void => {
@@ -185,8 +181,7 @@ const HomeScreenClient: FunctionComponent = () => {
                 flexWrap: 'wrap',
                 justifyContent: 'center',
                 flexGrow: 100,
-              }}
-            >
+              }}>
               {popularFixTags.isLoading ? (
                 <ProgressIndicatorFactory
                   type="indeterminate"
@@ -208,14 +203,13 @@ const HomeScreenClient: FunctionComponent = () => {
                             flexGrow: 0,
                             marginLeft: 5,
                             marginRight: -15,
-                          }}
-                        >
+                          }}>
                           <Tag backgroundColor={'grey'} textColor={'light'}>
                             {tag}
                           </Tag>
                         </TouchableOpacity>
                       </View>
-                    ) : null
+                    ) : null,
                   )}
                 </View>
               )}
@@ -226,8 +220,7 @@ const HomeScreenClient: FunctionComponent = () => {
                   position: 'absolute',
                   zIndex: -1,
                   paddingTop: 10,
-                }}
-              >
+                }}>
                 <SearchTextInput
                   onChange={(text: string) => setTagInputTextState(text)}
                   value={tagInputTextState}
@@ -241,8 +234,7 @@ const HomeScreenClient: FunctionComponent = () => {
                   paddingLeft: 280,
                   marginVertical: 13,
                   paddingBottom: 10,
-                }}
-              >
+                }}>
                 <Button testID="searchBtn" onPress={search} color="primary" width={50} padding={0}>
                   <Icon library="Ionicons" name="hammer-outline" color="accent" />
                 </Button>
@@ -253,8 +245,7 @@ const HomeScreenClient: FunctionComponent = () => {
                 display: 'flex',
                 flexDirection: 'row',
                 flexWrap: 'wrap',
-              }}
-            >
+              }}>
               {selectedTagsState.map((tag: any) =>
                 tag ? (
                   <View key={tag} style={styles.selectedTagsContainer}>
@@ -265,7 +256,7 @@ const HomeScreenClient: FunctionComponent = () => {
                       <Icon library="FontAwesome5" name="times-circle" color={'dark'} />
                     </TouchableOpacity>
                   </View>
-                ) : null
+                ) : null,
               )}
             </View>
           </View>

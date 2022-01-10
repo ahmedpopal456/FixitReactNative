@@ -27,6 +27,7 @@ export default class StepIndicator extends
         <>
           <View style={{
             position: 'absolute',
+            flex: 1,
             top: 0,
             left: 0,
             right: 0,
@@ -37,7 +38,6 @@ export default class StepIndicator extends
             paddingRight: 18,
             borderTopLeftRadius: 12,
             borderTopRightRadius: 12,
-            flex: 1,
             flexDirection: 'row',
           }}>
             {this.createStepIndicators()}

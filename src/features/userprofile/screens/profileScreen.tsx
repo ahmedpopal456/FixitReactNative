@@ -1,11 +1,11 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import {
-  Text, View, StyleSheet, Image, ScrollView, Dimensions, TextInput,
+  Text, View, StyleSheet, ScrollView, Dimensions, TextInput,
 } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  store, ProfileService, ConfigFactory, StoreState, useSelector,
+  store, StoreState, useSelector,
 } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';

@@ -56,7 +56,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const user = useSelector((storeState: StoreState) => storeState.user);
-  const notifications = useSelector((storeState: StoreState) => storeState.notifications);
+  const notifications = useSelector((storeState: StoreState) => storeState.remoteMessages);
 
   const chatService: ChatService = new ChatService(user.userId as string);
 
@@ -94,7 +94,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
   };
 
   const renderActiveConversations = () => (
-    <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh.bind(this)} />}>
+    <>
       {refreshing ? (
         <></>
       ) : activeConversations.length === 0 ? (
@@ -104,8 +104,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
               marginTop: 50,
               color: colors.grey,
               textAlign: 'center',
-            }}
-          >
+            }}>
             There are currently no active conversations
           </Text>
         </>
@@ -113,7 +112,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
         <>
           {activeConversations.map((conversation) => {
             const otherUser = conversation.participants.find(
-              (participant) => participant.user.id !== user.userId
+              (participant) => participant.user.id !== user.userId,
             )?.user;
             const { lastMessage } = conversation;
             const date = new Date(lastMessage.createdTimestampUtc);
@@ -131,8 +130,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
             return (
               <TouchableOpacity
                 key={conversation.id}
-                onPress={() => props.navigation.navigate('ChatMessage', { conversation })}
-              >
+                onPress={() => props.navigation.navigate('ChatMessage', { conversation })}>
                 <View style={styles.messageContainer}>
                   <View style={{ flex: 2.2 }}>
                     <Avatar size="medium" rounded icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }} />
@@ -156,11 +154,11 @@ const ChatScreen: FunctionComponent<any> = (props) => {
           })}
         </>
       )}
-    </ScrollView>
+    </>
   );
 
   const renderMatchedConversations = () => (
-    <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh.bind(this)} />}>
+    <>
       {matchedConversations.map((conversation) => {
         const otherUser = conversation.participants.find((participant) => participant.user.id !== user.userId)?.user;
         const date = new Date(conversation.createdTimestampUtc * 1000);
@@ -168,8 +166,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
         return (
           <TouchableOpacity
             key={conversation.id}
-            onPress={() => props.navigation.navigate('ChatMessage', { conversation })}
-          >
+            onPress={() => props.navigation.navigate('ChatMessage', { conversation })}>
             <View style={styles.messageContainer}>
               <TouchableOpacity onPress={() => props.navigation.navigate('ChatProfile')} style={{ flex: 2.2 }}>
                 <Avatar size="medium" rounded icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }} />
@@ -187,7 +184,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
           </TouchableOpacity>
         );
       })}
-    </ScrollView>
+    </>
   );
 
   const render = () => (
@@ -197,29 +194,37 @@ const ChatScreen: FunctionComponent<any> = (props) => {
           <Button
             testID="activeMsg"
             style={{
-              backgroundColor: activeSelected ? colors.dark : colors.white,
+              backgroundColor: activeSelected ? colors.white : colors.dark,
               borderTopLeftRadius: 20,
               flex: 1,
             }}
             onPress={() => setActiveSelected(true)}
-            outline={!activeSelected}
-          >
-            <Text style={{ color: activeSelected ? colors.white : colors.dark }}>Active</Text>
+            outline={!activeSelected}>
+            <Text style={{ color: activeSelected ? colors.dark : colors.white }}>Active</Text>
           </Button>
           <Button
             testID="matchedMsg"
             style={{
-              backgroundColor: activeSelected ? colors.white : colors.dark,
+              backgroundColor: activeSelected ? colors.dark : colors.white,
               borderTopRightRadius: 20,
               flex: 1,
             }}
             onPress={() => setActiveSelected(false)}
-            outline={!!activeSelected}
-          >
-            <Text style={{ color: activeSelected ? colors.dark : colors.white }}>Matched</Text>
+            outline={!!activeSelected}>
+            <Text style={{ color: activeSelected ? colors.white : colors.dark }}>Matched</Text>
           </Button>
         </View>
-        {activeSelected ? renderActiveConversations() : renderMatchedConversations()}
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh.bind(this)}
+              colors={[colors.orange]}
+              size={1}
+            />
+          }>
+          {activeSelected ? renderActiveConversations() : renderMatchedConversations()}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );

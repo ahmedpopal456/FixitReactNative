@@ -1,12 +1,8 @@
 import React, { FunctionComponent, PropsWithChildren } from 'react';
-import {
-  Text, View, StyleSheet, TouchableOpacity, Dimensions, FlatList, Image,
-} from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Dimensions, FlatList } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  persistentActions, NotificationModel, StoreState, store, useSelector,
-} from 'fixit-common-data-store';
+import { persistentActions, NotificationModel, StoreState, store, useSelector } from 'fixit-common-data-store';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Avatar } from 'react-native-elements';
 import NotificationHandler from '../../../core/handlers/notificationHandler';
@@ -55,83 +51,103 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50 / 2,
     overflow: 'hidden',
-    backgroundColor: 'red',
   },
 });
 
-export interface NotificationsScreenWithNavigationProps extends PropsWithChildren<any>{
-  navigation: NavigationProp<ParamListBase, string>,
+export interface NotificationsScreenWithNavigationProps extends PropsWithChildren<any> {
+  navigation: NavigationProp<ParamListBase, string>;
 }
-const NotificationsScreen : FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
-  const notifications = useSelector((storeState: StoreState) => storeState.persist.notificationList.notifications);
+const we = (s: Function) => {
+  s();
+};
+
+const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
+  const notifications = useSelector((storeState: StoreState) => storeState.persist.notifications);
   const unseenNotificationsNumber = useSelector(
     (storeState: StoreState) => storeState.persist.unseenNotificationsNumber,
   );
-
   const onPressNotification = (item: any) => {
-    const currentNotifications: NotificationModel[] = [...notifications];
+    const currentNotifications: Array<NotificationModel> = [...notifications];
+
     const index = currentNotifications.findIndex(
-      (currentNotification) => currentNotification.messageId === item.messageId,
+      (currentNotification) => currentNotification.remoteMessage.messageId === item.remoteMessage.messageId,
     );
 
     if (!item.visited) {
-      currentNotifications[index] = { ...currentNotifications[index], visited: true };
+      currentNotifications[index] = {
+        remoteMessage: currentNotifications[index].remoteMessage,
+        fix: currentNotifications[index].fix,
+        visited: true,
+      };
 
-      store.dispatch(persistentActions.default.setNotificationList(
-        { currentNotifications }, unseenNotificationsNumber - 1,
-      ));
+      store.dispatch(persistentActions.default.setNotifications(currentNotifications, unseenNotificationsNumber - 1));
     }
 
     const action = item?.data?.action;
-    if (action === NotificationTypes.NEW_CONVERSATION
-       || action === NotificationTypes.NEW_MESSAGE) {
+    if (action === NotificationTypes.NEW_CONVERSATION || action === NotificationTypes.NEW_MESSAGE) {
       props.navigation.navigate('Chat');
     } else {
       props.navigation.navigate('Home');
     }
 
-    NotificationHandler.getInstance().displayNotification(item);
+    NotificationHandler.getInstance().displayNotification(item.remoteMessage);
+  };
+  const renderItem = ({ item }: { item: NotificationModel }): JSX.Element => {
+    const isFixClientRequest = item?.remoteMessage?.data?.action === 'FixClientRequest';
+    const firstName = isFixClientRequest ? item.fix.createdByClient.firstName : item.fix.assignedToCraftsman.firstName;
+    const lastName = isFixClientRequest ? item.fix.createdByClient.lastName : item.fix.assignedToCraftsman.lastName;
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          onPressNotification(item);
+        }}
+        style={styles.notificationItem}>
+        <View style={[styles.image, { marginRight: 10 }]}>
+          <Avatar
+            size={50}
+            rounded
+            title={`${firstName?.charAt(0)}${lastName?.charAt(0)}`}
+            titleStyle={{ color: 'black' }}
+            activeOpacity={0.7}
+            avatarStyle={{ resizeMode: 'cover', backgroundColor: '#EEEEEE', opacity: 0.75 }}
+          />
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={item.visited ? styles.seenNotif : styles.unseenNotif}>{`${firstName} ${lastName}`}</Text>
+          <Text>{item.fix.details?.category}</Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
-  const renderItem = ({ item }: any) : JSX.Element => (
-    <TouchableOpacity
-      onPress={() => { onPressNotification(item); }}
-      style={styles.notificationItem}
-    >
-      <View style={[styles.image, { marginRight: 10 }]}>
-        <Avatar
-          size="small"
-          rounded
-          icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
-        />      </View>
-      <View style={styles.textContainer}>
-        <Text style={item.visited ? styles.seenNotif : styles.unseenNotif}>
-          {item.notification.title}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const render = () => (
-    <SafeAreaView style={styles.container}>
-      <Button onPress={() => props.navigation.goBack()} color='accent'>
-        <Icon library='AntDesign' name='back' />
-      </Button>
-      <Text style={styles.title}>Notifications</Text>
-      <View style={styles.bodyContainer}>
-        {notifications.length === 0
-          ? <View style={{ flex: 1, justifyContent: 'center', alignSelf: 'center' }}>
-            <Text>You have no notifications</Text>
-          </View>
-          : <FlatList
-            data={notifications}
-            renderItem={renderItem}
-            keyExtractor={(item: any) => item.messageId}
-          />
-        }
-      </View>
-    </SafeAreaView>
-  );
+  const render = () => {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Button onPress={() => props.navigation.goBack()} color="accent">
+          <Icon library="AntDesign" name="back" />
+        </Button>
+        <Text style={styles.title}>Notifications</Text>
+        <View style={styles.bodyContainer}>
+          {!notifications || notifications.length === 0 ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignSelf: 'center',
+              }}>
+              <Text>You have no notifications</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={notifications}
+              renderItem={renderItem}
+              keyExtractor={(item: NotificationModel) => item.remoteMessage.messageId as string}
+            />
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  };
 
   return render();
 };

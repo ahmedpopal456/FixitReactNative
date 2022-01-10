@@ -1,10 +1,17 @@
-/* eslint-disable no-nested-ternary */
 import React, { useState, FunctionComponent } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, RefreshControl } from 'react-native';
 import { colors, DonutChart, Tag } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, FixesService, ConfigFactory, StoreState, RatingsService, useSelector } from 'fixit-common-data-store';
+import {
+  store,
+  FixesService,
+  ConfigFactory,
+  StoreState,
+  RatingsService,
+  useSelector,
+  FixesModel,
+} from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +19,8 @@ import SwipeableFlatList from '../../components/lists/swipeableFlatList';
 import bgImage from '../../common/assets/background-right.png';
 import image from '../../common/assets/bedroom.jpg';
 import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
+import { TagModel } from 'fixit-common-data-store/src/slices/fixesSlice';
+import NavigationEnum from '../../common/enums/navigationEnum';
 
 const fixesService = new FixesService(new ConfigFactory(), store);
 const ratingsService = new RatingsService(new ConfigFactory(), store);
@@ -103,33 +112,34 @@ const styles = StyleSheet.create({
   },
 });
 
+interface Item {
+  item: FixesModel;
+}
+
 const HomeScreenCraftsman: FunctionComponent = () => {
   const navigation = useNavigation();
-  const { t, i18n } = useTranslation();
-
-  const [refreshState, setRefreshState] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   const inProgressFixes = useSelector((storeState: StoreState) => storeState.fixes.inProgressFixesState);
   const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
   const popularFixTags = useSelector((storeState: StoreState) => storeState.fixes.topFixTagsState);
-
   const user = useSelector((storeState: StoreState) => storeState.user);
 
   useAsyncEffect(async () => {
     await onRefresh();
-  }, []);
+  }, [user.userId]);
 
   const onRefresh = async () => {
-    setRefreshState(true);
-    await fixesService.getInProgressFixes(user.userId as string);
-    await fixesService.getPendingFixes(user.userId as string);
-    await ratingsService.getUserRatingsAverage(user.userId as string);
+    if (user.userId) {
+      await fixesService.getInProgressFixes(user.userId);
+      await fixesService.getPendingFixes(user.userId);
+      await ratingsService.getUserRatingsAverage(user.userId);
+    }
     await fixesService.getPopularFixTags('5');
-    setRefreshState(false);
   };
 
-  const renderPendingFixItems = ({ item }: any): JSX.Element => (
-    <View style={styles.fixContainer}>
+  const renderPendingFixItems = ({ item }: Item): JSX.Element => (
+    <View key={item.id} style={styles.fixContainer}>
       <View style={{ padding: 10 }}>
         <DonutChart value={75} radius={50} strokeWidth={7} color="yellow" textColor="dark" />
       </View>
@@ -137,21 +147,18 @@ const HomeScreenCraftsman: FunctionComponent = () => {
         <Text style={styles.fixContainerText}>{item.details.name}</Text>
         <View style={styles.fixContainerDetailsView}>
           <Text style={styles.fixContainerFinePrints}>
-            Started {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()} for
-          </Text>
-          <Text style={styles.fixContainerFinePrints}>
-            {item.createdByClient.firstName} {item.createdByClient.lastName}
+            {`Client: ${item.createdByClient.firstName} ${item.createdByClient.lastName}`}
           </Text>
         </View>
 
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate('Fixes', {
-              screen: 'FixOverview',
-              params: { fix: item },
+            navigation.navigate(NavigationEnum.FIX, {
+              fix: item,
+              title: 'Fix',
+              id: 'fixes_screen',
             })
-          }
-        >
+          }>
           <View style={styles.detail}>
             <Text style={styles.fixContainerDetailsButton}>See Details</Text>
           </View>
@@ -160,8 +167,8 @@ const HomeScreenCraftsman: FunctionComponent = () => {
     </View>
   );
 
-  const renderFixRequestItems = ({ item }: any): JSX.Element => (
-    <View style={styles.fixContainer}>
+  const renderFixRequestItems = ({ item }: Item): JSX.Element => (
+    <View key={item.id} style={styles.fixContainer}>
       <View>
         <ImageBackground
           source={image}
@@ -179,20 +186,20 @@ const HomeScreenCraftsman: FunctionComponent = () => {
       <View style={styles.fixContainerView}>
         <Text style={styles.fixContainerText}>{item.details.name}</Text>
         <Text>
-          {new Date(item.schedule[0].startTimestampUtc * 1000).toDateString()}-{' '}
-          {new Date(item.schedule[0].endTimestampUtc * 1000).toDateString()}
+          {item.schedule.length > 0 ? new Date(item.schedule[0].startTimestampUtc * 1000).toDateString() : ''}-{' '}
+          {item.schedule.length > 0 ? new Date(item.schedule[0].endTimestampUtc * 1000).toDateString() : ''}
         </Text>
         <Text style={styles.fixContainerFinePrints}>
           {item.createdByClient.firstName} {item.createdByClient.lastName}
         </Text>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate('Fixes', {
-              screen: 'FixOverview',
-              params: { fix: item },
+            navigation.navigate(NavigationEnum.FIX, {
+              fix: item,
+              title: 'Fix',
+              id: 'fixes_screen',
             })
-          }
-        >
+          }>
           <View style={styles.detail}>
             <Text style={styles.fixContainerDetailsButton}>See Details</Text>
           </View>
@@ -210,21 +217,21 @@ const HomeScreenCraftsman: FunctionComponent = () => {
     const showPendingFixes =
       pendingFixes.fixes.length > 0 ? (
         <SwipeableFlatList
+          key="pending"
           title={'Pending'}
           navigationProps={{ title: 'Fixes', navigation }}
           data={pendingFixes.fixes}
-          renderItem={renderPendingFixItems}
-        ></SwipeableFlatList>
+          renderItem={renderPendingFixItems}></SwipeableFlatList>
       ) : null;
 
-    const showNewFixes =
+    const showInProgressFixes =
       inProgressFixes.fixes.length > 0 ? (
         <SwipeableFlatList
+          key="on-going"
           title={'On-Going'}
           navigationProps={{ title: 'Fixes', navigation }}
           data={inProgressFixes.fixes}
-          renderItem={renderFixRequestItems}
-        ></SwipeableFlatList>
+          renderItem={renderFixRequestItems}></SwipeableFlatList>
       ) : null;
 
     return (
@@ -236,10 +243,8 @@ const HomeScreenCraftsman: FunctionComponent = () => {
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
             }}
-            style={styles.background}
-          >
+            style={styles.background}>
             <ScrollView>
-              <Text style={styles.headers}>Your Fixes</Text>
               {renderFixesFallback ? (
                 <View style={styles.spinner}>
                   <ProgressIndicatorFactory
@@ -255,7 +260,7 @@ const HomeScreenCraftsman: FunctionComponent = () => {
                   <Text style={styles.loadingMessage}> {t('home.craftsman.fixes.notavailable')}</Text>
                 </View>
               ) : (
-                [showPendingFixes, showNewFixes]
+                [showPendingFixes, showInProgressFixes]
               )}
 
               <Text style={styles.headers}>Popular Tags</Text>
@@ -271,18 +276,18 @@ const HomeScreenCraftsman: FunctionComponent = () => {
                 </View>
               ) : isTagsToShowEmpty ? (
                 <View style={{ height: 100 }}>
-                  <Text style={styles.loadingMessage}> Tags Information Unavailable...</Text>
+                  <Text style={styles.loadingMessage}> Tags information inavailable...</Text>
                 </View>
               ) : (
                 <View style={styles.tagsContainerView}>
-                  {popularFixTags.tags.map((tag: any) =>
+                  {popularFixTags.tags.map((tag: TagModel) =>
                     tag ? (
                       <View key={tag.name} style={styles.tagsContainer}>
                         <Tag backgroundColor={'dark'} textColor={'light'}>
                           {tag.name}
                         </Tag>
                       </View>
-                    ) : null
+                    ) : null,
                   )}
                 </View>
               )}
