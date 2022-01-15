@@ -1,7 +1,5 @@
 import PublicClientApplication from 'react-native-msal';
-import {
-  ConfigFactory, store, userActions, UserService,
-} from 'fixit-common-data-store';
+import { ConfigFactory, store, userActions, UserService } from 'fixit-common-data-store';
 import jwtDecode from 'jwt-decode';
 import * as constants from '../constants/authConstants';
 import {
@@ -35,18 +33,24 @@ export default class NativeAuthService {
     // it will use the default, common authority
     const { policies, ...restOfAuthConfig } = this.b2cConfig.auth;
     const authority = this.getAuthority(policies.signIn);
-    const knownAuthorities: string[] = Object.values(policies).map(
-      (policy) => this.getAuthority(policy),
-    );
+    const knownAuthorities: string[] = Object.values(policies).map((policy) => this.getAuthority(policy));
     this.publicClientApplication = new PublicClientApplication({
-      ...this.b2cConfig,
-      auth: { authority, knownAuthorities, ...restOfAuthConfig },
+      auth: {
+        authority: 'https://fixitb2ctest.b2clogin.com/tfp/b590826f-dbb4-4f2c-9f72-cfc9ea116b5d/B2C_1A_SIGNIN',
+        knownAuthorities: ['https://fixitb2ctest.b2clogin.com/tfp/b590826f-dbb4-4f2c-9f72-cfc9ea116b5d/B2C_1A_SIGNIN'],
+        redirectUri: 'msauth.org.reactjs.native.example.FixitReactNative://auth',
+        clientId: '60d0d7ce-85ff-427d-ae26-8e1510bb776d',
+      },
     });
+
+    try {
+      this.publicClientApplication.init();
+    } catch (error) {
+      console.error('Error initializing the publicClientApplication, check your config.', error);
+    }
   }
 
-  public async signUp(
-    b2cSignInUpParams: B2CSignInUpParams,
-  ): Promise<MSALResult> {
+  public async signUp(b2cSignInUpParams: B2CSignInUpParams): Promise<MSALResult> {
     if (this.isSignedIn()) {
       throw Error(constants.ALREADY_SIGNED_IN_ERROR);
     }
@@ -61,12 +65,10 @@ export default class NativeAuthService {
       authority,
     });
 
-    const decodedAuthToken: {sub: string} = jwtDecode(msalResult.accessToken);
+    const decodedAuthToken: { sub: string } = jwtDecode(msalResult.accessToken);
     const userId = decodedAuthToken.sub;
 
-    store.dispatch(
-      userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }),
-    );
+    store.dispatch(userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }));
 
     userService.fetchUser(userId);
     return msalResult;
@@ -76,31 +78,22 @@ export default class NativeAuthService {
    * If the user clicks "Forgot Password", and a reset password policy
    *  was provided to the client, it will initiate the password reset flow
    */
-  public async signIn(
-    b2cSignInUpParams: B2CSignInUpParams,
-  ): Promise<MSALResult> {
+  public async signIn(b2cSignInUpParams: B2CSignInUpParams): Promise<MSALResult> {
     if (this.isSignedIn()) {
       throw Error(constants.ALREADY_SIGNED_IN_ERROR);
     }
 
     try {
-      const msalResult = await this.publicClientApplication.acquireToken(
-        b2cSignInUpParams,
-      );
+      const msalResult = await this.publicClientApplication.acquireToken(b2cSignInUpParams);
 
-      const decodedAuthToken: {sub: string} = jwtDecode(msalResult.accessToken);
+      const decodedAuthToken: { sub: string } = jwtDecode(msalResult.accessToken);
       const userId = decodedAuthToken.sub;
-      store.dispatch(
-        userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }),
-      );
+      store.dispatch(userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult.accessToken }));
 
       userService.fetchUser(userId);
       return msalResult;
     } catch (error: any) {
-      if (
-        error.message.includes(NativeAuthService.B2C_PASSWORD_CHANGE)
-        && this.b2cConfig.auth.policies.passwordReset
-      ) {
+      if (error.message.includes(NativeAuthService.B2C_PASSWORD_CHANGE) && this.b2cConfig.auth.policies.passwordReset) {
         return this.resetPassword(b2cSignInUpParams);
       }
       throw error;
@@ -139,13 +132,11 @@ export default class NativeAuthService {
     User will have to sign in again to get a token */
   public async signOut(params?: B2CSignOutParams): Promise<boolean> {
     const accounts = await this.publicClientApplication.getAccounts();
-    const signOutPromises = accounts.map(
-      (account: any) => this.publicClientApplication.signOut({ ...params, account }),
+    const signOutPromises = accounts.map((account: any) =>
+      this.publicClientApplication.signOut({ ...params, account }),
     );
     await Promise.all(signOutPromises);
-    store.dispatch(
-      userActions.UPDATE_AUTH_STATUS({ isAuthenticated: false, authToken: '' }),
-    );
+    store.dispatch(userActions.UPDATE_AUTH_STATUS({ isAuthenticated: false, authToken: '' }));
     return true;
   }
 
@@ -156,9 +147,7 @@ export default class NativeAuthService {
       ios_prefersEphemeralWebBrowserSession: true,
     };
     if (this.b2cConfig.auth.policies.passwordReset) {
-      const authority = this.getAuthority(
-        this.b2cConfig.auth.policies.passwordReset,
-      );
+      const authority = this.getAuthority(this.b2cConfig.auth.policies.passwordReset);
       await this.publicClientApplication.acquireToken({
         ...rest,
         webviewParameters,

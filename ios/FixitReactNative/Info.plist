@@ -8,6 +8,21 @@
 	<string></string>
 	<key>CFBundleDisplayName</key>
 	<string>FixitReactNative</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+        		<string>msauth.org.reactjs.native.example.FixitReactNative</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>msauth</string>
+		<string>msauthv2</string>
+		<string>msauthv3</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
