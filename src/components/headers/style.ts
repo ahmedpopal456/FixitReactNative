@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import { HeaderProps } from './headerProps';
 
-const ViewWrapper = styled.View`
+const ViewWrapper = styled.SafeAreaView`
     display: flex;
     flexDirection: row;
     flexWrap: wrap;

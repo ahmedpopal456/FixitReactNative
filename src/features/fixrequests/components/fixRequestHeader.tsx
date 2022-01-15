@@ -1,6 +1,7 @@
 import { colors, H1 } from 'fixit-common-ui';
 import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import backArrowIcon from '../../../common/assets/back-icon.png';
 
 export default class FixRequestHeader extends React.Component<{
@@ -21,7 +22,7 @@ export default class FixRequestHeader extends React.Component<{
   render(): JSX.Element {
     return (
       <>
-        <View
+        <SafeAreaView
           style={{
             backgroundColor: colors.accent,
             paddingLeft: 20,
@@ -29,7 +30,6 @@ export default class FixRequestHeader extends React.Component<{
             paddingTop: 20,
             flexDirection: 'row',
             alignItems: 'flex-start',
-            shadowColor: '#000',
           }}>
           {this.props.showBackBtn ? (
             <TouchableOpacity style={{ padding: 3 }} onPress={this.handleGoBack}>
@@ -42,9 +42,14 @@ export default class FixRequestHeader extends React.Component<{
               paddingLeft: 15,
               width: '80%',
             }}>
-            <H1>{this.props.screenTitle}</H1>
+            <H1
+              style={{
+                position: 'absolute',
+              }}>
+              {this.props.screenTitle}
+            </H1>
           </View>
-        </View>
+        </SafeAreaView>
       </>
     );
   }

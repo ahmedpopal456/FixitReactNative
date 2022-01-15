@@ -3,6 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Header from '../../../components/headers/header';
 import ChatScreen from '../screens/chatScreen';
 import ChatMessagingScreen from '../screens/chatMessagingScreen';
+import { SupportedOSConstants } from '../../../core/constants/SupportedOSConstants';
+import { Platform } from 'react-native';
 
 const Stack = createStackNavigator();
 const ChatStackNavigator: FunctionComponent<any> = (props) => (
@@ -12,6 +14,7 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
       headerShown: false,
       header: ({ navigation }) => (
         <Header
+          height={Number(SupportedOSConstants.get(Platform.OS)?.get('height'))}
           notificationsBadgeCount={props.otherProp.notificationCount}
           userRatings={props.otherProp.averageRating}
           navigation={navigation}

@@ -16,13 +16,15 @@ import HomeScreenCraftsman from '../../screens/home/homeScreenCraftsman';
 import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
 import AddressSelectorScreen from '../../screens/address/addressSelectorScreen';
 import Fix from '../../features/fixrequests/components/Fix';
+import { Platform } from 'react-native';
+import { SupportedOSConstants } from '../constants/SupportedOSConstants';
 
 const Stack = createStackNavigator();
 
 const HomeStackNavigator: FunctionComponent<any> = (props) => {
-  const render = () : JSX.Element => (
+  const render = (): JSX.Element => (
     <Stack.Navigator
-      headerMode='screen'
+      headerMode="screen"
       screenOptions={{
         headerShown: false,
         header: ({ navigation }) => (
@@ -30,84 +32,91 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
             notificationsBadgeCount={props.otherProp.notificationCount}
             userRatings={props.otherProp.averageRating}
             navigation={navigation}
+            height={Number(SupportedOSConstants.get(Platform.OS)?.get('height'))}
             userFirstName={props.otherProp.userFirstName}
             userLastName={props.otherProp.userLastName}
             ratingCount={props.otherProp.ratingCount}
-            userAddress={props.otherProp.userAddress}>
-          </Header>),
+            userAddress={props.otherProp.userAddress}></Header>
+        ),
       }}>
-      {props.role === UserRoles.CLIENT
-         && <Stack.Screen
-           name="HomeScreen"
-           component={HomeScreenClient}
-           options={{
-             headerShown: true,
-           }}/>}
-      {props.role === UserRoles.CRAFTSMAN
-        && <Stack.Screen
+      {props.role === UserRoles.CLIENT && (
+        <Stack.Screen
+          name="HomeScreen"
+          component={HomeScreenClient}
+          options={{
+            headerShown: true,
+          }}
+        />
+      )}
+      {props.role === UserRoles.CRAFTSMAN && (
+        <Stack.Screen
           name="HomeScreen"
           component={HomeScreenCraftsman}
           options={{
             headerShown: true,
-          }} />}
-      <Stack.Screen
-        name="SearchResultsScreen"
-        component={FixSearchResultsScreen}/>
+          }}
+        />
+      )}
+      <Stack.Screen name="SearchResultsScreen" component={FixSearchResultsScreen} />
       <Stack.Screen
         name="FixRequestMetaStep"
         component={FixRequestMetaStep}
         options={{
           animationEnabled: false,
-        }} />
+        }}
+      />
       <Stack.Screen
         name="FixRequestDescriptionStep"
         component={FixRequestDescriptionStep}
         options={{
           animationEnabled: false,
-        }} />
+        }}
+      />
       <Stack.Screen
         name="FixRequestSectionsStep"
         component={FixRequestSectionsStep}
         options={{
           animationEnabled: false,
-        }} />
+        }}
+      />
       <Stack.Screen
         name="FixRequestImagesLocationStep"
         component={FixRequestImagesLocationStep}
         options={{
           headerShown: false,
           animationEnabled: false,
-        }} />
+        }}
+      />
       <Stack.Screen
         name="Fix"
         component={Fix}
         options={{
           animationEnabled: false,
-        }} />
+        }}
+      />
       <Stack.Screen
         name="FixSuggestChanges"
         component={FixSuggestChanges}
         options={{
           animationEnabled: false,
-        }} />
+        }}
+      />
       <Stack.Screen
         name="FixSuggestChangesReview"
         component={FixSuggestChangesReview}
         options={{
           animationEnabled: false,
-        }} />
+        }}
+      />
       <Stack.Screen
         name="Notifications"
         component={NotificationsScreen}
         options={{
           animationEnabled: false,
-        }}/>
-      <Stack.Screen
-        name="AddressSelector"
-        component={AddressSelectorScreen}/>
-      <Stack.Screen
-        name="AddressDetails"
-        component={AddressEditionScreen}/>
+        }}
+      />
+      <Stack.Screen name="AddressSelector" component={AddressSelectorScreen} />
+      <Stack.Screen name="AddressDetails" component={AddressEditionScreen} />
     </Stack.Navigator>
   );
 

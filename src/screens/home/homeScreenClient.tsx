@@ -26,12 +26,15 @@ const styles = StyleSheet.create({
   },
   baseContainer_View_View_View: {
     paddingLeft: 25,
-    borderRadius: 25,
+    borderRadius: 30,
     backgroundColor: '#EEEEEE',
     paddingTop: 20,
     paddingBottom: 20,
     marginTop: -20,
-    elevation: 10,
+    zIndex: 9,
+    shadowOffset: { width: 10, height: 10 },
+    shadowOpacity: 1,
+    shadowColor: 'grey',
   },
   tagsContainer: {
     marginRight: 10,

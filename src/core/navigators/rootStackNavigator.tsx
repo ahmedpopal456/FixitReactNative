@@ -8,14 +8,11 @@ import RootTabNavigator from './rootTabNavigator';
 const Stack = createStackNavigator();
 
 const RootStackNavigator: FunctionComponent = () => {
-  const user = useSelector((persistState:StoreState) => persistState.user);
-  const render = () : JSX.Element => (
-    <Stack.Navigator
-      headerMode="none">
+  const user = useSelector((persistState: StoreState) => persistState.user);
+  const render = (): JSX.Element => (
+    <Stack.Navigator headerMode="none">
       {user.isAuthenticated ? (
-        <Stack.Screen
-          name="Main"
-          component={RootTabNavigator}/>
+        <Stack.Screen name="Main" component={RootTabNavigator} />
       ) : (
         <Stack.Screen name="Auth" component={RegisterScreen} />
       )}

@@ -213,7 +213,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
   );
 
   const render = () => (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.bodyContainer}>
         <View style={styles.headerContainer}>
           <View style={styles.headerInformation}>
@@ -285,7 +285,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
           </Button>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
   return render();
 };

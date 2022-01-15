@@ -86,22 +86,22 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
           paddingTop: 60,
           borderBottomLeftRadius: 12,
           borderBottomRightRadius: 12,
-          flex: 0,
           flexDirection: 'column',
           alignItems: 'center',
-          shadowColor: '#000',
+          shadowColor: 'grey',
           shadowOffset: {
             width: 0,
             height: 1,
           },
           shadowOpacity: 0.2,
           shadowRadius: 1.41,
+          zIndex: 99,
           elevation: 2,
         }}>
         <TouchableOpacity
           style={{
             position: 'absolute',
-            top: 20,
+            top: 40,
             left: 20,
           }}
           onPress={handleGoBack}>

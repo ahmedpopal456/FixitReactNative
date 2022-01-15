@@ -27,20 +27,17 @@ LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: Dimensions.get('window').height - 95,
-    width: '100%',
+    flexShrink: 1,
+    flexDirection: 'column',
+    overflow: 'scroll',
     backgroundColor: colors.accent,
-  },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   topCycleContainer: {
     flexDirection: 'row',
   },
   bodyContainer: {
     flex: 1,
-    flexGrow: 100,
+    flexGrow: 1,
     padding: 10,
     backgroundColor: colors.white,
     alignItems: 'center',
@@ -56,8 +53,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     paddingRight: 10,
     elevation: 3,
-    // Below is for iOS
-    shadowColor: '#000',
+    shadowColor: 'grey',
     shadowOffset: { width: 0, height: 100 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -303,11 +299,11 @@ const FixesScreen: FunctionComponent<any> = () => {
   };
 
   const render = () => (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
-      }>
-      <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+        }>
         <View style={styles.topCycleContainer}>
           <Button
             testID="fixesBtn"
@@ -378,8 +374,8 @@ const FixesScreen: FunctionComponent<any> = () => {
             </View>
           )}
         </View>
-      </SafeAreaView>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 
   return render();
