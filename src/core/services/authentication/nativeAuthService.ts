@@ -35,12 +35,8 @@ export default class NativeAuthService {
     const authority = this.getAuthority(policies.signIn);
     const knownAuthorities: string[] = Object.values(policies).map((policy) => this.getAuthority(policy));
     this.publicClientApplication = new PublicClientApplication({
-      auth: {
-        authority: 'https://fixitb2ctest.b2clogin.com/tfp/b590826f-dbb4-4f2c-9f72-cfc9ea116b5d/B2C_1A_SIGNIN',
-        knownAuthorities: ['https://fixitb2ctest.b2clogin.com/tfp/b590826f-dbb4-4f2c-9f72-cfc9ea116b5d/B2C_1A_SIGNIN'],
-        redirectUri: 'msauth.org.reactjs.native.example.FixitReactNative://auth',
-        clientId: '60d0d7ce-85ff-427d-ae26-8e1510bb776d',
-      },
+      ...this.b2cConfig,
+      auth: { authority, knownAuthorities, ...restOfAuthConfig },
     });
 
     try {

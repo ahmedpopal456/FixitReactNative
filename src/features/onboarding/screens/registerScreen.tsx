@@ -12,17 +12,13 @@ type RootStackParamList = {
   Main: undefined;
 };
 
-type RegisterScreenNavigationProps = StackNavigationProp<
-RootStackParamList,
-'Auth'
->;
+type RegisterScreenNavigationProps = StackNavigationProp<RootStackParamList, 'Auth'>;
 
 export type RegisterScreenProps = {
-navigation: RegisterScreenNavigationProps;
+  navigation: RegisterScreenNavigationProps;
 };
 
-export default class RegisterScreen extends
-  React.Component<RegisterScreenProps> {
+export default class RegisterScreen extends React.Component<RegisterScreenProps> {
   b2cClient = new NativeAuthService(b2cConfig);
 
   // Whether the session should ask the browser for a private authentication session for iOS
@@ -30,24 +26,24 @@ export default class RegisterScreen extends
     ios_prefersEphemeralWebBrowserSession: false,
   };
 
-  handleSignUpPress = async () : Promise<void> => {
+  handleSignUpPress = async (): Promise<void> => {
     this.b2cClient.signUp({ scopes });
   };
 
-  handleSignInPress = async () : Promise<void> => {
+  handleSignInPress = async (): Promise<void> => {
     const { webviewParameters } = this;
     this.b2cClient.signIn({ scopes, webviewParameters });
   };
 
-  handleAcquireTokenPress = async () : Promise<void> => {
+  handleAcquireTokenPress = async (): Promise<void> => {
     this.b2cClient.acquireTokenSilent();
   };
 
-  handleSignOutPress = async () : Promise<void> => {
+  handleSignOutPress = async (): Promise<void> => {
     this.b2cClient.signOut();
   };
 
-  render() : JSX.Element {
+  render(): JSX.Element {
     return (
       <ImageBackground
         source={bgImage}
@@ -64,12 +60,11 @@ export default class RegisterScreen extends
             bottom: 50,
             padding: 10,
             borderRadius: 7,
-          }}
-        >
-          <Button testID='loginButton' onPress={this.handleSignInPress} width={125}>
+          }}>
+          <Button testID="loginButton" onPress={this.handleSignInPress} width={125}>
             Log In
           </Button>
-          <Button testID='signupButton' onPress={this.handleSignUpPress} width={125} color="accent">
+          <Button testID="signupButton" onPress={this.handleSignUpPress} width={125} color="accent">
             Sign Up
           </Button>
         </View>
