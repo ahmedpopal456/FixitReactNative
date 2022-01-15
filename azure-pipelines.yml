@@ -112,6 +112,17 @@ stages:
           vmImage: 'macOS-latest'
         condition: succeeded()
         steps:
+          # Installer
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '10.x'
+            displayName: 'Install Node.js'
+
+          - task: Npm@1
+            displayName: 'Npm install'
+            inputs:
+              command: 'install'
+
           - task: ios-bundle-version@1
             displayName: 'Update iOS version'
             inputs:
