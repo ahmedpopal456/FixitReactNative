@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>392795802259-ljkso7bvrl4rl6g6mr4ug8uat1gf8ccs.apps.googleusercontent.com</string>
+	<string>392795802259-4q2668jtomrcihccn6jpehgs4ffhf765.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.392795802259-ljkso7bvrl4rl6g6mr4ug8uat1gf8ccs</string>
+	<string>com.googleusercontent.apps.392795802259-4q2668jtomrcihccn6jpehgs4ffhf765</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDqJTfQwG-Yh_dcS09JgQrJAciiXdhePk8</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>org.reactjs.native.example.FixitReactNative</string>
+	<string>fixit.dev.ios</string>
 	<key>PROJECT_ID</key>
 	<string>fixit-dev-4d855</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:392795802259:ios:40a89fa6024fc9f8611b66</string>
+	<string>1:392795802259:ios:5786bd66cc918a09611b66</string>
 </dict>
 </plist>
