@@ -112,12 +112,6 @@ stages:
           vmImage: 'macOS-latest'
         condition: succeeded()
         steps:
-          # Installer
-          - task: NodeTool@0
-            inputs:
-              versionSpec: '10.x'
-            displayName: 'Install Node.js'
-
           - task: Npm@1
             displayName: 'Npm install'
             inputs:
