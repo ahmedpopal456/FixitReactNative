@@ -162,10 +162,10 @@ stages:
               TargetFolder: '$(Build.ArtifactStagingDirectory)/iOS'
 
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish iOS Artifacts'
             inputs:
-              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-              ArtifactName: '${{ parameters.artifactName }}'
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: apks
+              publishLocation: 'container'
 
   - stage: STAGE
     dependsOn: []
