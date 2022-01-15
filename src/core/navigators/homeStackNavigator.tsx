@@ -17,7 +17,7 @@ import NotificationsScreen from '../../features/notifications/screens/notificati
 import AddressSelectorScreen from '../../screens/address/addressSelectorScreen';
 import Fix from '../../features/fixrequests/components/Fix';
 import { Platform } from 'react-native';
-import { SupportedOSConstants } from '../constants/SupportedOSConstants';
+import { SupportedOSConstants } from '../../core/constants/SupportedOSConstants';
 
 const Stack = createStackNavigator();
 

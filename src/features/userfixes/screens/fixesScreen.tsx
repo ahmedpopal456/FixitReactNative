@@ -299,11 +299,11 @@ const FixesScreen: FunctionComponent<any> = () => {
   };
 
   const render = () => (
-    <View style={styles.container}>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
-        }>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+      }>
+      <View style={styles.container}>
         <View style={styles.topCycleContainer}>
           <Button
             testID="fixesBtn"
@@ -374,8 +374,8 @@ const FixesScreen: FunctionComponent<any> = () => {
             </View>
           )}
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 
   return render();

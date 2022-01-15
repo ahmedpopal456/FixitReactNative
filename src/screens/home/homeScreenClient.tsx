@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 10, height: 10 },
     shadowOpacity: 1,
     shadowColor: 'grey',
+    elevation: 20,
   },
   tagsContainer: {
     marginRight: 10,
