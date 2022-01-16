@@ -141,7 +141,7 @@ stages:
             displayName: 'Install Apple Provisioning Profile'
             inputs:
               provisioningProfileLocation: 'secureFiles'
-              provProfileSecureFile: 'fixit_dev_distribution.mobileprovision'
+              provProfileSecureFile: 'firebase_adhoc.mobileprovision'
 
           - task: Xcode@5
             displayName: 'Xcode Build'
