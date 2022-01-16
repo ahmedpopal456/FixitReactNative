@@ -363,6 +363,7 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Prod_Build'
         pool:
+          vmImage: 'macOS-11'
         condition: succeeded()
         steps:
           - task: CmdLine@2
