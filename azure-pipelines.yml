@@ -148,7 +148,7 @@ stages:
             inputs:
               xcodeVersion: 12
               actions: 'clean build'
-              configuration: 'Release'
+              configuration: 'Debug'
               sdk: 'iphoneos'
               xcWorkspacePath: '$(System.DefaultWorkingDirectory)/ios/FixitReactNative.xcworkspace'
               scheme: 'FixitReactNative'
