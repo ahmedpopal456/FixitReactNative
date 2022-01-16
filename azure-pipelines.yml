@@ -158,7 +158,7 @@ stages:
               signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
               provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
               destinationPlatformOption: 'iOS'
-              destinationSimulators: 'iPhone 13 Pro'
+              destinationSimulators: 'iPhone 11 Pro'
 
           - task: CopyFiles@2
             displayName: 'Copy iOS Files To Staging Directory'
