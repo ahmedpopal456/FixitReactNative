@@ -16,6 +16,7 @@ import StyledContentWrapper from '../../../components/styledElements/styledConte
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import { FixRequestHeader } from '../components';
 import constants from './constants';
+import NavigationEnum from '../../../common/enums/navigationEnum';
 
 const FixRequestSectionsStep: FunctionComponent = (): JSX.Element => {
   const navigation = useNavigation();
@@ -32,7 +33,7 @@ const FixRequestSectionsStep: FunctionComponent = (): JSX.Element => {
         sections: fixTemplateSections,
       }),
     );
-    navigation.navigate('FixRequestImagesLocationStep');
+    navigation.navigate(NavigationEnum.FIXREQUESTIMAGESLOCATIONSTEP);
   };
 
   const nextPageOptions = [

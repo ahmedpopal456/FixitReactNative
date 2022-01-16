@@ -2,12 +2,13 @@ import React, { FunctionComponent } from 'react';
 import { Text, View, StyleSheet, Dimensions, FlatList, TouchableOpacity } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, RatingsService, ConfigFactory, StoreState, useSelector } from 'fixit-common-data-store';
+import { store, RatingsService, StoreState, useSelector } from 'fixit-common-data-store';
 import { Rating } from 'react-native-ratings';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';
+import config from '../../../core/config/appConfig';
 
-const ratingsService = new RatingsService(new ConfigFactory(), store);
+const ratingsService = new RatingsService(config, store);
 
 const styles = StyleSheet.create({
   container: {

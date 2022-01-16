@@ -3,11 +3,12 @@ import React, { FunctionComponent, useState } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 import { Button, colors, H1, Icon, Tag } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
-import { ConfigFactory, FixesModel, FixesService, Schedule, store } from 'fixit-common-data-store';
+import { FixesModel, FixesService, Schedule, store } from 'fixit-common-data-store';
 import { StackActions } from '@react-navigation/native';
 import useAsyncEffect from 'use-async-effect';
 import { NotificationProps } from '../../common/models/notifications/NotificationProps';
 import NavigationEnum from '../../common/enums/navigationEnum';
+import config from '../../core/config/appConfig';
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -76,11 +77,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const fixesService = new FixesService(new ConfigFactory(), store);
+const fixesService = new FixesService(config, store);
 
 const FixNotifications: FunctionComponent<NotificationProps> = (props: NotificationProps): JSX.Element => {
   const [isRightAway, setIsRightAway] = useState<boolean>(false);
-  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<number>(0);
+  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<string>('');
+  const [expectedStartDate, setExpectedStartDate] = useState<string>('');
   // TODO: fixFromDatabase is to see if a fix has been assigned to a craftsman
   const [fixFromDatabase, setFixFromDatabase] = useState<FixesModel | undefined>();
   const [fix, setFix] = useState<FixesModel | undefined>();
@@ -88,7 +90,7 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
 
   useAsyncEffect(async () => {
     if (props.message.data?.fixitdata) {
-      const parsedFixtData = JSON.parse(props.message.data.fixitdata);
+      const parsedFixtData: FixesModel = JSON.parse(props.message.data.fixitdata);
       setFix(parsedFixtData);
       const returnedFixResponse = await fixesService.getFix(parsedFixtData.id);
       setFixFromDatabase(returnedFixResponse);
@@ -97,12 +99,18 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
         setIsRightAway(true);
       } else if (schedule.length >= 1) {
         let tempExpectedDeliveryDate = 0;
+        let tempExpectedStartDate = schedule[0].startTimestampUtc;
         schedule.forEach((s: Schedule) => {
+          if (s.startTimestampUtc < tempExpectedStartDate) {
+            tempExpectedStartDate = s.startTimestampUtc;
+          }
           if (s.endTimestampUtc > tempExpectedDeliveryDate) {
             tempExpectedDeliveryDate = s.endTimestampUtc;
           }
         });
-        setExpectedDeliveryDate(tempExpectedDeliveryDate);
+
+        setExpectedStartDate(new Date(tempExpectedStartDate * 1000).toISOString().split('T')[0]);
+        setExpectedDeliveryDate(new Date(tempExpectedDeliveryDate * 1000).toISOString().split('T')[0]);
       }
     }
   }, [props.message]);
@@ -184,7 +192,7 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
   const ExpectedDeliveryDate = () => {
     return (
       <>
-        <Text style={styles.smallerTitle}>Expected Delivery Date</Text>
+        <Text style={styles.smallerTitle}>Expected start and end date</Text>
         {isRightAway ? (
           <Tag backgroundColor={'orange'} textColor={'light'}>
             {'Right away'}
@@ -206,12 +214,8 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
                 }}
               />
               <Text>
-                {new Date(expectedDeliveryDate * 1000).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+                <Text style={{ fontWeight: 'bold' }}>{expectedStartDate}</Text> and{' '}
+                <Text style={{ fontWeight: 'bold' }}>{expectedDeliveryDate}</Text>
               </Text>
             </View>
           </>

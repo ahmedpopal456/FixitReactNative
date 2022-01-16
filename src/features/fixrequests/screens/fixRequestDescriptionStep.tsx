@@ -10,6 +10,7 @@ import FixRequestHeader from '../components/fixRequestHeader';
 import { FixTemplateFormTextInput } from '../components';
 import constants from './constants';
 import { ScrollView } from 'react-native';
+import NavigationEnum from '../../../common/enums/navigationEnum';
 
 const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
   const navigation = useNavigation();
@@ -27,7 +28,7 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
       }),
     );
 
-    navigation.navigate('FixRequestImagesLocationStep');
+    navigation.navigate(NavigationEnum.FIXREQUESTIMAGESLOCATIONSTEP);
   };
 
   const nextPageOptions = [
@@ -39,7 +40,7 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
       label: 'Go to first fix section',
       onClick: () => {
         store.dispatch(fixTemplateActions.updateFixTemplate({ description }));
-        navigation.navigate('FixRequestSectionsStep');
+        navigation.navigate(NavigationEnum.FIXREQUESTSECTIONSSTEP);
       },
     },
   ];

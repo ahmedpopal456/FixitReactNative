@@ -1,5 +1,5 @@
 import PublicClientApplication from 'react-native-msal';
-import { ConfigFactory, store, userActions, UserService } from 'fixit-common-data-store';
+import { store, userActions, UserService } from 'fixit-common-data-store';
 import jwtDecode from 'jwt-decode';
 import * as constants from '../constants/authConstants';
 import {
@@ -9,8 +9,9 @@ import {
   MSALResult,
   MSALWebviewParams,
 } from '../../../common/models/auth/B2CTypes';
+import config from '../../../core/config/appConfig';
 
-const userService = new UserService(new ConfigFactory(), store);
+const userService = new UserService(config, store);
 
 export default class NativeAuthService {
   // This error code is returned when the user clicks on Forgot Password button.

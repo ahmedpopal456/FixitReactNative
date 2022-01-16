@@ -22,14 +22,14 @@ export default class ChatService {
     } as ConversationQueryModel;
 
     return axios
-      .post(`${config.chatApiUrl}/conversations/query`, conversationQuery)
+      .post(`${config.rawConfig.chatApiUrl}/conversations/query`, conversationQuery)
       .then((response) => response.data.result)
       .catch((error) => console.error(error));
   }
 
   getMessages(conversationId: string, pageNumber = 1, pageSize = 100): Promise<Array<ConversationMessageModel>> {
     return axios
-      .get(`${config.chatApiUrl}/conversations/${conversationId}/messages?segmentSize=${pageSize}`)
+      .get(`${config.rawConfig.chatApiUrl}/conversations/${conversationId}/messages?segmentSize=${pageSize}`)
       .then((response) => response.data.results)
       .catch((error) => {
         console.log('messages not found');

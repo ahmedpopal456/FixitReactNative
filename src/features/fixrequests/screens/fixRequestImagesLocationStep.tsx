@@ -171,14 +171,6 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
               Request.
             </P>
             <Spacer height="20px" />
-            {/** Images */}
-            <View style={GlobalStyles.flexRow}>
-              <H2 style={FixRequestStyles.titleWithAction}>Images</H2>
-              <TouchableOpacity style={FixRequestStyles.titleActionWrapper}>
-                <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
-              </TouchableOpacity>
-            </View>
-            <Divider />
             {/** Location */}
             <View>
               <H2
@@ -324,6 +316,15 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
                 </View>
               ) : null}
             </View>
+            <Divider />
+            {/** Images */}
+            <View style={GlobalStyles.flexRow}>
+              <H2 style={FixRequestStyles.titleWithAction}>Images</H2>
+              <TouchableOpacity style={FixRequestStyles.titleActionWrapper}>
+                <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
+              </TouchableOpacity>
+            </View>
+            <Divider />
           </StyledContentWrapper>
         </ScrollView>
       </StyledPageWrapper>

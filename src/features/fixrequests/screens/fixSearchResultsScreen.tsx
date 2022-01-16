@@ -10,6 +10,8 @@ import FixRequestStyles from '../styles/fixRequestStyles';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import backArrowIcon from '../../../common/assets/back-icon.png';
 import FixManagementService from '../../../core/services/search/fixManagementService';
+import NavigationEnum from '../../../common/enums/navigationEnum';
+import config from '../../../core/config/appConfig';
 
 const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
   const navigation = useNavigation();
@@ -43,15 +45,15 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
   };
 
   const handleSelectFixTemplate = (id: string): void => {
-    const serv = new FixRequestService(store);
+    const serv = new FixRequestService(config, store);
     serv.getFixTemplateById(id);
 
-    navigation.navigate('FixRequestMetaStep');
+    navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP);
   };
 
   const handleBlankFixTemplate = (): void => {
     dispatch(fixRequestActions.clearData());
-    navigation.navigate('FixRequestMetaStep');
+    navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP);
   };
 
   const handleGoBack = (): void => {

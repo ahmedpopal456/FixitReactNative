@@ -6,13 +6,11 @@ import {
   fixRequestActions,
   fixTemplateActions,
   StoreState,
-  FixRequestService,
   Category,
   Type,
   Unit,
   useSelector,
 } from 'fixit-common-data-store';
-import useAsyncEffect from 'use-async-effect';
 
 import { useNavigation } from '@react-navigation/native';
 import { FormNextPageArrows } from '../../../components/forms';
@@ -24,6 +22,7 @@ import StyledContentWrapper from '../../../components/styledElements/styledConte
 import FixRequestStyles from '../styles/fixRequestStyles';
 import { FixRequestHeader, FixTemplateFormTextInput, FixTemplatePicker } from '../components';
 import fixRequestConstants from './constants';
+import NavigationEnum from '../../../common/enums/navigationEnum';
 
 const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
   const navigation = useNavigation();
@@ -36,16 +35,6 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
   const [templateCategory, setTemplateCategory] = useState<Category>(fixTemplate.workCategory);
   const [templateType, setTemplateType] = useState<Type>(fixTemplate.workType);
   const [templateUnit, setTemplateUnit] = useState<Unit>(fixTemplate.fixUnit);
-  const [categories, setCategories] = useState<Array<Category>>([]);
-  const [types, setTypes] = useState<Array<Type>>([]);
-  const [units, setUnits] = useState<Array<Unit>>([]);
-
-  useAsyncEffect(async () => {
-    const fixRequestService = new FixRequestService(store);
-    setCategories(await fixRequestService.getCategories());
-    setTypes(await fixRequestService.getTypes());
-    setUnits(await fixRequestService.getUnits());
-  }, []);
 
   useEffect(() => {
     setTemplateName(fixTemplate.name);
@@ -66,7 +55,7 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
       }),
     );
 
-    navigation.navigate('FixRequestDescriptionStep');
+    navigation.navigate(NavigationEnum.FIXREQUESTDESCRIPTIONSTEP);
   };
 
   const addTag = (): void => {
@@ -194,21 +183,21 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
               onChange={(value: Category) => {
                 setTemplateCategory(value);
               }}
-              values={categories || []}
+              values={fixTemplate.categories || []}
             />
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Type'}
               selectedValue={templateType}
               onChange={(value: Type) => setTemplateType(value)}
-              values={types || []}
+              values={fixTemplate.types || []}
             />
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Unit'}
               selectedValue={templateUnit}
               onChange={(value: Unit) => setTemplateUnit(value)}
-              values={units || []}
+              values={fixTemplate.units || []}
             />
             <Spacer height="30px" />
             {templateTagsRender()}
