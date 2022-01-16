@@ -31,81 +31,81 @@ stages:
               versionSpec: '10.x'
             displayName: 'Install Node.js'
 
-          # - task: Npm@1
-          #   displayName: 'Npm install'
-          #   inputs:
-          #     command: 'install'
+          - task: Npm@1
+            displayName: 'Npm install'
+            inputs:
+              command: 'install'
 
-          # # Run Unit Tests
-          # - task: Npm@1
-          #   displayName: 'Npm test'
-          #   inputs:
-          #     command: 'custom'
-          #     customCommand: 'run test'
+          # Run Unit Tests
+          - task: Npm@1
+            displayName: 'Npm test'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test'
 
-          # - task: Npm@1
-          #   displayName: 'Npm run coverage'
-          #   inputs:
-          #     command: 'custom'
-          #     customCommand: 'run test:ci'
+          - task: Npm@1
+            displayName: 'Npm run coverage'
+            inputs:
+              command: 'custom'
+              customCommand: 'run test:ci'
 
-          # # Publish Test Results
-          # - task: PublishTestResults@2
-          #   displayName: 'Publish Test Results'
-          #   condition: succeededOrFailed()
-          #   inputs:
-          #     testResultsFiles: '**/junit.xml'
-          #     testResultsFormat: 'JUnit'
-          #     testRunTitle: 'Test Results'
+          # Publish Test Results
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: '**/junit.xml'
+              testResultsFormat: 'JUnit'
+              testRunTitle: 'Test Results'
 
-          # - task: PublishCodeCoverageResults@1
-          #   inputs:
-          #     codeCoverageTool: 'Cobertura'
-          #     summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
-          #     reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
+              reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
 
-          # # Npm Versioning
-          # - task: android-manifest-version@1
-          #   displayName: 'Update Android version'
-          #   inputs:
-          #     sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
-          #     versionCodeOption: 'buildid'
-          #     versionCode: '$(Build.BuildId)'
-          #     versionName: '$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
-          #     printFile: true
+          # Npm Versioning
+          - task: android-manifest-version@1
+            displayName: 'Update Android version'
+            inputs:
+              sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
+              versionCodeOption: 'buildid'
+              versionCode: '$(Build.BuildId)'
+              versionName: '$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
+              printFile: true
 
-          # - task: Gradle@2
-          #   inputs:
-          #     workingDirectory: 'android'
-          #     gradleWrapperFile: 'android/gradlew'
-          #     gradleOptions: '-Xmx3072m'
-          #     publishJUnitResults: false
-          #     testResultsFiles: '**/TEST-*.xml'
-          #     tasks: 'assembledevrelease'
-          #     options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
+          - task: Gradle@2
+            inputs:
+              workingDirectory: 'android'
+              gradleWrapperFile: 'android/gradlew'
+              gradleOptions: '-Xmx3072m'
+              publishJUnitResults: false
+              testResultsFiles: '**/TEST-*.xml'
+              tasks: 'assembledevrelease'
+              options: '-PappVersionCode=$(Build.BuildId) -PappVersionName=$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
 
-          # - task: AndroidSigning@3
-          #   inputs:
-          #     apkFiles: '**/*.apk'
-          #     apksign: true
-          #     apksignerKeystoreFile: 'development-key.keystore'
-          #     apksignerKeystorePassword: '$(keystores-password)'
-          #     apksignerKeystoreAlias: 'devkey-alias'
-          #     apksignerKeyPassword: '$(keystores-password)'
-          #     apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev/release/$(apkName).dev.release.apk
-          #     zipalign: true
+          - task: AndroidSigning@3
+            inputs:
+              apkFiles: '**/*.apk'
+              apksign: true
+              apksignerKeystoreFile: 'development-key.keystore'
+              apksignerKeystorePassword: '$(keystores-password)'
+              apksignerKeystoreAlias: 'devkey-alias'
+              apksignerKeyPassword: '$(keystores-password)'
+              apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev/release/$(apkName).dev.release.apk
+              zipalign: true
 
-          # - task: CopyFiles@2
-          #   inputs:
-          #     SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev'
-          #     Contents: '**/*.release.apk'
-          #     TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev'
+              Contents: '**/*.release.apk'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/android/outputs'
 
-          # - task: PublishBuildArtifacts@1
-          #   inputs:
-          #     pathToPublish: '$(Build.ArtifactStagingDirectory)'
-          #     artifactName: apks
-          #     publishLocation: 'container'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: apks
+              publishLocation: 'container'
 
       - job: 'FixitMobileApp_IOS_Dev_Build'
         pool:
