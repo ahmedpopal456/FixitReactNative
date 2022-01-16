@@ -109,7 +109,7 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Dev_Build'
         pool:
-          vmImage: 'macOS-latest'
+          vmImage: 'macOS-11'
         condition: succeeded()
         steps:
           - task: Npm@1
@@ -146,7 +146,7 @@ stages:
           - task: Xcode@5
             displayName: 'Xcode Build'
             inputs:
-              xcodeVersion: 12
+              xcodeVersion: 13
               actions: 'clean build'
               configuration: 'Debug'
               sdk: 'iphoneos'
@@ -264,7 +264,7 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Stage_Build'
         pool:
-          vmImage: 'macOS-latest'
+          vmImage: 'macOS-11'
         condition: succeeded()
         steps:
           - task: CmdLine@2
@@ -363,7 +363,6 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Prod_Build'
         pool:
-          vmImage: 'macOS-latest'
         condition: succeeded()
         steps:
           - task: CmdLine@2
