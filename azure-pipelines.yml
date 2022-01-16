@@ -36,34 +36,6 @@ stages:
             inputs:
               command: 'install'
 
-          # Run Unit Tests
-          - task: Npm@1
-            displayName: 'Npm test'
-            inputs:
-              command: 'custom'
-              customCommand: 'run test'
-
-          - task: Npm@1
-            displayName: 'Npm run coverage'
-            inputs:
-              command: 'custom'
-              customCommand: 'run test:ci'
-
-          # Publish Test Results
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFiles: '**/junit.xml'
-              testResultsFormat: 'JUnit'
-              testRunTitle: 'Test Results'
-
-          - task: PublishCodeCoverageResults@1
-            inputs:
-              codeCoverageTool: 'Cobertura'
-              summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
-              reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
-
           # Npm Versioning
           - task: android-manifest-version@1
             displayName: 'Update Android version'
