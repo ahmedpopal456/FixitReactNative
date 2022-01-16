@@ -12,12 +12,13 @@ import {
 } from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, FixesService, ConfigFactory, StoreState, useSelector, FixesModel } from 'fixit-common-data-store';
+import { store, FixesService, StoreState, useSelector, FixesModel } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { useNavigation } from '@react-navigation/native';
 import NavigationEnum from '../../../common/enums/navigationEnum';
+import config from '../../../core/config/appConfig';
 
-const fixesService = new FixesService(new ConfigFactory(), store);
+const fixesService = new FixesService(config, store);
 
 // TODO: Remove when fixed:
 //       ScrollView + FlatList = Nested VirtualizedList
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   statusBar: {
-    flex: 0.2,
+    flex: 0.1,
     height: '100%',
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
@@ -141,7 +142,7 @@ const FixesScreen: FunctionComponent<any> = () => {
     const getStatusColor = (status: number) => {
       switch (status) {
         case 0: // new
-          return { backgroundColor: colors.dark };
+          return { backgroundColor: colors.yellow };
         case 1: // pending
           return { backgroundColor: colors.notification };
         case 2: // in progress
@@ -178,14 +179,24 @@ const FixesScreen: FunctionComponent<any> = () => {
         }}
         style={styles.fixContainer}>
         <View style={[styles.statusBar, getStatusColor(item.status)]}></View>
-        <View style={{ width: 200, paddingVertical: 5 }}>
-          <Text>
-            {item.assignedToCraftsman == null
-              ? 'Not assigned'
-              : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`}
-          </Text>
+        <View style={{ flex: 0.9, padding: 10 }}>
+          {user.role === 0 ? (
+            item.assignedToCraftsman ? (
+              <Text>{`${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`}</Text>
+            ) : (
+              <></>
+            )
+          ) : item.createdByClient ? (
+            <Text>{`${item.createdByClient.firstName} ${item.assignedToCraftsman.lastName}`}</Text>
+          ) : (
+            <></>
+          )}
           <Text style={{ fontWeight: 'bold' }}>{item.details.name}</Text>
-          <Text style={{ color: '#8B8B8B' }}>{item.details.category}</Text>
+          <Text style={{ color: '#7B7B7B' }}>{item.details.category}</Text>
+          <Text style={{ color: '#BBBBBB' }}>
+            {`${user.role === 0 ? 'Request sent on' : 'Request received on'}`}:{' '}
+            {new Date(item.createdTimestampUtc * 1000).toLocaleDateString().split('T')[0]}
+          </Text>
         </View>
         <View style={styles.arrow}>
           <Icon library="AntDesign" name="arrowright" color="accent" />
@@ -281,7 +292,7 @@ const FixesScreen: FunctionComponent<any> = () => {
           : renderFixesForFixType({
               fixTitle: 'Terminated by client',
               fixSubtitle: 'Abandoned Fixes.',
-              fixData: terminatedByCraftsmanFixes.fixes,
+              fixData: terminatedByClientFixes.fixes,
               setShowFix: setShowTerminated,
               shouldShowFix: showTerminated,
             })}
@@ -366,7 +377,9 @@ const FixesScreen: FunctionComponent<any> = () => {
               ) : (
                 <FlatList
                   nestedScrollEnabled={true}
-                  data={newFixes.fixes}
+                  data={newFixes.fixes
+                    .slice()
+                    .sort((fixA, fixB) => fixA?.createdTimestampUtc - fixB?.createdTimestampUtc)}
                   renderItem={renderItem}
                   keyExtractor={(item: FixesModel) => item.id}
                 />

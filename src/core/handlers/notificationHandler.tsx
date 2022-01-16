@@ -12,7 +12,7 @@ import Logger from '../../logger';
 export default class NotificationHandler {
   private static instance: NotificationHandler;
 
-  private notificationService = new NotificationService(config.notificationApiUrl);
+  private notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
 
   constructor() {
     this.onBackgroundNotificationOpened();

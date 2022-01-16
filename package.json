@@ -34,7 +34,7 @@
     "base-64": "^1.0.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
-    "fixit-common-data-store": "1.0.144-alpha",
+    "fixit-common-data-store": "1.0.149-alpha",
     "fixit-common-ui": "^1.0.4-alpha",
     "i18next": "^20.3.2",
     "jwt-decode": "^3.1.2",

@@ -114,8 +114,8 @@ Header.defaultProps = {
   userRatings: undefined,
   ratingCount: 0,
   notificationsBadgeCount: 0,
-  userFirstName: 'Joanna',
-  userLastName: 'Lin',
+  userFirstName: '',
+  userLastName: '',
   userAddress: {
     id: '',
     isCurrentAddress: false,

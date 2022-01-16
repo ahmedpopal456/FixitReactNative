@@ -57,9 +57,6 @@ const styles = StyleSheet.create({
 export interface NotificationsScreenWithNavigationProps extends PropsWithChildren<any> {
   navigation: NavigationProp<ParamListBase, string>;
 }
-const we = (s: Function) => {
-  s();
-};
 
 const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
   const notifications = useSelector((storeState: StoreState) => storeState.persist.notifications);

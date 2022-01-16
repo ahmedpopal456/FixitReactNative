@@ -1,13 +1,14 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, ScrollView, RefreshControl, SafeAreaView, TextInput } from 'react-native';
-import { ConfigFactory, store, StoreState, UserService, useSelector, UserAddressModel } from 'fixit-common-data-store';
+import { store, StoreState, UserService, useSelector, UserAddressModel } from 'fixit-common-data-store';
 import { Button, colors, Icon } from 'fixit-common-ui';
 import Toast from 'react-native-toast-message';
 import MapView from 'react-native-maps';
 import { AddressEditionScreenProps } from './addressEditionScreenProps';
+import config from '../../core/config/appConfig';
 
-const userService = new UserService(new ConfigFactory(), store);
+const userService = new UserService(config, store);
 const mapsStyles = StyleSheet.create({
   map: {
     position: 'absolute',
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
 });
 
 // TODO: Move parts of this screen to components
-function AddressEditionScreen({ route }): JSX.Element {
+function AddressEditionScreen({ route }: { route: any }): JSX.Element {
   const user = useSelector((storeState: StoreState) => storeState.user);
   const props = route.params as AddressEditionScreenProps;
 

@@ -15,7 +15,6 @@ import {
 import {
   AddressQueryItemModel,
   AddressService,
-  ConfigFactory,
   store,
   StoreState,
   UserAddressModel,
@@ -27,9 +26,10 @@ import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import { Divider } from 'react-native-elements';
 import { AddressSelectorScreenProps } from './addressSelectorScreenProps';
+import config from '../../core/config/appConfig';
 
-const addressService = new AddressService(new ConfigFactory(), store);
-const userService = new UserService(new ConfigFactory(), store);
+const addressService = new AddressService(config, store);
+const userService = new UserService(config, store);
 const styles = StyleSheet.create({
   title: {
     fontSize: 20,

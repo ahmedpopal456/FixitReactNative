@@ -2,28 +2,22 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Text, TouchableOpacity, View, Image, ScrollView } from 'react-native';
 import { Button, colors, H1, H2, Icon, Spacer } from 'fixit-common-ui';
-import {
-  FixRequestModel,
-  store,
-  StoreState,
-  useSelector,
-  persistentActions,
-  FixesModel,
-} from 'fixit-common-data-store';
-import axios from 'axios';
+import { store, StoreState, useSelector, persistentActions, FixesModel } from 'fixit-common-data-store';
 import { useNavigation } from '@react-navigation/native';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import StyledContentWrapper from '../../../components/styledElements/styledContentWrapper';
 import FadeInAnimator from '../../../common/animators/fadeInAnimator';
 import backArrowIcon from '../../../common/assets/back-icon.png';
 import { NavigationProps } from '../../../common/types/navigationProps';
+import NotificationService from '../../../core/services/notification/notificationService';
+import config from '../../../core/config/appConfig';
 
 export type FixSuggestChangesReviewProps = {
   fix: FixesModel;
-  fixRequestObj: FixRequestModel;
   cost: string;
   comments: string;
 };
+const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
 
 const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChangesReviewProps>> = (
   props: NavigationProps<FixSuggestChangesReviewProps>,
@@ -34,7 +28,7 @@ const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChang
   const { notifications, unseenNotificationsNumber } = useSelector((storeState: StoreState) => storeState.persist);
 
   const handleContinue = async (): Promise<void> => {
-    const body = {
+    const notificationBody = {
       message: 'Knock Knock',
       payload: {
         ...fix,
@@ -49,7 +43,7 @@ const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChang
         },
         schedule: fix.schedule,
       },
-      action: 'FixCraftSmanResponse',
+      action: 'FixCraftsmanResponse',
       recipients: [
         {
           id: fix.createdByClient.id,
@@ -60,20 +54,25 @@ const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChang
       Silent: false,
     };
 
-    await axios.post('https://fixit-dev-nms-api.azurewebsites.net/api/Notifications', body);
+    try {
+      await notificationService.enqueue(notificationBody);
 
-    const notificationsToSet = notifications.filter((notification) => {
-      if (notification?.fix.id !== fix.id) {
-        return notification;
+      const notificationsToSet = notifications.filter((notification) => {
+        if (notification?.fix.id !== fix.id) {
+          return notification;
+        }
+        return null;
+      });
+
+      let unseenNotificationsNumberUpdated = unseenNotificationsNumber;
+      if (unseenNotificationsNumber > notificationsToSet.length) {
+        unseenNotificationsNumberUpdated = notificationsToSet.length;
       }
-      return null;
-    });
-    let unseenNotificationsNumberUpdated = unseenNotificationsNumber;
-    if (unseenNotificationsNumber > notificationsToSet.length) {
-      unseenNotificationsNumberUpdated = notificationsToSet.length;
+      store.dispatch(persistentActions.default.setNotifications(notificationsToSet, unseenNotificationsNumberUpdated));
+      navigation.navigate('HomeScreen');
+    } catch (e) {
+      console.error(e);
     }
-    store.dispatch(persistentActions.default.setNotifications(notificationsToSet, unseenNotificationsNumberUpdated));
-    navigation.navigate('HomeScreen');
   };
 
   return (
@@ -120,7 +119,7 @@ const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChang
       <StyledPageWrapper>
         <ScrollView>
           <StyledContentWrapper>
-            <H2>Fix Plan Timeline</H2>
+            <H2>Timeline</H2>
             <View
               style={{
                 height: 50,
@@ -135,13 +134,14 @@ const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChang
                   fontSize: 18,
                 }}>
                 {new Date(fix.schedule[0].startTimestampUtc * 1000).toLocaleDateString('en-US', {
+                  year: 'numeric',
                   month: 'long',
                   day: 'numeric',
                 })}
                 {fix.schedule[0].startTimestampUtc !== fix.schedule[fix.schedule.length - 1].endTimestampUtc
                   ? ` - ${new Date(fix.schedule[fix.schedule.length - 1].endTimestampUtc * 1000).toLocaleDateString(
                       'en-US',
-                      { month: 'long', day: 'numeric' },
+                      { year: 'numeric', month: 'long', day: 'numeric' },
                     )}`
                   : null}
               </Text>
@@ -157,7 +157,7 @@ const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChang
               }}
             />
             <Spacer height={'40px'} />
-            <H2>Fix Cost</H2>
+            <H2>Fix estimated cost</H2>
             <View
               style={{
                 height: 50,
