@@ -11,9 +11,8 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		662926DF2793672B0019B98F /* Raleway.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 662926DE2793672B0019B98F /* Raleway.ttf */; };
-		662926E5279367C50019B98F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 662926E4279367C50019B98F /* fonts */; };
 		662926F62793B1680019B98F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 662926F52793B1680019B98F /* GoogleService-Info.plist */; };
+		662926FC2793D0840019B98F /* Raleway.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 662926FA2793D0500019B98F /* Raleway.ttf */; };
 		6636C728278D5AC000B83E35 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
 		66E1F6A6278D3D2B0064336A /* (null) in Resources */ = {isa = PBXBuildFile; };
 		7C9D096E36CCC1DF3AA66B6B /* libPods-FixitReactNative-FixitReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5493FDBE11E3EDFF95B8D87A /* libPods-FixitReactNative-FixitReactNativeTests.a */; };
@@ -60,9 +59,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = FixitReactNative/main.m; sourceTree = "<group>"; };
 		4C29C1EF9753567942CF205D /* Pods-FixitReactNative-FixitReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FixitReactNative-FixitReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-FixitReactNative-FixitReactNativeTests/Pods-FixitReactNative-FixitReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
 		5493FDBE11E3EDFF95B8D87A /* libPods-FixitReactNative-FixitReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FixitReactNative-FixitReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		662926DE2793672B0019B98F /* Raleway.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Raleway.ttf; path = FixitReactNative/resources/fonts/Raleway.ttf; sourceTree = "<group>"; };
-		662926E4279367C50019B98F /* fonts */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = fonts; path = FixitReactNative/resources/fonts; sourceTree = SOURCE_ROOT; };
 		662926F52793B1680019B98F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "FixitReactNative/GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		662926FA2793D0500019B98F /* Raleway.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Raleway.ttf; path = FixitReactNative/resources/Raleway.ttf; sourceTree = SOURCE_ROOT; };
 		72A736F4251093FEF62C617E /* Pods-FixitReactNative-FixitReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FixitReactNative-FixitReactNativeTests.debug.xcconfig"; path = "Target Support Files/Pods-FixitReactNative-FixitReactNativeTests/Pods-FixitReactNative-FixitReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = FixitReactNative/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C06249FA9E526AF85BD96431 /* Pods-FixitReactNative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FixitReactNative.release.xcconfig"; path = "Target Support Files/Pods-FixitReactNative/Pods-FixitReactNative.release.xcconfig"; sourceTree = "<group>"; };
@@ -113,7 +111,6 @@
 		13B07FAE1A68108700A75B9A /* FixitReactNative */ = {
 			isa = PBXGroup;
 			children = (
-				662926E1279367840019B98F /* fonts */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -138,16 +135,9 @@
 		4692B206C6234A318F0FD6E7 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				662926FA2793D0500019B98F /* Raleway.ttf */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
-		};
-		662926E1279367840019B98F /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				662926E4279367C50019B98F /* fonts */,
-			);
-			path = fonts;
 			sourceTree = "<group>";
 		};
 		662926F42793B0E00019B98F /* Runner */ = {
@@ -168,7 +158,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				662926DE2793672B0019B98F /* Raleway.ttf */,
 				DA81F01F2557D91C00643821 /* Fonts */,
 				13B07FAE1A68108700A75B9A /* FixitReactNative */,
 				662926F42793B0E00019B98F /* Runner */,
@@ -303,9 +292,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				662926DF2793672B0019B98F /* Raleway.ttf in Resources */,
+				662926FC2793D0840019B98F /* Raleway.ttf in Resources */,
 				DA81F0202557D91C00643821 /* Fonts in Resources */,
-				662926E5279367C50019B98F /* fonts in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				66E1F6A6278D3D2B0064336A /* (null) in Resources */,
