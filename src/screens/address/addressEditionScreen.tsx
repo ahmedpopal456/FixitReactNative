@@ -1,19 +1,8 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
-import {
-  Text, StyleSheet, View, ScrollView, RefreshControl, SafeAreaView, TextInput,
-} from 'react-native';
-import {
-  ConfigFactory,
-  store,
-  StoreState,
-  UserService,
-  useSelector,
-  UserAddressModel,
-} from 'fixit-common-data-store';
-import {
-  Button, colors, Icon,
-} from 'fixit-common-ui';
+import { Text, StyleSheet, View, ScrollView, RefreshControl, SafeAreaView, TextInput } from 'react-native';
+import { ConfigFactory, store, StoreState, UserService, useSelector, UserAddressModel } from 'fixit-common-data-store';
+import { Button, colors, Icon } from 'fixit-common-ui';
 import Toast from 'react-native-toast-message';
 import MapView from 'react-native-maps';
 import { AddressEditionScreenProps } from './addressEditionScreenProps';
@@ -80,6 +69,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
+    height: 50,
     marginLeft: 10,
     textAlign: 'left',
     color: colors.dark,
@@ -87,7 +77,6 @@ const styles = StyleSheet.create({
   addressDetails: {
     borderTopColor: '#EEEEEE',
     borderTopWidth: 1,
-    flexBasis: '35%',
     flexShrink: 1,
     backgroundColor: 'white',
     padding: 15,
@@ -101,7 +90,7 @@ const styles = StyleSheet.create({
 });
 
 // TODO: Move parts of this screen to components
-function AddressEditionScreen({ route }) : JSX.Element {
+function AddressEditionScreen({ route }): JSX.Element {
   const user = useSelector((storeState: StoreState) => storeState.user);
   const props = route.params as AddressEditionScreenProps;
 
@@ -117,10 +106,12 @@ function AddressEditionScreen({ route }) : JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Button onPress={() => {
-          props.navigation.goBack();
-        }} color='accent'>
-          <Icon library='AntDesign' name='back' />
+        <Button
+          onPress={() => {
+            props.navigation.goBack();
+          }}
+          color="accent">
+          <Icon library="AntDesign" name="back" />
         </Button>
         <Text style={styles.title}>Address Details</Text>
       </View>
@@ -137,12 +128,7 @@ function AddressEditionScreen({ route }) : JSX.Element {
       </View>
       <View style={styles.addressDetails}>
         <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshState}
-              onRefresh={onRefresh}
-              colors={[colors.orange]}/>
-          }
+          refreshControl={<RefreshControl refreshing={refreshState} onRefresh={onRefresh} colors={[colors.orange]} />}
           showsVerticalScrollIndicator={true}>
           <Text style={{ fontSize: 20, color: 'black' }}>{props.address.address.formattedAddress}</Text>
           <View style={styles.searchSection}>
@@ -165,40 +151,39 @@ function AddressEditionScreen({ route }) : JSX.Element {
             />
           </View>
           <Text style={{ fontSize: 12, color: 'grey' }}>Address Label</Text>
-          {props.IsEdit
-            ? <Button
+          {props.IsEdit ? (
+            <Button
               onPress={async () => {
                 await userService.removeUserAddresses(user.userId as string, props.address.id);
                 props.navigation.pop();
               }}
-              color='red'
+              color="red"
               style={{ width: '100%', marginTop: 30 }}>
               <Text style={{ fontSize: 18, color: colors.dark }}>Remove Address</Text>
-            </Button> : <></>}
+            </Button>
+          ) : (
+            <></>
+          )}
         </ScrollView>
       </View>
       <View style={styles.footer}>
         <Button
           onPress={async () => {
-            const createdUserAddress : UserAddressModel = await userService.addUserAddresses(user.userId as string, {
+            const createdUserAddress: UserAddressModel = await userService.addUserAddresses(user.userId as string, {
               address: props.address.address,
               aptSuiteFloor,
               label,
               isCurrentAddress: false,
             });
 
-            await userService.updateUserAddresses(
-              user.userId as string,
-              createdUserAddress.id,
-              {
-                ...createdUserAddress,
-                isCurrentAddress: true,
-              },
-            );
+            await userService.updateUserAddresses(user.userId as string, createdUserAddress.id, {
+              ...createdUserAddress,
+              isCurrentAddress: true,
+            });
             // TODO: Find a better way to go back two screens
             props.navigation.pop(2);
           }}
-          color='dark'
+          color="dark"
           style={{ width: '90%' }}>
           <Text style={{ fontSize: 18, color: colors.accent }}>Save and continue</Text>
         </Button>
