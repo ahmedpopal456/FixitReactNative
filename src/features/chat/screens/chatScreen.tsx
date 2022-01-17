@@ -15,10 +15,6 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: colors.accent,
   },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   bodyContainer: {
     flex: 1,
     backgroundColor: colors.white,

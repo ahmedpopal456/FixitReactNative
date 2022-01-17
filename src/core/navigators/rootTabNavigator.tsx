@@ -29,8 +29,8 @@ const RootTabNavigator: FunctionComponent = () => {
     inactiveTintColor: colors.primary,
     keyboardHidesTabBar: true,
     style: {
-      paddingBottom: 10,
-      height: 75,
+      paddingBottom: 30,
+      height: 100,
     },
   };
   const home = {

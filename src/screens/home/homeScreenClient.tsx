@@ -30,7 +30,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: '#EEEEEE',
     marginTop: 10,
-    elevation: 10,
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.2
   },
   tagsContainer: {
     marginRight: 10,
@@ -64,12 +65,6 @@ const styles = StyleSheet.create({
   headers: {
     marginLeft: 15,
     marginTop: 15,
-  },
-  footer: {
-    backgroundColor: '#EEEEEE',
-    height: 300,
-    marginTop: -30,
-    paddingTop: 60,
   },
 });
 
@@ -260,7 +255,6 @@ const HomeScreenClient: FunctionComponent = () => {
               )}
             </View>
           </View>
-          <View style={styles.footer}></View>
         </View>
       </View>
       <Toast ref={(ref) => Toast.setRef(ref)} />
