@@ -306,7 +306,7 @@ PODS:
     - React-cxxreact (= 0.63.3)
     - React-jsi (= 0.63.3)
   - React-jsinspector (0.63.3)
-  - react-native-maps (0.30.0):
+  - react-native-maps (0.30.1):
     - React-Core
   - react-native-msal (4.0.4):
     - MSAL
@@ -616,7 +616,7 @@ SPEC CHECKSUMS:
   React-jsi: df07aa95b39c5be3e41199921509bfa929ed2b9d
   React-jsiexecutor: b56c03e61c0dd5f5801255f2160a815f4a53d451
   React-jsinspector: 8e68ffbfe23880d3ee9bafa8be2777f60b25cbe2
-  react-native-maps: 96b2ccec1d0c01b1c63eb2186cb668a12cf07515
+  react-native-maps: d752b0dd0e1951d815b1336332835aab6b4a836f
   react-native-msal: 86c1cbbb0fa78b18af95dc54cbc620d3e4ba74e6
   react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
@@ -644,6 +644,6 @@ SPEC CHECKSUMS:
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 3f393d08bd39b55d5dd67066bdba76bf2d94a15d
+PODFILE CHECKSUM: 11d76d70721fdc61d2ed7fef7f21d11a3440fcc9
 
 COCOAPODS: 1.11.2
