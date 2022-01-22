@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+import axios from 'axios';
 import { DeviceInstallationUpsertRequest } from '../../../common/models/notifications/DeviceInstallationUpsertRequest';
 
 export default class NotificationService {
@@ -27,7 +28,7 @@ export default class NotificationService {
   installDevice(deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest): Promise<Response> {
     const route = `${this.baseUrl}/Installations`;
 
-    return fetch(route, {
+    return axios.put(route, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',
