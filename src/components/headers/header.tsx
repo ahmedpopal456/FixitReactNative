@@ -8,7 +8,7 @@ import ViewWrapper from './style';
 
 const styles = StyleSheet.create({
   searchSection: {
-    width: '70%',
+    width: '75%',
     marginTop: 25,
     marginLeft: 10,
     borderRadius: 25,
@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
+    flexShrink: 1,
     textAlign: 'left',
     color: colors.dark,
   },
@@ -40,14 +41,13 @@ const styles = StyleSheet.create({
 const Header: FunctionComponent<HeaderProps> = (props) => {
   const render = (): JSX.Element => (
     <ViewWrapper {...props}>
-      <View style={styles.searchSection}>
+      <View style={styles.searchSection} onTouchEnd={() => props.navigation.navigate('AddressSelector')}>
         <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20} />
         <TextInput
           style={styles.input}
           defaultValue={props.userAddress?.address?.formattedAddress}
           allowFontScaling={true}
           maxLength={30}
-          onTouchEnd={() => props.navigation.navigate('AddressSelector')}
         />
       </View>
       {props.notificationsBadgeCount !== undefined ? (
@@ -114,8 +114,8 @@ Header.defaultProps = {
   userRatings: undefined,
   ratingCount: 0,
   notificationsBadgeCount: 0,
-  userFirstName: 'Joanna',
-  userLastName: 'Lin',
+  userFirstName: '',
+  userLastName: '',
   userAddress: {
     id: '',
     isCurrentAddress: false,

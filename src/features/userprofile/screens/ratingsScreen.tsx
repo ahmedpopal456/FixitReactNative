@@ -1,17 +1,20 @@
-import React, { FunctionComponent } from 'react';
-import { Text, View, StyleSheet, Dimensions, FlatList, TouchableOpacity } from 'react-native';
-import { Button, Icon } from 'fixit-common-ui';
+import React, { FunctionComponent, useState } from 'react';
+import { Text, View, StyleSheet, Dimensions, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { Button, colors, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, RatingsService, ConfigFactory, StoreState, useSelector } from 'fixit-common-data-store';
+import { store, RatingsService, StoreState, useSelector } from 'fixit-common-data-store';
 import { Rating } from 'react-native-ratings';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';
+import config from '../../../core/config/appConfig';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const ratingsService = new RatingsService(new ConfigFactory(), store);
+const ratingsService = new RatingsService(config, store);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 30,
     height: Dimensions.get('window').height - 95,
     width: '100%',
     backgroundColor: '#FFD14A',
@@ -23,15 +26,14 @@ const styles = StyleSheet.create({
   },
   bodyContainer: {
     flex: 1,
-    padding: 10,
+    flexGrow: 1,
     backgroundColor: 'white',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
   title: {
     fontSize: 20,
+    alignSelf: 'center',
   },
   infoContainer: {
     padding: 10,
@@ -61,14 +63,21 @@ const styles = StyleSheet.create({
 const RatingsScreen: FunctionComponent<any> = (props) => {
   const user = useSelector((storeState: StoreState) => storeState.user);
   const ratings = useSelector((storeState: StoreState) => storeState.ratings);
+  const [refreshState, setRefreshState] = useState<boolean>(false);
 
   useAsyncEffect(async () => {
+    onRefresh();
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshState(true);
     try {
       await ratingsService.getUserRatingsAverage(user.userId as string);
     } catch (e) {
       console.log(e);
     }
-  }, []);
+    setRefreshState(false);
+  };
 
   const renderItem = ({ item }: any): JSX.Element => (
     <TouchableOpacity
@@ -109,14 +118,18 @@ const RatingsScreen: FunctionComponent<any> = (props) => {
   );
 
   const render = () => (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.topContainer}>
+    <View style={styles.container}>
+      <View style={{ flexDirection: 'row' }}>
         <Button onPress={() => props.navigation.goBack()} color="transparent">
           <Icon library="AntDesign" name="back" size={30} />
         </Button>
         <Text style={styles.title}>Ratings</Text>
       </View>
-      <View style={styles.bodyContainer}>
+      <ScrollView
+        style={styles.bodyContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+        }>
         {ratings?.ratings && ratings?.ratings.length > 0 ? (
           <FlatList
             style={{ width: '100%' }}
@@ -125,8 +138,8 @@ const RatingsScreen: FunctionComponent<any> = (props) => {
             keyExtractor={(item: any) => item.id}
           />
         ) : null}
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+    </View>
   );
 
   return render();

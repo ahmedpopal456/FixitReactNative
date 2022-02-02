@@ -25,7 +25,7 @@ class NotificationRenderer extends React.Component<any> {
 }
 
 const mapStateToProps = (state: StoreState) => ({
-  messages: state.remoteMessages.messages,
+  messages: state.remoteMessages?.messages,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

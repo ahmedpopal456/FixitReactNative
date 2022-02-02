@@ -1,31 +1,30 @@
+import { isDate } from '@microsoft/applicationinsights-core-js';
 import { Schedule } from 'fixit-common-data-store';
 import { colors, Icon } from 'fixit-common-ui';
 import React, { FunctionComponent, useState, useEffect } from 'react';
 
-import {
-  Text, View, TouchableOpacity,
-} from 'react-native';
+import { Text, View, TouchableOpacity } from 'react-native';
 
 interface Item {
-  label: string,
-  type: string,
-  date: Date,
+  label: string;
+  type: string;
+  date: Date;
 }
 
 interface RowColumn {
-  label: string,
-  type: string,
-  date: Date,
+  label: string;
+  type: string;
+  date: Date;
 }
 type Matrix = Array<Array<RowColumn>>;
 
 interface Props {
-  parentSchedules: Array<Schedule>,
-  parentSetSchedules?: React.Dispatch<React.SetStateAction<Schedule[]>>,
-  canUpdate?:boolean
+  parentSchedules: Array<Schedule>;
+  parentSetSchedules?: React.Dispatch<React.SetStateAction<Schedule[]>>;
+  canUpdate?: boolean;
 }
 
-const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedules, canUpdate }:Props): JSX.Element => {
+const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedules, canUpdate }: Props): JSX.Element => {
   const [schedules, setSchedules] = useState(parentSchedules);
   const [activeDate, setActiveDate] = useState<Date>(new Date());
   const [startDate, setStartDate] = useState<number>();
@@ -46,9 +45,20 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
     }
   }, [parentSchedules]);
 
-  const months = ['January', 'February', 'March', 'April',
-    'May', 'June', 'July', 'August', 'September', 'October',
-    'November', 'December'];
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   const weekDays = [
     {
@@ -90,7 +100,7 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
 
   const numberOfDaysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-  const generateMatrix = () : Matrix => {
+  const generateMatrix = (): Matrix => {
     const matrix = [];
     // Create header
     matrix[0] = weekDays;
@@ -99,8 +109,8 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
     const month = activeDate.getMonth();
     const firstDay = new Date(year, month, 1).getDay();
 
-    const prevMonth = (month === 0) ? 11 : month - 1;
-    const nextMonth = (month === 11) ? 0 : month + 1;
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const nextMonth = month === 11 ? 0 : month + 1;
     let prevMonthYear = year;
     let nextMonthYear = year;
     if (month === 0) {
@@ -149,8 +159,14 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
     return matrix;
   };
 
-  const updateStates = (schedule: Schedule, updateSchedules:Array<Schedule>, updateStartDates: Array<number>,
-    updateEndDates: Array<number>, index: number, removeStartTime = false) => {
+  const updateStates = (
+    schedule: Schedule,
+    updateSchedules: Array<Schedule>,
+    updateStartDates: Array<number>,
+    updateEndDates: Array<number>,
+    index: number,
+    removeStartTime = false,
+  ) => {
     if (startDate && removeStartTime) {
       const toRemove = updateStartDates.indexOf(startDate);
       if (toRemove > -1) {
@@ -176,9 +192,9 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
     }
   };
 
-  const onPress = (item: Item) : void => {
+  const onPress = (item: Item): void => {
     if (item.type === 'normal') {
-      const utcTimestamp = Math.floor((item.date).getTime() / 1000);
+      const utcTimestamp = Math.floor(item.date.getTime() / 1000);
       const updateSchedules = [...schedules];
       const updateStartDates = [...startDates];
       const updateEndDates = [...endDates];
@@ -193,8 +209,12 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
           setStartDate(undefined);
         }
         // if chosen time overlaps another range
-        if (schedule && startDate
-          && schedule.startTimestampUtc > startDate && schedule.endTimestampUtc < utcTimestamp) {
+        if (
+          schedule &&
+          startDate &&
+          schedule.startTimestampUtc > startDate &&
+          schedule.endTimestampUtc < utcTimestamp
+        ) {
           isNotOverLapping = false;
           updateStates(schedule, updateSchedules, updateStartDates, updateEndDates, index);
 
@@ -222,17 +242,27 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
     }
   };
 
-  const changeMonth = (goTo : number) : void => {
+  const changeMonth = (goTo: number): void => {
     activeDate.setMonth(activeDate.getMonth() + goTo);
     setActiveDate(new Date(activeDate));
   };
 
-  const dateIsHighlighted = (item : Item) : boolean => {
+  const isNameOfWeekDays = (item: Item) => ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].includes(item.label);
+
+  const dateIsHighlighted = (item: Item): boolean => {
+    if (isNameOfWeekDays(item)) return false;
     let isHighlighted = false;
     if (item.type !== 'header') {
-      const utcTimestamp = Math.floor((item.date).getTime() / 1000);
+      const isoDateSplit = item.date.toISOString().split('T')[0];
+      const utcTimestamp = Math.floor(item.date.getTime() / 1000);
       schedules.forEach((schedule) => {
-        if (schedule && utcTimestamp >= schedule.startTimestampUtc && utcTimestamp <= schedule.endTimestampUtc) {
+        const isSDateFound = new Date(schedule.startTimestampUtc * 1000).toISOString().split('T')[0] === isoDateSplit;
+        const isEDateFound = new Date(schedule.endTimestampUtc * 1000).toISOString().split('T')[0] === isoDateSplit;
+        if (
+          schedule &&
+          (utcTimestamp >= schedule.startTimestampUtc || isSDateFound) &&
+          (utcTimestamp <= schedule.endTimestampUtc || isEDateFound)
+        ) {
           isHighlighted = true;
         }
       });
@@ -240,17 +270,27 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
     return isHighlighted;
   };
 
-  const dateIsStartDate = (item : Item) : boolean => {
-    const utcTimestamp = Math.floor((item.date).getTime() / 1000);
-    if (utcTimestamp && startDates.includes(utcTimestamp)) {
+  const dateIsStartDate = (item: Item): boolean => {
+    if (isNameOfWeekDays(item)) return false;
+    const utcTimestamp = Math.floor(item.date.getTime() / 1000);
+    const isFound = startDates.find(
+      (sDate) => new Date(sDate * 1000).toISOString().split('T')[0] === item.date.toISOString().split('T')[0],
+    );
+    const isStartDate = startDates.includes(utcTimestamp) || isFound;
+    if (utcTimestamp && isStartDate) {
       return true;
     }
     return false;
   };
 
-  const dateIsEndDate = (item : Item) : boolean => {
-    const utcTimestamp = Math.floor((item.date).getTime() / 1000);
-    if (utcTimestamp && endDates.includes(utcTimestamp)) {
+  const dateIsEndDate = (item: Item): boolean => {
+    if (isNameOfWeekDays(item)) return false;
+    const utcTimestamp = Math.floor(item.date.getTime() / 1000);
+    const isFound = endDates.find(
+      (eDate) => new Date(eDate * 1000).toISOString().split('T')[0] === item.date.toISOString().split('T')[0],
+    );
+    const isEndDate = endDates.includes(utcTimestamp) || isFound;
+    if (utcTimestamp && isEndDate) {
       return true;
     }
     return false;
@@ -259,39 +299,40 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
   const render = (): JSX.Element => {
     const matrix = generateMatrix();
     const rows = matrix.map((row, rowIndex) => {
-      const rowItems = row.map((item, colIndex) => (
-        <TouchableOpacity
-          key={`${rowIndex}_${colIndex}`}
-          style={{
-            flex: 1,
-            flexGrow: 1,
-            backgroundColor: (dateIsHighlighted(item)) ? 'rgba(255,209,74,0.17)' : 'transparent',
-            borderTopLeftRadius: (dateIsStartDate(item)) ? 100 : 0,
-            borderBottomLeftRadius: (dateIsStartDate(item)) ? 100 : 0,
-            borderTopRightRadius: (dateIsEndDate(item)) ? 100 : 0,
-            borderBottomRightRadius: (dateIsEndDate(item)) ? 100 : 0,
-          }}
-          onPress={() => canUpdate && onPress(item)}>
-          <Text style={{
-            textAlign: 'center',
-            height: 34,
-            paddingTop: 6,
-            paddingBottom: 8,
-            fontSize: rowIndex === 0 ? 12 : 15,
-            fontWeight: rowIndex === 0 ? '700' : '400',
-            color: (dateIsHighlighted(item)
-              || dateIsStartDate(item)
-              || dateIsEndDate(item)) ? colors.accent : '#fff',
-            opacity: item.type === 'overflow' ? 0.2 : 1,
-            borderStyle: 'solid',
-            borderWidth: (dateIsStartDate(item) || dateIsEndDate(item)) ? 2 : 0,
-            borderRadius: 100,
-            borderColor: colors.accent,
-          }}>
-            {item.label}
-          </Text>
-        </TouchableOpacity>
-      ));
+      const rowItems = row.map((item, colIndex) => {
+        return (
+          <TouchableOpacity
+            key={`${rowIndex}_${colIndex}`}
+            style={{
+              flex: 1,
+              flexGrow: 1,
+              backgroundColor: dateIsHighlighted(item) ? 'rgba(255,209,74,0.17)' : 'transparent',
+              borderTopLeftRadius: dateIsStartDate(item) ? 100 : 0,
+              borderBottomLeftRadius: dateIsStartDate(item) ? 100 : 0,
+              borderTopRightRadius: dateIsEndDate(item) ? 100 : 0,
+              borderBottomRightRadius: dateIsEndDate(item) ? 100 : 0,
+            }}
+            onPress={() => canUpdate && onPress(item)}>
+            <Text
+              style={{
+                textAlign: 'center',
+                height: 34,
+                paddingTop: 6,
+                paddingBottom: 8,
+                fontSize: rowIndex === 0 ? 12 : 15,
+                fontWeight: rowIndex === 0 ? '700' : '400',
+                color: dateIsHighlighted(item) || dateIsStartDate(item) || dateIsEndDate(item) ? colors.accent : '#fff',
+                opacity: item.type === 'overflow' ? 0.2 : 1,
+                borderStyle: 'solid',
+                borderWidth: dateIsStartDate(item) || dateIsEndDate(item) ? 2 : 0,
+                borderRadius: 100,
+                borderColor: colors.accent,
+              }}>
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      });
       return (
         <View
           key={rowIndex}
@@ -308,42 +349,43 @@ const Calendar: FunctionComponent<Props> = ({ parentSchedules, parentSetSchedule
     });
     return (
       <>
-        <View style={{
-          backgroundColor: colors.dark,
-          borderRadius: 8,
-          padding: 5,
-          paddingTop: 20,
-          paddingBottom: 10,
-        }}>
-          <View style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 10,
+        <View
+          style={{
+            backgroundColor: colors.dark,
+            borderRadius: 8,
+            padding: 5,
+            paddingTop: 20,
+            paddingBottom: 10,
           }}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 10,
+            }}>
             {/* Go back a month */}
-            <TouchableOpacity
-              onPress={() => changeMonth(-1)}>
+            <TouchableOpacity onPress={() => changeMonth(-1)}>
               <Icon library="FontAwesome5" name="chevron-left" color={'accent'} size={15} />
             </TouchableOpacity>
-            <Text style={{
-              color: '#fff',
-              fontSize: 20,
-              marginLeft: 15,
-              marginRight: 15,
-            }}>
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 20,
+                marginLeft: 15,
+                marginRight: 15,
+              }}>
               {/* Get current month */}
               {months[activeDate.getMonth()]} &nbsp;
               {activeDate.getFullYear()}
             </Text>
             {/* Go forward a month */}
-            <TouchableOpacity
-              onPress={() => changeMonth(+1)}>
+            <TouchableOpacity onPress={() => changeMonth(+1)}>
               <Icon library="FontAwesome5" name="chevron-right" color={'accent'} size={15} />
             </TouchableOpacity>
           </View>
-          { rows }
+          {rows}
         </View>
       </>
     );

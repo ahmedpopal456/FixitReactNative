@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useState } from 'react';
-import { Text, View, StyleSheet, Dimensions, RefreshControl, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { Button, colors, Icon } from 'fixit-common-ui';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StoreState, useSelector } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
@@ -12,13 +11,9 @@ import { ConversationModel } from '../models/chatModels';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: Dimensions.get('window').height - 95,
+    height: '100%',
     width: '100%',
     backgroundColor: colors.accent,
-  },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   bodyContainer: {
     flex: 1,
@@ -188,7 +183,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
   );
 
   const render = () => (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.bodyContainer}>
         <View style={styles.titleContainer}>
           <Button
@@ -226,7 +221,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
           {activeSelected ? renderActiveConversations() : renderMatchedConversations()}
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 
   return render();

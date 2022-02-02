@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
 const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
   const [state, setState] = useState<FixRequestImagesLocationStepState>(initialState);
   const user = useSelector((storeState: StoreState) => storeState.user);
+  const [scheduleTypeName, setScheduleTypeName] = useState<string>(scheduleTypes[0].name);
 
   useAsyncEffect(async () => {
     setState({
@@ -171,16 +172,8 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
               Request.
             </P>
             <Spacer height="20px" />
-            {/** Images */}
-            <View style={GlobalStyles.flexRow}>
-              <H2 style={FixRequestStyles.titleWithAction}>Images</H2>
-              <TouchableOpacity style={FixRequestStyles.titleActionWrapper}>
-                <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
-              </TouchableOpacity>
-            </View>
-            <Divider />
             {/** Location */}
-            <View>
+            <View style={{ paddingBottom: 10 }}>
               <H2
                 style={{
                   fontWeight: 'bold',
@@ -305,8 +298,11 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
                 Schedules
               </H2>
               <FixTemplatePicker
-                selectedValue={scheduleType}
-                onChange={(value: ScheduleType) => setScheduleType(value)}
+                selectedValue={scheduleTypeName}
+                onChange={(value: string) => {
+                  setScheduleTypeName(value);
+                  setScheduleType(scheduleTypes.find((schedule) => schedule.name === value) as ScheduleType);
+                }}
                 values={scheduleTypes}
               />
               {scheduleType && scheduleType.id === 'custom' ? (
@@ -324,6 +320,15 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
                 </View>
               ) : null}
             </View>
+            <Divider />
+            {/** Images */}
+            <View style={GlobalStyles.flexRow}>
+              <H2 style={FixRequestStyles.titleWithAction}>Images</H2>
+              <TouchableOpacity style={FixRequestStyles.titleActionWrapper}>
+                <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
+              </TouchableOpacity>
+            </View>
+            <Divider />
           </StyledContentWrapper>
         </ScrollView>
       </StyledPageWrapper>

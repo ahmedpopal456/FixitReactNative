@@ -5,11 +5,12 @@ import { View } from 'react-native';
 import { Category, Type, Unit } from 'fixit-common-data-store';
 import GlobalStyles from '../../../common/styles/globalStyles';
 
+type Value = Category | Type | Unit | any;
 interface Props {
   header?: string;
-  onChange(value: Category | Type | Unit | any): void;
-  selectedValue: any;
-  values: Array<any>;
+  onChange(value: string): void;
+  selectedValue: string;
+  values: Array<Value>;
 }
 
 const FixTemplatePicker = (props: Props): JSX.Element => (
@@ -24,8 +25,8 @@ const FixTemplatePicker = (props: Props): JSX.Element => (
           borderRadius: 15,
         }}>
         <Picker selectedValue={props.selectedValue} onValueChange={props.onChange}>
-          {props.values.map((value: any) => (
-            <Picker.Item key={value.id} label={value.name} value={value} />
+          {props.values.map((value: Value) => (
+            <Picker.Item key={value.id} label={value.name} value={value.name} />
           ))}
         </Picker>
       </View>

@@ -1,16 +1,16 @@
-import React, { useState, FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground, RefreshControl } from 'react-native';
+import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground } from 'react-native';
 import { colors, DonutChart, Tag } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   store,
   FixesService,
-  ConfigFactory,
   StoreState,
   RatingsService,
   useSelector,
   FixesModel,
+  Schedule,
 } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -21,9 +21,10 @@ import image from '../../common/assets/bedroom.jpg';
 import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
 import { TagModel } from 'fixit-common-data-store/src/slices/fixesSlice';
 import NavigationEnum from '../../common/enums/navigationEnum';
+import config from '../../core/config/appConfig';
 
-const fixesService = new FixesService(new ConfigFactory(), store);
-const ratingsService = new RatingsService(new ConfigFactory(), store);
+const fixesService = new FixesService(config, store);
+const ratingsService = new RatingsService(config, store);
 
 const styles = StyleSheet.create({
   background: {
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   fixContainerView: {
-    width: 200,
+    width: 300,
     paddingVertical: 5,
     margin: 7,
   },
@@ -167,46 +168,58 @@ const HomeScreenCraftsman: FunctionComponent = () => {
     </View>
   );
 
-  const renderFixRequestItems = ({ item }: Item): JSX.Element => (
-    <View key={item.id} style={styles.fixContainer}>
-      <View>
-        <ImageBackground
-          source={image}
-          imageStyle={{
-            borderTopLeftRadius: 10,
-            borderBottomLeftRadius: 10,
-          }}
-          style={{
-            width: 120,
-            height: 141,
-            justifyContent: 'flex-start',
-          }}
-        />
+  const renderFixRequestItems = ({ item }: Item): JSX.Element => {
+    let expectedDeliveryDate = 0;
+    if (item.schedule.length === 1 && item.schedule[0].startTimestampUtc === item.schedule[0].endTimestampUtc) {
+      expectedDeliveryDate = item.schedule[0].endTimestampUtc;
+    } else if (item.schedule.length >= 1) {
+      let tempExpectedDeliveryDate = 0;
+      item.schedule.forEach((s: Schedule) => {
+        if (s.endTimestampUtc > tempExpectedDeliveryDate) {
+          tempExpectedDeliveryDate = s.endTimestampUtc;
+        }
+      });
+      expectedDeliveryDate = tempExpectedDeliveryDate;
+    }
+
+    return (
+      <View key={item.id} style={styles.fixContainer}>
+        <View>
+          <ImageBackground
+            source={image}
+            imageStyle={{
+              borderTopLeftRadius: 10,
+              borderBottomLeftRadius: 10,
+            }}
+            style={{
+              width: 120,
+              height: 141,
+              justifyContent: 'flex-start',
+            }}
+          />
+        </View>
+        <View style={styles.fixContainerView}>
+          <Text style={styles.fixContainerFinePrints}>
+            {item.createdByClient.firstName} {item.createdByClient.lastName}
+          </Text>
+          <Text style={styles.fixContainerText}>{item.details.name}</Text>
+          <Text>{`Deadline: ${new Date(expectedDeliveryDate * 1000).toISOString().split('T')[0]}`}</Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate(NavigationEnum.FIX, {
+                fix: item,
+                title: 'Fix',
+                id: 'fixes_screen',
+              })
+            }>
+            <View style={styles.detail}>
+              <Text style={styles.fixContainerDetailsButton}>See Details</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.fixContainerView}>
-        <Text style={styles.fixContainerText}>{item.details.name}</Text>
-        <Text>
-          {item.schedule.length > 0 ? new Date(item.schedule[0].startTimestampUtc * 1000).toDateString() : ''}-{' '}
-          {item.schedule.length > 0 ? new Date(item.schedule[0].endTimestampUtc * 1000).toDateString() : ''}
-        </Text>
-        <Text style={styles.fixContainerFinePrints}>
-          {item.createdByClient.firstName} {item.createdByClient.lastName}
-        </Text>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate(NavigationEnum.FIX, {
-              fix: item,
-              title: 'Fix',
-              id: 'fixes_screen',
-            })
-          }>
-          <View style={styles.detail}>
-            <Text style={styles.fixContainerDetailsButton}>See Details</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   const render = (): JSX.Element => {
     const renderFixesFallback: boolean = pendingFixes.isLoading || inProgressFixes.isLoading;

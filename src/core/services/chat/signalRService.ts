@@ -47,7 +47,7 @@ export default class SignalRService {
 
   public initializeGetConnectionInfoListener(
     callbackFn: MessageCallbackType = this.callbackHook,
-    options?: SignalRConnectionOptions
+    options?: SignalRConnectionOptions,
   ): Promise<any> {
     return this.getConnectionInfo().then((connectionInfo: SignalRConnectionInfo) => {
       console.debug('SignalR connection info:', connectionInfo);
@@ -97,7 +97,7 @@ export default class SignalRService {
 
   private getConnectionInfo(): Promise<any> {
     return axios
-      .post(`${config.chatTriggerUrl}/chat/users/${this.userId}/negotiate`, null)
+      .post(`${config.rawConfig.chatTriggerUrl}/chat/users/${this.userId}/negotiate`, null)
       .then((response) => response.data)
       .catch((error) => console.error(error.response.data));
   }
@@ -128,7 +128,7 @@ export default class SignalRService {
 
   public async joinGroup(
     groupId: string = this.conversationId as string,
-    callbackFn: MessageCallbackType = this.callbackHook
+    callbackFn: MessageCallbackType = this.callbackHook,
   ): Promise<void> {
     this.conversationId = groupId;
     console.debug('Waiting to join group:', groupId);

@@ -36,34 +36,6 @@ stages:
             inputs:
               command: 'install'
 
-          # Run Unit Tests
-          - task: Npm@1
-            displayName: 'Npm test'
-            inputs:
-              command: 'custom'
-              customCommand: 'run test'
-
-          - task: Npm@1
-            displayName: 'Npm run coverage'
-            inputs:
-              command: 'custom'
-              customCommand: 'run test:ci'
-
-          # Publish Test Results
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFiles: '**/junit.xml'
-              testResultsFormat: 'JUnit'
-              testRunTitle: 'Test Results'
-
-          - task: PublishCodeCoverageResults@1
-            inputs:
-              codeCoverageTool: 'Cobertura'
-              summaryFileLocation: '$(Build.Repository.LocalPath)/coverage/cobertura-coverage.xml'
-              reportDirectory: '$(Build.Repository.LocalPath)/coverage/'
-
           # Npm Versioning
           - task: android-manifest-version@1
             displayName: 'Update Android version'
@@ -109,12 +81,68 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Dev_Build'
         pool:
-          vmImage: 'macOS-latest'
+          vmImage: 'macOS-11'
         condition: succeeded()
         steps:
-          - task: CmdLine@2
+          - task: Npm@1
+            displayName: 'Npm install'
             inputs:
-              script: echo IOS DEV BUILD
+              command: 'install'
+
+          # - task: ios-bundle-version@1
+          #   displayName: 'Update iOS version'
+          #   inputs:
+          #     sourcePath: '$(System.DefaultWorkingDirectory)/ios/FixitReactNative/info.plist'
+          #     versionCodeOption: 'buildid'
+          #     versionCode: '$(Build.BuildId)'
+          #     printFile: true
+
+          # - task: CocoaPods@0
+          #   inputs:
+          #     forceRepoUpdate: Yes
+          #     projectDirectory: '$(System.DefaultWorkingDirectory)/ios'
+          #     command: pod install
+
+          # - task: InstallAppleCertificate@2
+          #   displayName: 'Install Apple Certificate'
+          #   inputs:
+          #     certSecureFile: 'fixit_certificate.p12'
+          #     certPwd: '$(certPwd)'
+
+          # - task: InstallAppleProvisioningProfile@1
+          #   displayName: 'Install Apple Provisioning Profile'
+          #   inputs:
+          #     provisioningProfileLocation: 'secureFiles'
+          #     provProfileSecureFile: 'firebase_adhoc.mobileprovision'
+
+          # - task: Xcode@5
+          #   displayName: 'Xcode Build'
+          #   inputs:
+          #     xcodeVersion: 13
+          #     actions: 'clean build'
+          #     configuration: 'Release'
+          #     sdk: 'iphoneos'
+          #     xcWorkspacePath: '$(System.DefaultWorkingDirectory)/ios/FixitReactNative.xcworkspace'
+          #     scheme: 'FixitReactNative'
+          #     packageApp: true
+          #     exportPath: 'output/'
+          #     signingOption: 'manual'
+          #     signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
+          #     provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
+          #     destinationPlatformOption: 'iOS'
+          #     destinationSimulators: 'iPhone 11 Pro'
+
+          # - task: CopyFiles@2
+          #   displayName: 'Copy iOS Files To Staging Directory'
+          #   inputs:
+          #     Contents: '**/*.ipa'
+          #     TargetFolder: '$(Build.ArtifactStagingDirectory)/iOS'
+
+          # - task: PublishBuildArtifacts@1
+          #   inputs:
+          #     pathToPublish: '$(Build.ArtifactStagingDirectory)'
+          #     artifactName: apks
+          #     publishLocation: 'container'
 
   - stage: STAGE
     dependsOn: []
@@ -208,7 +236,7 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Stage_Build'
         pool:
-          vmImage: 'macOS-latest'
+          vmImage: 'macOS-11'
         condition: succeeded()
         steps:
           - task: CmdLine@2
@@ -307,7 +335,7 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Prod_Build'
         pool:
-          vmImage: 'macOS-latest'
+          vmImage: 'macOS-11'
         condition: succeeded()
         steps:
           - task: CmdLine@2

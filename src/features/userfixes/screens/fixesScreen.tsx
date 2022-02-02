@@ -1,23 +1,13 @@
 import React, { FunctionComponent, useState } from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  ScrollView,
-  FlatList,
-  LogBox,
-  RefreshControl,
-} from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, FlatList, LogBox, RefreshControl } from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, FixesService, ConfigFactory, StoreState, useSelector, FixesModel } from 'fixit-common-data-store';
+import { store, FixesService, StoreState, useSelector, FixesModel } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { useNavigation } from '@react-navigation/native';
 import NavigationEnum from '../../../common/enums/navigationEnum';
+import config from '../../../core/config/appConfig';
 
-const fixesService = new FixesService(new ConfigFactory(), store);
+const fixesService = new FixesService(config, store);
 
 // TODO: Remove when fixed:
 //       ScrollView + FlatList = Nested VirtualizedList
@@ -27,20 +17,17 @@ LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: Dimensions.get('window').height - 95,
-    width: '100%',
+    flexShrink: 1,
+    flexDirection: 'column',
+    overflow: 'scroll',
     backgroundColor: colors.accent,
-  },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   topCycleContainer: {
     flexDirection: 'row',
   },
   bodyContainer: {
     flex: 1,
-    flexGrow: 100,
+    flexGrow: 1,
     padding: 10,
     backgroundColor: colors.white,
     alignItems: 'center',
@@ -56,14 +43,13 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     paddingRight: 10,
     elevation: 3,
-    // Below is for iOS
-    shadowColor: '#000',
+    shadowColor: 'grey',
     shadowOffset: { width: 0, height: 100 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
   statusBar: {
-    flex: 0.2,
+    flex: 0.1,
     height: '100%',
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
@@ -145,7 +131,7 @@ const FixesScreen: FunctionComponent<any> = () => {
     const getStatusColor = (status: number) => {
       switch (status) {
         case 0: // new
-          return { backgroundColor: colors.dark };
+          return { backgroundColor: colors.yellow };
         case 1: // pending
           return { backgroundColor: colors.notification };
         case 2: // in progress
@@ -182,14 +168,24 @@ const FixesScreen: FunctionComponent<any> = () => {
         }}
         style={styles.fixContainer}>
         <View style={[styles.statusBar, getStatusColor(item.status)]}></View>
-        <View style={{ width: 200, paddingVertical: 5 }}>
-          <Text>
-            {item.assignedToCraftsman == null
-              ? 'Not assigned'
-              : `${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`}
-          </Text>
+        <View style={{ flex: 0.9, padding: 10 }}>
+          {user.role === 0 ? (
+            item.assignedToCraftsman ? (
+              <Text>{`${item.assignedToCraftsman.firstName} ${item.assignedToCraftsman.lastName}`}</Text>
+            ) : (
+              <></>
+            )
+          ) : item.createdByClient ? (
+            <Text>{`${item.createdByClient.firstName} ${item.assignedToCraftsman.lastName}`}</Text>
+          ) : (
+            <></>
+          )}
           <Text style={{ fontWeight: 'bold' }}>{item.details.name}</Text>
-          <Text style={{ color: '#8B8B8B' }}>{item.details.category}</Text>
+          <Text style={{ color: '#7B7B7B' }}>{item.details.category}</Text>
+          <Text style={{ color: '#BBBBBB' }}>
+            {`${user.role === 0 ? 'Request sent on' : 'Request received on'}`}:{' '}
+            {new Date(item.createdTimestampUtc * 1000).toLocaleDateString().split('T')[0]}
+          </Text>
         </View>
         <View style={styles.arrow}>
           <Icon library="AntDesign" name="arrowright" color="accent" />
@@ -229,7 +225,7 @@ const FixesScreen: FunctionComponent<any> = () => {
       </View>
     );
     return (
-      <ScrollView nestedScrollEnabled={true}>
+      <>
         {!pendingFixes || !pendingFixes.fixes.length
           ? null
           : renderFixesForFixType({
@@ -285,7 +281,7 @@ const FixesScreen: FunctionComponent<any> = () => {
           : renderFixesForFixType({
               fixTitle: 'Terminated by client',
               fixSubtitle: 'Abandoned Fixes.',
-              fixData: terminatedByCraftsmanFixes.fixes,
+              fixData: terminatedByClientFixes.fixes,
               setShowFix: setShowTerminated,
               shouldShowFix: showTerminated,
             })}
@@ -298,88 +294,97 @@ const FixesScreen: FunctionComponent<any> = () => {
               setShowFix: setShowTerminated,
               shouldShowFix: showTerminated,
             })}
-      </ScrollView>
+      </>
     );
   };
 
   const render = () => (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
-      }>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.topCycleContainer}>
-          <Button
-            testID="fixesBtn"
-            onPress={() => setFixSelected(true)}
-            width={100}
-            shape="circle"
-            padding={0}
-            outline={!fixSelected}>
-            <Text
-              style={{
-                fontSize: 20,
-                color: fixSelected ? colors.accent : colors.dark,
-              }}>
-              Fixes
-            </Text>
-          </Button>
-          <Button
-            testID="fixRequestsBtn"
-            onPress={() => setFixSelected(false)}
-            width={150}
-            shape="circle"
-            padding={0}
-            outline={fixSelected}>
-            <Text
-              style={{
-                fontSize: 20,
-                color: fixSelected ? colors.dark : colors.accent,
-              }}>
-              Fix Requests
-            </Text>
-          </Button>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.topCycleContainer}>
+        <Button
+          testID="fixesBtn"
+          onPress={() => setFixSelected(true)}
+          width={100}
+          shape="circle"
+          padding={0}
+          outline={!fixSelected}>
+          <Text
+            style={{
+              fontSize: 20,
+              color: fixSelected ? colors.accent : colors.dark,
+            }}>
+            Fixes
+          </Text>
+        </Button>
+        <Button
+          testID="fixRequestsBtn"
+          onPress={() => setFixSelected(false)}
+          width={150}
+          shape="circle"
+          padding={0}
+          outline={fixSelected}>
+          <Text
+            style={{
+              fontSize: 20,
+              color: fixSelected ? colors.dark : colors.accent,
+            }}>
+            Fix Requests
+          </Text>
+        </Button>
+      </View>
 
-        <View style={styles.bodyContainer}>
-          {fixSelected ? (
-            <View style={{ width: '100%', height: '100%' }}>
-              {pendingFixes &&
-              pendingFixes.fixes.length === 0 &&
-              inProgressFixes &&
-              inProgressFixes.fixes.length === 0 &&
-              inReviewFixes &&
-              inReviewFixes.fixes.length === 0 &&
-              completedFixes &&
-              completedFixes.fixes.length === 0 &&
-              terminatedFixes &&
-              terminatedFixes.fixes.length === 0 ? (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text>You have no on-going fixes.</Text>
-                </View>
-              ) : (
-                renderFixes()
-              )}
-            </View>
-          ) : (
-            <View style={{ width: '100%', height: '100%' }}>
-              {newFixes && newFixes.fixes.length === 0 ? (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text>You have no fix requests.</Text>
-                </View>
-              ) : (
+      <View style={styles.bodyContainer}>
+        {fixSelected ? (
+          <View style={{ width: '100%', height: '100%' }}>
+            {pendingFixes &&
+            pendingFixes.fixes.length === 0 &&
+            inProgressFixes &&
+            inProgressFixes.fixes.length === 0 &&
+            inReviewFixes &&
+            inReviewFixes.fixes.length === 0 &&
+            completedFixes &&
+            completedFixes.fixes.length === 0 &&
+            terminatedFixes &&
+            terminatedFixes.fixes.length === 0 ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>You have no on-going fixes.</Text>
+              </View>
+            ) : (
+              <ScrollView
+                nestedScrollEnabled={true}
+                refreshControl={
+                  <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+                }>
+                {renderFixes()}
+              </ScrollView>
+            )}
+          </View>
+        ) : (
+          <View style={{ width: '100%', height: '100%' }}>
+            {newFixes && newFixes.fixes.length === 0 ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>You have no fix requests.</Text>
+              </View>
+            ) : (
+              <ScrollView
+                nestedScrollEnabled={true}
+                refreshControl={
+                  <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+                }>
                 <FlatList
                   nestedScrollEnabled={true}
-                  data={newFixes.fixes}
+                  data={newFixes.fixes
+                    .slice()
+                    .sort((fixA, fixB) => fixB?.createdTimestampUtc - fixA?.createdTimestampUtc)}
                   renderItem={renderItem}
                   keyExtractor={(item: FixesModel) => item.id}
                 />
-              )}
-            </View>
-          )}
-        </View>
-      </SafeAreaView>
-    </ScrollView>
+              </ScrollView>
+            )}
+          </View>
+        )}
+      </View>
+    </View>
   );
 
   return render();

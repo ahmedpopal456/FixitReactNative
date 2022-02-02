@@ -13,14 +13,14 @@ export default class NotificationService {
     return fetch(route);
   }
 
-  enqueue(notificationRequest: any): Promise<Response> {
+  enqueue(notificationBody: any): Promise<Response> {
     return fetch(this.baseUrl, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(notificationRequest),
+      body: JSON.stringify(notificationBody),
     });
   }
 

@@ -9,10 +9,8 @@ import {
   useSelector,
   persistentActions,
   FixesService,
-  ConfigFactory,
   FixesModel,
 } from 'fixit-common-data-store';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import StyledContentWrapper from '../../../components/styledElements/styledContentWrapper';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
@@ -23,6 +21,7 @@ import Calendar from '../../../components/calendar/calendar';
 import FixRequestHeader from './fixRequestHeader';
 import { NavigationProps } from '../../../common/types/navigationProps';
 import NavigationEnum from '../../../common/enums/navigationEnum';
+import config from '../../../core/config/appConfig';
 
 export type FixProps = {
   id: string;
@@ -46,12 +45,14 @@ interface Button {
   onClick(): void;
 }
 
+const fixesService = new FixesService(config, store);
 // eslint-disable-next-line max-len
 const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProps<FixProps>): JSX.Element => {
   const navigation = useNavigation();
 
   const { title, id } = props.route.params;
   let { fix } = props.route.params;
+
   const user = useSelector((storeState: StoreState) => storeState.user);
 
   const [submitFixModalOpen, setSubmitFixModalOpen] = useState<boolean>(false);
@@ -60,7 +61,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
   const { notifications, unseenNotificationsNumber } = useSelector((storeState: StoreState) => storeState.persist);
 
   const handleConfirm = (): void => {
-    const fixRequestService = new FixRequestService(store);
+    const fixRequestService = new FixRequestService(config, store);
     if (id === 'fix_request') {
       fixRequestService.publishFixRequest(fix as FixRequestModel);
     }
@@ -101,24 +102,27 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
 
   const matchWithCraftsman = (): void => {
     if (id === 'fix_craftsman_response') {
-      const body = {
+      const body: Partial<FixesModel> = {
         assignedToCraftsman: fix?.assignedToCraftsman,
         clientEstimatedCost: fix?.clientEstimatedCost,
         systemCalculatedCost: fix?.systemCalculatedCost,
         craftsmanEstimatedCost: fix?.craftsmanEstimatedCost,
         updatedByUser: {
-          Id: store.getState().user.userId,
-          FirstName: store.getState().user.firstName,
-          LastName: store.getState().user.lastName,
+          id: store.getState().user.userId,
+          firstName: store.getState().user.firstName as string,
+          lastName: store.getState().user.lastName as string,
+          role: 1,
+          userPrincipalName: '',
+          savedAddresses: [],
+          status: {
+            status: 0,
+            lastSeenTimestampUtc: new Date().getTime() / 1000,
+          },
         },
       };
 
-      axios
-        .put(
-          // eslint-disable-next-line max-len
-          `http://10.0.2.2:7071/api/fixes/${fix?.id}/users/${fix?.assignedToCraftsman?.id}/assign`,
-          body,
-        )
+      fixesService
+        .updateFixAssign(fix?.id as string, fix?.assignedToCraftsman?.id as string, body)
         .then(() => {
           setAcceptCraftsmanModalOpen(true);
           const notificationsToSet = notifications.filter((notification) => {
@@ -140,7 +144,6 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
   };
 
   const updateFixStatus = async (fixStatus: number): Promise<void> => {
-    const fixesService = new FixesService(new ConfigFactory(), store);
     let updateFix: FixesModel | null = await fixesService.getFix(fix?.id || '');
     const date = new Date();
     const utcTimestamp = Math.floor(date.getTime() / 1000);
@@ -159,6 +162,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
       tags: updateFix.tags,
       details: updateFix.details,
       location: updateFix.location,
+      schedule: updateFix.schedule,
     };
     if (updateFix.id) {
       updateFix = await fixesService.updateFix(updateFix.id, body);
@@ -166,7 +170,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
       if (error) {
         throw new Error(error);
       }
-      navigation.navigate('Fixes');
+      navigation.goBack();
     } else {
       throw new Error('Missing fix id');
     }
@@ -564,7 +568,9 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
               paddingHorizontal: 10,
               paddingVertical: 10,
             }}>
-            {fix?.craftsmanEstimatedCost?.comment as string}
+            {fix?.craftsmanEstimatedCost?.comment
+              ? fix?.craftsmanEstimatedCost.comment
+              : 'No comments from the craftsman.'}
           </P>
           <Divider />
         </>
@@ -584,7 +590,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
             <CategoryAndType />
             <JobDescription />
             <Cost />
-            {fix?.craftsmanEstimatedCost?.comment ? <Comments /> : <></>}
+            {fix?.craftsmanEstimatedCost ? <Comments /> : <></>}
             <Location />
             <Images />
             <Schedules />

@@ -1,14 +1,15 @@
 import React, { useState, FunctionComponent, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Text, StyleSheet, View, TouchableOpacity, SafeAreaView } from 'react-native';
-import { ConfigFactory, FixesService, store, StoreState, useSelector } from 'fixit-common-data-store';
+import { FixesService, FixRequestService, store, StoreState, useSelector } from 'fixit-common-data-store';
 import { Button, colors, Icon, Tag } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
 import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
 import SearchTextInput from '../../components/searchTextInput';
+import config from '../../core/config/appConfig';
 
-const fixesService = new FixesService(new ConfigFactory(), store);
+const fixesService = new FixesService(config, store);
 
 const styles = StyleSheet.create({
   baseContainer: {
@@ -22,16 +23,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   baseContainer_View_View: {
-    height: '90%',
+    height: '100%',
   },
   baseContainer_View_View_View: {
-    paddingLeft: 25,
+    padding: 20,
     borderRadius: 25,
     backgroundColor: '#EEEEEE',
-    paddingTop: 20,
-    paddingBottom: 20,
-    marginTop: -20,
-    elevation: 10,
+    marginTop: 10,
+    shadowOffset: { width: 10, height: 10 },
+    shadowOpacity: 1,
+    zIndex: 9,
+    shadowColor: 'grey',
   },
   tagsContainer: {
     marginRight: 10,
@@ -41,7 +43,6 @@ const styles = StyleSheet.create({
     alignContent: 'flex-start',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginLeft: 15,
   },
   selectedTagsContainer: {
     flexGrow: 0,
@@ -67,13 +68,9 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     marginTop: 15,
   },
-  footer: {
-    backgroundColor: '#EEEEEE',
-    height: 300,
-    marginTop: -30,
-    paddingTop: 60,
-  },
 });
+
+const fixRequestService = new FixRequestService(config, store);
 
 const HomeScreenClient: FunctionComponent = () => {
   const maxSelectedTags = 5;
@@ -99,6 +96,9 @@ const HomeScreenClient: FunctionComponent = () => {
 
   const onRefresh = async () => {
     await fixesService.getPopularFixTags('5');
+    fixRequestService.getCategories();
+    fixRequestService.getTypes();
+    fixRequestService.getUnits();
   };
 
   const addTag = (): void => {
@@ -214,12 +214,10 @@ const HomeScreenClient: FunctionComponent = () => {
                 </View>
               )}
             </View>
-            <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
               <View
                 style={{
-                  position: 'absolute',
-                  zIndex: -1,
-                  paddingTop: 10,
+                  flex: 4,
                 }}>
                 <SearchTextInput
                   onChange={(text: string) => setTagInputTextState(text)}
@@ -231,11 +229,10 @@ const HomeScreenClient: FunctionComponent = () => {
               </View>
               <View
                 style={{
-                  paddingLeft: 280,
-                  marginVertical: 13,
-                  paddingBottom: 10,
+                  paddingRight: 20,
+                  flex: 1,
                 }}>
-                <Button testID="searchBtn" onPress={search} color="primary" width={50} padding={0}>
+                <Button onPress={search} color="primary" width={50} padding={0}>
                   <Icon library="Ionicons" name="hammer-outline" color="accent" />
                 </Button>
               </View>
@@ -260,7 +257,6 @@ const HomeScreenClient: FunctionComponent = () => {
               )}
             </View>
           </View>
-          <View style={styles.footer}></View>
         </View>
       </View>
       <Toast ref={(ref) => Toast.setRef(ref)} />

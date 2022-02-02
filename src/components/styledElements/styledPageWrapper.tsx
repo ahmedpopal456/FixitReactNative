@@ -10,9 +10,7 @@ const StyledPageWrapper = styled.View`
     paddingTop: 20px;
     borderTopLeftRadius: 12px;
     borderTopRightRadius: 12px;
-    shadow-offset: 0px -20px;
-    shadowColor: #000;
-    shadowOpacity: 1.0;
+    zIndex:9;
 `;
 
 export default StyledPageWrapper;

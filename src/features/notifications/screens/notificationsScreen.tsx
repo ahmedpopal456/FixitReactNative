@@ -1,7 +1,6 @@
 import React, { FunctionComponent, PropsWithChildren } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Dimensions, FlatList } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { persistentActions, NotificationModel, StoreState, store, useSelector } from 'fixit-common-data-store';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Avatar } from 'react-native-elements';
@@ -11,13 +10,14 @@ import NotificationTypes from '../models/notificationTypes';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 30,
     height: Dimensions.get('window').height - 95,
     width: '100%',
     backgroundColor: '#FFD14A',
   },
   bodyContainer: {
     flex: 1,
-    padding: 10,
+    flexGrow: 1,
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -33,8 +33,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    paddingLeft: 10,
-    paddingBottom: 10,
+    alignSelf: 'center',
   },
   seenNotif: {
     fontSize: 18,
@@ -57,9 +56,6 @@ const styles = StyleSheet.create({
 export interface NotificationsScreenWithNavigationProps extends PropsWithChildren<any> {
   navigation: NavigationProp<ParamListBase, string>;
 }
-const we = (s: Function) => {
-  s();
-};
 
 const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
   const notifications = useSelector((storeState: StoreState) => storeState.persist.notifications);
@@ -122,11 +118,13 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
 
   const render = () => {
     return (
-      <SafeAreaView style={styles.container}>
-        <Button onPress={() => props.navigation.goBack()} color="accent">
-          <Icon library="AntDesign" name="back" />
-        </Button>
-        <Text style={styles.title}>Notifications</Text>
+      <View style={styles.container}>
+        <View style={{ flexDirection: 'row' }}>
+          <Button onPress={() => props.navigation.goBack()} color="accent">
+            <Icon library="AntDesign" name="back" />
+          </Button>
+          <Text style={styles.title}>Notifications</Text>
+        </View>
         <View style={styles.bodyContainer}>
           {!notifications || notifications.length === 0 ? (
             <View
@@ -145,7 +143,7 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
             />
           )}
         </View>
-      </SafeAreaView>
+      </View>
     );
   };
 

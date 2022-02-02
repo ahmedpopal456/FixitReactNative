@@ -12,7 +12,7 @@ import Logger from '../../logger';
 export default class NotificationHandler {
   private static instance: NotificationHandler;
 
-  private notificationService = new NotificationService(config.notificationApiUrl);
+  private notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
 
   constructor() {
     this.onBackgroundNotificationOpened();
@@ -31,7 +31,7 @@ export default class NotificationHandler {
     const token: any = await messaging().getToken();
     const platform = Platform.OS === 'ios' ? 'apns' : 'fcm';
     const state = store.getState();
-    if (this.isTokenOutdated(token) && state.user.authToken) {
+    if (state.user.authToken) {
       const decodedAuthToken: { sub: string } = jwtDecode(state.user.authToken);
       const userId = decodedAuthToken.sub;
 

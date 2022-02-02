@@ -6,13 +6,11 @@ import {
   fixRequestActions,
   fixTemplateActions,
   StoreState,
-  FixRequestService,
   Category,
   Type,
   Unit,
   useSelector,
 } from 'fixit-common-data-store';
-import useAsyncEffect from 'use-async-effect';
 
 import { useNavigation } from '@react-navigation/native';
 import { FormNextPageArrows } from '../../../components/forms';
@@ -24,6 +22,7 @@ import StyledContentWrapper from '../../../components/styledElements/styledConte
 import FixRequestStyles from '../styles/fixRequestStyles';
 import { FixRequestHeader, FixTemplateFormTextInput, FixTemplatePicker } from '../components';
 import fixRequestConstants from './constants';
+import NavigationEnum from '../../../common/enums/navigationEnum';
 
 const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
   const navigation = useNavigation();
@@ -36,16 +35,9 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
   const [templateCategory, setTemplateCategory] = useState<Category>(fixTemplate.workCategory);
   const [templateType, setTemplateType] = useState<Type>(fixTemplate.workType);
   const [templateUnit, setTemplateUnit] = useState<Unit>(fixTemplate.fixUnit);
-  const [categories, setCategories] = useState<Array<Category>>([]);
-  const [types, setTypes] = useState<Array<Type>>([]);
-  const [units, setUnits] = useState<Array<Unit>>([]);
-
-  useAsyncEffect(async () => {
-    const fixRequestService = new FixRequestService(store);
-    setCategories(await fixRequestService.getCategories());
-    setTypes(await fixRequestService.getTypes());
-    setUnits(await fixRequestService.getUnits());
-  }, []);
+  const [templateCategoryName, setTemplateCategoryName] = useState<string>(fixTemplate.workCategory.name);
+  const [templateTypeName, setTemplateTypeName] = useState<string>(fixTemplate.workType.name);
+  const [templateUnitName, setTemplateUnitName] = useState<string>(fixTemplate.fixUnit.name);
 
   useEffect(() => {
     setTemplateName(fixTemplate.name);
@@ -66,7 +58,7 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
       }),
     );
 
-    navigation.navigate('FixRequestDescriptionStep');
+    navigation.navigate(NavigationEnum.FIXREQUESTDESCRIPTIONSTEP);
   };
 
   const addTag = (): void => {
@@ -190,25 +182,34 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Category'}
-              selectedValue={templateCategory}
-              onChange={(value: Category) => {
-                setTemplateCategory(value);
+              selectedValue={templateCategoryName}
+              onChange={(value: string) => {
+                setTemplateCategoryName(value);
+                setTemplateCategory(
+                  fixTemplate.categories.find((category: Category) => category.name === value) as Category,
+                );
               }}
-              values={categories || []}
+              values={fixTemplate.categories || []}
             />
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Type'}
-              selectedValue={templateType}
-              onChange={(value: Type) => setTemplateType(value)}
-              values={types || []}
+              selectedValue={templateTypeName}
+              onChange={(value: string) => {
+                setTemplateTypeName(value);
+                setTemplateType(fixTemplate.types.find((type: Type) => type.name === value) as Type);
+              }}
+              values={fixTemplate.types || []}
             />
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Unit'}
-              selectedValue={templateUnit}
-              onChange={(value: Unit) => setTemplateUnit(value)}
-              values={units || []}
+              selectedValue={templateUnitName}
+              onChange={(value: string) => {
+                setTemplateUnitName(value);
+                setTemplateUnit(fixTemplate.units.find((unit: Unit) => unit.name === value) as Unit);
+              }}
+              values={fixTemplate.units || []}
             />
             <Spacer height="30px" />
             {templateTagsRender()}
