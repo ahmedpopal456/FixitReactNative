@@ -27,7 +27,7 @@ export default class NotificationService {
 
   installDevice(deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest): Promise<Response> {
     const route = `${this.baseUrl}/Installations`;
-
+    console.log(route);
     return axios.put(route, {
       method: 'PUT',
       headers: {

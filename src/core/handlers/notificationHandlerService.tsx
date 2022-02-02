@@ -5,23 +5,14 @@ import jwtDecode from 'jwt-decode';
 import { DeviceInstallationUpsertRequest } from '../../common/models/notifications/DeviceInstallationUpsertRequest';
 import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
-import { PushNotificationIOS } from 'react-native';
 
 export default class NotificationHandlerService {
-  state: any;
-  deviceId: string;
-
-  public notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
-  private static instance: NotificationHandlerService;
-
-  public static getInstance(): NotificationHandlerService {
-    if (!NotificationHandlerService.instance) {
-      NotificationHandlerService.instance = new NotificationHandlerService();
-    }
-    return NotificationHandlerService.instance;
-  }
+  private state: any;
+  private deviceId: string;
+  private notificationService: NotificationService;
 
   constructor() {
+    this.notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
     this.deviceId = DeviceInfo.getUniqueId();
     this.state = {
       status: 'Push notifications registration status is unknown',
@@ -53,6 +44,7 @@ export default class NotificationHandlerService {
   }
 
   public onTokenReceived(token: any) {
+    this.notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
     console.log(`Received a notification token on ${token.os}`);
     this.state = {
       registeredToken: token.token,
@@ -60,12 +52,6 @@ export default class NotificationHandlerService {
       status: `The push notifications token has been received.`,
     };
 
-    if (this.state.isRegistered && this.state.registeredToken && this.state.registeredOS) {
-      this.register();
-    }
-  }
-
-  public async register() {
     let status: string = 'Registering...';
     let isRegistered = this.state.isRegistered;
     try {
@@ -78,13 +64,16 @@ export default class NotificationHandlerService {
         const userId = decodedAuthToken.sub;
         const deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest = {
           UserId: userId,
-          InstallationId: DeviceInfo.getUniqueId(),
+          InstallationId: this.deviceId,
           Platform: pnPlatform,
           PushChannelToken: pnToken,
           Tags: [{ key: 'userId', value: userId }],
           Templates: {},
         };
-        const response = await this.notificationService.installDevice(deviceInstallationUpsertRequest);
+        console.log(deviceInstallationUpsertRequest);
+        this.notificationService.installDevice(deviceInstallationUpsertRequest).then((value) => {
+          console.log(value);
+        });
         status = `Registered for ${this.state.registeredOS} push notifications`;
         isRegistered = true;
       }
