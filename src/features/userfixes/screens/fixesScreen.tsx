@@ -1,17 +1,6 @@
 import React, { FunctionComponent, useState } from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  ScrollView,
-  FlatList,
-  LogBox,
-  RefreshControl,
-} from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, FlatList, LogBox, RefreshControl } from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { store, FixesService, StoreState, useSelector, FixesModel } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { useNavigation } from '@react-navigation/native';
@@ -236,7 +225,7 @@ const FixesScreen: FunctionComponent<any> = () => {
       </View>
     );
     return (
-      <ScrollView nestedScrollEnabled={true}>
+      <>
         {!pendingFixes || !pendingFixes.fixes.length
           ? null
           : renderFixesForFixType({
@@ -305,90 +294,97 @@ const FixesScreen: FunctionComponent<any> = () => {
               setShowFix: setShowTerminated,
               shouldShowFix: showTerminated,
             })}
-      </ScrollView>
+      </>
     );
   };
 
   const render = () => (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
-      }>
-      <View style={styles.container}>
-        <View style={styles.topCycleContainer}>
-          <Button
-            testID="fixesBtn"
-            onPress={() => setFixSelected(true)}
-            width={100}
-            shape="circle"
-            padding={0}
-            outline={!fixSelected}>
-            <Text
-              style={{
-                fontSize: 20,
-                color: fixSelected ? colors.accent : colors.dark,
-              }}>
-              Fixes
-            </Text>
-          </Button>
-          <Button
-            testID="fixRequestsBtn"
-            onPress={() => setFixSelected(false)}
-            width={150}
-            shape="circle"
-            padding={0}
-            outline={fixSelected}>
-            <Text
-              style={{
-                fontSize: 20,
-                color: fixSelected ? colors.dark : colors.accent,
-              }}>
-              Fix Requests
-            </Text>
-          </Button>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.topCycleContainer}>
+        <Button
+          testID="fixesBtn"
+          onPress={() => setFixSelected(true)}
+          width={100}
+          shape="circle"
+          padding={0}
+          outline={!fixSelected}>
+          <Text
+            style={{
+              fontSize: 20,
+              color: fixSelected ? colors.accent : colors.dark,
+            }}>
+            Fixes
+          </Text>
+        </Button>
+        <Button
+          testID="fixRequestsBtn"
+          onPress={() => setFixSelected(false)}
+          width={150}
+          shape="circle"
+          padding={0}
+          outline={fixSelected}>
+          <Text
+            style={{
+              fontSize: 20,
+              color: fixSelected ? colors.dark : colors.accent,
+            }}>
+            Fix Requests
+          </Text>
+        </Button>
+      </View>
 
-        <View style={styles.bodyContainer}>
-          {fixSelected ? (
-            <View style={{ width: '100%', height: '100%' }}>
-              {pendingFixes &&
-              pendingFixes.fixes.length === 0 &&
-              inProgressFixes &&
-              inProgressFixes.fixes.length === 0 &&
-              inReviewFixes &&
-              inReviewFixes.fixes.length === 0 &&
-              completedFixes &&
-              completedFixes.fixes.length === 0 &&
-              terminatedFixes &&
-              terminatedFixes.fixes.length === 0 ? (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text>You have no on-going fixes.</Text>
-                </View>
-              ) : (
-                renderFixes()
-              )}
-            </View>
-          ) : (
-            <View style={{ width: '100%', height: '100%' }}>
-              {newFixes && newFixes.fixes.length === 0 ? (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text>You have no fix requests.</Text>
-                </View>
-              ) : (
+      <View style={styles.bodyContainer}>
+        {fixSelected ? (
+          <View style={{ width: '100%', height: '100%' }}>
+            {pendingFixes &&
+            pendingFixes.fixes.length === 0 &&
+            inProgressFixes &&
+            inProgressFixes.fixes.length === 0 &&
+            inReviewFixes &&
+            inReviewFixes.fixes.length === 0 &&
+            completedFixes &&
+            completedFixes.fixes.length === 0 &&
+            terminatedFixes &&
+            terminatedFixes.fixes.length === 0 ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>You have no on-going fixes.</Text>
+              </View>
+            ) : (
+              <ScrollView
+                nestedScrollEnabled={true}
+                refreshControl={
+                  <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+                }>
+                {renderFixes()}
+              </ScrollView>
+            )}
+          </View>
+        ) : (
+          <View style={{ width: '100%', height: '100%' }}>
+            {newFixes && newFixes.fixes.length === 0 ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>You have no fix requests.</Text>
+              </View>
+            ) : (
+              <ScrollView
+                nestedScrollEnabled={true}
+                refreshControl={
+                  <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+                }>
                 <FlatList
                   nestedScrollEnabled={true}
                   data={newFixes.fixes
                     .slice()
-                    .sort((fixA, fixB) => fixA?.createdTimestampUtc - fixB?.createdTimestampUtc)}
+                    .sort((fixA, fixB) => fixB?.createdTimestampUtc - fixA?.createdTimestampUtc)}
                   renderItem={renderItem}
                   keyExtractor={(item: FixesModel) => item.id}
                 />
-              )}
-            </View>
-          )}
-        </View>
+              </ScrollView>
+            )}
+          </View>
+        )}
       </View>
-    </ScrollView>
+    </View>
   );
 
   return render();

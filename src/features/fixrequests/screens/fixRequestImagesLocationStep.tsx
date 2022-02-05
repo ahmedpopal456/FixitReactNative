@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
 const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
   const [state, setState] = useState<FixRequestImagesLocationStepState>(initialState);
   const user = useSelector((storeState: StoreState) => storeState.user);
+  const [scheduleTypeName, setScheduleTypeName] = useState<string>(scheduleTypes[0].name);
 
   useAsyncEffect(async () => {
     setState({
@@ -172,7 +173,7 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
             </P>
             <Spacer height="20px" />
             {/** Location */}
-            <View>
+            <View style={{ paddingBottom: 10 }}>
               <H2
                 style={{
                   fontWeight: 'bold',
@@ -297,8 +298,11 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
                 Schedules
               </H2>
               <FixTemplatePicker
-                selectedValue={scheduleType}
-                onChange={(value: ScheduleType) => setScheduleType(value)}
+                selectedValue={scheduleTypeName}
+                onChange={(value: string) => {
+                  setScheduleTypeName(value);
+                  setScheduleType(scheduleTypes.find((schedule) => schedule.name === value) as ScheduleType);
+                }}
                 values={scheduleTypes}
               />
               {scheduleType && scheduleType.id === 'custom' ? (

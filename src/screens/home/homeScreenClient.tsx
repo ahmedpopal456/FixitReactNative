@@ -30,8 +30,10 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: '#EEEEEE',
     marginTop: 10,
-    shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: 0.2,
+    shadowOffset: { width: 10, height: 10 },
+    shadowOpacity: 1,
+    zIndex: 9,
+    shadowColor: 'grey',
   },
   tagsContainer: {
     marginRight: 10,

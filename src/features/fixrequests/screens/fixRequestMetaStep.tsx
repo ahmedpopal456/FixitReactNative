@@ -35,6 +35,9 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
   const [templateCategory, setTemplateCategory] = useState<Category>(fixTemplate.workCategory);
   const [templateType, setTemplateType] = useState<Type>(fixTemplate.workType);
   const [templateUnit, setTemplateUnit] = useState<Unit>(fixTemplate.fixUnit);
+  const [templateCategoryName, setTemplateCategoryName] = useState<string>(fixTemplate.workCategory.name);
+  const [templateTypeName, setTemplateTypeName] = useState<string>(fixTemplate.workType.name);
+  const [templateUnitName, setTemplateUnitName] = useState<string>(fixTemplate.fixUnit.name);
 
   useEffect(() => {
     setTemplateName(fixTemplate.name);
@@ -179,24 +182,33 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Category'}
-              selectedValue={templateCategory}
-              onChange={(value: Category) => {
-                setTemplateCategory(value);
+              selectedValue={templateCategoryName}
+              onChange={(value: string) => {
+                setTemplateCategoryName(value);
+                setTemplateCategory(
+                  fixTemplate.categories.find((category: Category) => category.name === value) as Category,
+                );
               }}
               values={fixTemplate.categories || []}
             />
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Type'}
-              selectedValue={templateType}
-              onChange={(value: Type) => setTemplateType(value)}
+              selectedValue={templateTypeName}
+              onChange={(value: string) => {
+                setTemplateTypeName(value);
+                setTemplateType(fixTemplate.types.find((type: Type) => type.name === value) as Type);
+              }}
               values={fixTemplate.types || []}
             />
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Unit'}
-              selectedValue={templateUnit}
-              onChange={(value: Unit) => setTemplateUnit(value)}
+              selectedValue={templateUnitName}
+              onChange={(value: string) => {
+                setTemplateUnitName(value);
+                setTemplateUnit(fixTemplate.units.find((unit: Unit) => unit.name === value) as Unit);
+              }}
               values={fixTemplate.units || []}
             />
             <Spacer height="30px" />
