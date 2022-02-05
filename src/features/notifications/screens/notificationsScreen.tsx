@@ -1,10 +1,16 @@
 import React, { FunctionComponent, PropsWithChildren } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
-import { persistentActions, NotificationModel, StoreState, store, useSelector } from 'fixit-common-data-store';
+import {
+  persistentActions,
+  NotificationModel,
+  StoreState,
+  store,
+  useSelector,
+  notificationActions,
+} from 'fixit-common-data-store';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Avatar } from 'react-native-elements';
-import NotificationHandler from '../../../core/handlers/notificationHandler';
 import NotificationTypes from '../models/notificationTypes';
 
 const styles = StyleSheet.create({
@@ -33,7 +39,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   seenNotif: {
     fontSize: 18,
@@ -85,9 +91,11 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
     } else {
       props.navigation.navigate('Home');
     }
-
-    NotificationHandler.getInstance().displayNotification(item.remoteMessage);
+    if (item.remoteMessage && item.remoteMessage.id && item.remoteMessage.title) {
+      store.dispatch(notificationActions.displayNotification({ messages: [item.remoteMessage] }));
+    }
   };
+
   const renderItem = ({ item }: { item: NotificationModel }): JSX.Element => {
     const isFixClientRequest = item?.remoteMessage?.data?.action === 'FixClientRequest';
     const firstName = isFixClientRequest ? item.fix.createdByClient.firstName : item.fix.assignedToCraftsman.firstName;
@@ -119,11 +127,11 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
   const render = () => {
     return (
       <View style={styles.container}>
-        <View style={{flexDirection: 'row'}}>
-        <Button onPress={() => props.navigation.goBack()} color="accent">
-          <Icon library="AntDesign" name="back" />
-        </Button>
-        <Text style={styles.title}>Notifications</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <Button onPress={() => props.navigation.goBack()} color="accent">
+            <Icon library="AntDesign" name="back" />
+          </Button>
+          <Text style={styles.title}>Notifications</Text>
         </View>
         <View style={styles.bodyContainer}>
           {!notifications || notifications.length === 0 ? (

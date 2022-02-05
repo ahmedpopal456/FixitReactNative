@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEEEEE',
     marginTop: 10,
     shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: 0.2
+    shadowOpacity: 0.2,
   },
   tagsContainer: {
     marginRight: 10,

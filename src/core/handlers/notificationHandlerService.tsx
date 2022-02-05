@@ -1,26 +1,31 @@
 import PushNotification from 'react-native-push-notification';
-import { store } from 'fixit-common-data-store';
+import { FixesModel, notificationActions, persistentActions, store } from 'fixit-common-data-store';
 import DeviceInfo from 'react-native-device-info';
 import jwtDecode from 'jwt-decode';
 import { DeviceInstallationUpsertRequest } from '../../common/models/notifications/DeviceInstallationUpsertRequest';
 import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
 
+const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
+
 export default class NotificationHandlerService {
   private state: any;
-  private deviceId: string;
-  private notificationService: NotificationService;
+  private static instance: NotificationHandlerService;
 
   constructor() {
-    this.notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
-    this.deviceId = DeviceInfo.getUniqueId();
     this.state = {
-      status: 'Push notifications registration status is unknown',
       registeredOS: '',
       registeredToken: '',
       isRegistered: false,
       isBusy: false,
     };
+  }
+
+  public static getInstance(): NotificationHandlerService {
+    if (!NotificationHandlerService.instance) {
+      NotificationHandlerService.instance = new NotificationHandlerService();
+    }
+    return NotificationHandlerService.instance;
   }
 
   public configure() {
@@ -43,9 +48,8 @@ export default class NotificationHandlerService {
     });
   }
 
-  public onTokenReceived(token: any) {
-    this.notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
-    console.log(`Received a notification token on ${token.os}`);
+  public async onTokenReceived(token: any) {
+    const deviceId = DeviceInfo.getUniqueId();
     this.state = {
       registeredToken: token.token,
       registeredOS: token.os,
@@ -54,39 +58,46 @@ export default class NotificationHandlerService {
 
     let status: string = 'Registering...';
     let isRegistered = this.state.isRegistered;
-    try {
-      this.state = { ...this.state, isBusy: true, status };
-      const pnPlatform = this.state.registeredOS == 'ios' ? 'apns' : 'fcm';
-      const pnToken = this.state.registeredToken;
-      const state = store.getState();
-      if (state.user.authToken) {
-        const decodedAuthToken: { sub: string } = jwtDecode(state.user.authToken);
-        const userId = decodedAuthToken.sub;
-        const deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest = {
-          UserId: userId,
-          InstallationId: this.deviceId,
-          Platform: pnPlatform,
-          PushChannelToken: pnToken,
-          Tags: [{ key: 'userId', value: userId }],
-          Templates: {},
-        };
-        console.log(deviceInstallationUpsertRequest);
-        this.notificationService.installDevice(deviceInstallationUpsertRequest).then((value) => {
-          console.log(value);
-        });
-        status = `Registered for ${this.state.registeredOS} push notifications`;
-        isRegistered = true;
+    if (!isRegistered) {
+      try {
+        this.state = { ...this.state, isBusy: true, status };
+        const pnPlatform = this.state.registeredOS == 'ios' ? 'apns' : 'fcm';
+        const pnToken = this.state.registeredToken;
+        const state = store.getState();
+        if (state.user.authToken) {
+          const decodedAuthToken: { sub: string } = jwtDecode(state.user.authToken);
+          const userId = decodedAuthToken.sub;
+          const deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest = {
+            UserId: userId,
+            InstallationId: deviceId,
+            Platform: pnPlatform,
+            PushChannelToken: pnToken,
+            Tags: [{ key: 'userId', value: userId }],
+            Templates: {},
+          };
+          await notificationService.installDevice(deviceInstallationUpsertRequest);
+          status = `Registered for ${this.state.registeredOS} push notifications`;
+          isRegistered = true;
+        }
+      } catch (e) {
+        status = `Registration failed: ${e}`;
+      } finally {
+        this.state = { ...this.state, isBusy: false, status, isRegistered };
       }
-    } catch (e) {
-      status = `Registration failed: ${e}`;
-    } finally {
-      this.state = { ...this.state, isBusy: false, status, isRegistered };
     }
   }
 
-  public onNotificationReceived(notification: any) {
-    console.log(`Received a push notification on ${this.state.registeredOS}`);
-    this.state = { ...this.state, status: `Received a push notification...` };
+  public onNotificationReceived(remoteMessage: any) {
+    const { unseenNotificationsNumber, notifications } = store.getState().persist;
+    if (remoteMessage && remoteMessage.id && remoteMessage.title) {
+      notifications.unshift({
+        remoteMessage,
+        fix: JSON.parse(remoteMessage?.data?.fixitdata as string) as FixesModel,
+        visited: false,
+      });
+      store.dispatch(persistentActions.default.setNotifications(notifications, unseenNotificationsNumber + 1));
+      store.dispatch(notificationActions.displayNotification({ messages: [remoteMessage] }));
+    }
   }
 
   public checkPermissions(cbk: any) {
