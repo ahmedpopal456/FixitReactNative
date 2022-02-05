@@ -35,7 +35,6 @@
     "axios": "^0.21.1",
     "base-64": "^1.0.0",
     "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.6",
     "fixit-common-data-store": "0.5.1-ahmed-test",
     "fixit-common-ui": "0.5.4-ahmed-test",
     "i18next": "^20.3.2",
@@ -61,7 +60,7 @@
     "react-native-svg": "12.1.0",
     "react-native-swiper-flatlist": "^3.0.14",
     "react-native-toast-message": "^1.4.9",
-    "react-native-vector-icons": "^7.1.0",
+    "react-native-vector-icons": "9.0.0",
     "styled-components": "5.2.1",
     "use-async-effect": "^2.2.3"
   },
