@@ -8,10 +8,12 @@ import {
   store,
   useSelector,
   notificationActions,
+  FixesModel,
 } from 'fixit-common-data-store';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Avatar } from 'react-native-elements';
 import NotificationTypes from '../models/notificationTypes';
+import { ReceivedNotification } from 'react-native-push-notification';
 
 const styles = StyleSheet.create({
   container: {
@@ -72,9 +74,8 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
     const currentNotifications: Array<NotificationModel> = [...notifications];
 
     const index = currentNotifications.findIndex(
-      (currentNotification) => currentNotification.remoteMessage.messageId === item.remoteMessage.messageId,
+      (currentNotification) => currentNotification.remoteMessage.id === item.remoteMessage.id,
     );
-
     if (!item.visited) {
       currentNotifications[index] = {
         remoteMessage: currentNotifications[index].remoteMessage,
@@ -97,9 +98,11 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
   };
 
   const renderItem = ({ item }: { item: NotificationModel }): JSX.Element => {
-    const isFixClientRequest = item?.remoteMessage?.data?.action === 'FixClientRequest';
-    const firstName = isFixClientRequest ? item.fix.createdByClient.firstName : item.fix.assignedToCraftsman.firstName;
-    const lastName = isFixClientRequest ? item.fix.createdByClient.lastName : item.fix.assignedToCraftsman.lastName;
+    const isFixClientRequest = item.remoteMessage?.data?.action === 'FixClientRequest';
+    const firstName = isFixClientRequest
+      ? item.fix?.createdByClient?.firstName
+      : item.fix.assignedToCraftsman.firstName;
+    const lastName = isFixClientRequest ? item.fix?.createdByClient?.lastName : item.fix.assignedToCraftsman.lastName;
     return (
       <TouchableOpacity
         onPress={() => {
@@ -147,7 +150,7 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
             <FlatList
               data={notifications}
               renderItem={renderItem}
-              keyExtractor={(item: NotificationModel) => item.remoteMessage.messageId as string}
+              keyExtractor={(item: NotificationModel) => item.remoteMessage.id as string}
             />
           )}
         </View>

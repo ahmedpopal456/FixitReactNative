@@ -5,6 +5,7 @@ import jwtDecode from 'jwt-decode';
 import { DeviceInstallationUpsertRequest } from '../../common/models/notifications/DeviceInstallationUpsertRequest';
 import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
+import { Platform } from 'react-native';
 
 const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
 
@@ -92,7 +93,10 @@ export default class NotificationHandlerService {
     if (remoteMessage && remoteMessage.id && remoteMessage.title) {
       notifications.unshift({
         remoteMessage,
-        fix: JSON.parse(remoteMessage?.data?.fixitdata as string) as FixesModel,
+        fix:
+          Platform.OS === 'ios'
+            ? (remoteMessage.data.fixitdata as FixesModel)
+            : (JSON.parse(remoteMessage.data.fixitdata) as FixesModel),
         visited: false,
       });
       store.dispatch(persistentActions.default.setNotifications(notifications, unseenNotificationsNumber + 1));

@@ -116,7 +116,7 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
   }, [props.message]);
 
   const handleViewDetails = (): void => {
-    props.onDismissNotification(props.message?.messageId);
+    props.onDismissNotification(props.message?.id);
     if (fix && props.navRef) {
       if (isFixClientRequest) {
         props.navRef.current?.dispatch(
@@ -314,7 +314,7 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
           <Button
             width={150}
             onPress={() => {
-              props.onDismissNotification(props.message?.messageId);
+              props.onDismissNotification(props.message?.id);
             }}
             color="accent"
             outline>
@@ -363,7 +363,7 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
         transparent={true}
         visible={isVisible}
         onRequestClose={() => {
-          props.onDismissNotification(props.message?.messageId);
+          props.onDismissNotification(props.message?.id);
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>

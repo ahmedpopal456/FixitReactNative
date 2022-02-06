@@ -5,7 +5,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
-#import <FirebaseMessaging.h>
+#import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 
 #ifdef FB_SONARKIT_ENABLED
@@ -103,6 +103,10 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  center.delegate = self;
+
   return YES;
 }
 
