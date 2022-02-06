@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React, { FunctionComponent, useState } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Modal, Platform, StyleSheet, Text, View } from 'react-native';
 import { Button, colors, H1, Icon, Tag } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FixesModel, FixesService, Schedule, store } from 'fixit-common-data-store';
@@ -90,7 +90,10 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
 
   useAsyncEffect(async () => {
     if (props.message.data?.fixitdata) {
-      const parsedFixtData: FixesModel = JSON.parse(props.message.data.fixitdata);
+      const parsedFixtData: FixesModel =
+        Platform.OS === 'ios'
+          ? (props.message.data.fixitdata as FixesModel)
+          : (JSON.parse(props.message.data.fixitdata) as FixesModel);
       setFix(parsedFixtData);
       const returnedFixResponse = await fixesService.getFix(parsedFixtData.id);
       setFixFromDatabase(returnedFixResponse);

@@ -92,7 +92,7 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
     } else {
       props.navigation.navigate('Home');
     }
-    if (item.remoteMessage && item.remoteMessage.id && item.remoteMessage.title) {
+    if (item.remoteMessage && item.remoteMessage.id) {
       store.dispatch(notificationActions.displayNotification({ messages: [item.remoteMessage] }));
     }
   };

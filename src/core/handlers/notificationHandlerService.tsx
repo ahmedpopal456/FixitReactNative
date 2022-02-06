@@ -6,6 +6,7 @@ import { DeviceInstallationUpsertRequest } from '../../common/models/notificatio
 import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
 import { Platform } from 'react-native';
+import { v4 as uuidv4 } from 'uuid';
 
 const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
 
@@ -90,7 +91,10 @@ export default class NotificationHandlerService {
 
   public onNotificationReceived(remoteMessage: any) {
     const { unseenNotificationsNumber, notifications } = store.getState().persist;
-    if (remoteMessage && remoteMessage.id && remoteMessage.title) {
+    if (!remoteMessage.id) {
+      remoteMessage.id = uuidv4();
+    }
+    if (remoteMessage && remoteMessage.id) {
       notifications.unshift({
         remoteMessage,
         fix:
