@@ -90,60 +90,60 @@ stages:
             inputs:
               command: 'install'
 
-          # - task: ios-bundle-version@1
-          #   displayName: 'Update iOS version'
-          #   inputs:
-          #     sourcePath: '$(System.DefaultWorkingDirectory)/ios/FixitReactNative/info.plist'
-          #     versionCodeOption: 'buildid'
-          #     versionCode: '$(Build.BuildId)'
-          #     printFile: true
+          - task: ios-bundle-version@1
+            displayName: 'Update iOS version'
+            inputs:
+              sourcePath: '$(System.DefaultWorkingDirectory)/ios/FixitReactNative/info.plist'
+              versionCodeOption: 'buildid'
+              versionCode: '$(Build.BuildId)'
+              printFile: true
 
-          # - task: CocoaPods@0
-          #   inputs:
-          #     forceRepoUpdate: Yes
-          #     projectDirectory: '$(System.DefaultWorkingDirectory)/ios'
-          #     command: pod install
+          - task: CocoaPods@0
+            inputs:
+              forceRepoUpdate: Yes
+              projectDirectory: '$(System.DefaultWorkingDirectory)/ios'
+              command: pod install
 
-          # - task: InstallAppleCertificate@2
-          #   displayName: 'Install Apple Certificate'
-          #   inputs:
-          #     certSecureFile: 'fixit_certificate.p12'
-          #     certPwd: '$(certPwd)'
+          - task: InstallAppleCertificate@2
+            displayName: 'Install Apple Certificate'
+            inputs:
+              certSecureFile: 'fixit_certificate.p12'
+              certPwd: '$(certPwd)'
 
-          # - task: InstallAppleProvisioningProfile@1
-          #   displayName: 'Install Apple Provisioning Profile'
-          #   inputs:
-          #     provisioningProfileLocation: 'secureFiles'
-          #     provProfileSecureFile: 'firebase_adhoc.mobileprovision'
+          - task: InstallAppleProvisioningProfile@1
+            displayName: 'Install Apple Provisioning Profile'
+            inputs:
+              provisioningProfileLocation: 'secureFiles'
+              provProfileSecureFile: 'firebase_adhoc.mobileprovision'
 
-          # - task: Xcode@5
-          #   displayName: 'Xcode Build'
-          #   inputs:
-          #     xcodeVersion: 13
-          #     actions: 'clean build'
-          #     configuration: 'Release'
-          #     sdk: 'iphoneos'
-          #     xcWorkspacePath: '$(System.DefaultWorkingDirectory)/ios/FixitReactNative.xcworkspace'
-          #     scheme: 'FixitReactNative'
-          #     packageApp: true
-          #     exportPath: 'output/'
-          #     signingOption: 'manual'
-          #     signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
-          #     provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
-          #     destinationPlatformOption: 'iOS'
-          #     destinationSimulators: 'iPhone 11 Pro'
+          - task: Xcode@5
+            displayName: 'Xcode Build'
+            inputs:
+              xcodeVersion: 13
+              actions: 'clean build'
+              configuration: 'Release'
+              sdk: 'iphoneos'
+              xcWorkspacePath: '$(System.DefaultWorkingDirectory)/ios/FixitReactNative.xcworkspace'
+              scheme: 'FixitReactNative'
+              packageApp: true
+              exportPath: 'output/'
+              signingOption: 'manual'
+              signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
+              provisioningProfileUuid: '$(APPLE_PROV_PROFILE_UUID)'
+              destinationPlatformOption: 'iOS'
+              destinationSimulators: 'iPhone 11 Pro'
 
-          # - task: CopyFiles@2
-          #   displayName: 'Copy iOS Files To Staging Directory'
-          #   inputs:
-          #     Contents: '**/*.ipa'
-          #     TargetFolder: '$(Build.ArtifactStagingDirectory)/iOS'
+          - task: CopyFiles@2
+            displayName: 'Copy iOS Files To Staging Directory'
+            inputs:
+              Contents: '**/*.ipa'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/iOS'
 
-          # - task: PublishBuildArtifacts@1
-          #   inputs:
-          #     pathToPublish: '$(Build.ArtifactStagingDirectory)'
-          #     artifactName: apks
-          #     publishLocation: 'container'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: apks
+              publishLocation: 'container'
 
   - stage: STAGE
     dependsOn: []
