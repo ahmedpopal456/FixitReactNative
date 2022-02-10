@@ -26,7 +26,6 @@ export default class NotificationService {
 
   installDevice(deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest): Promise<Response> {
     const route = `${this.baseUrl}/Installations`;
-
     return fetch(route, {
       method: 'PUT',
       headers: {

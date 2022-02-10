@@ -1,7 +1,7 @@
-import { FirebaseMessagingTypes } from '@react-native-firebase/messaging/lib';
+import { ReceivedNotification } from 'react-native-push-notification';
 
 export type NotificationProps = {
-  message: FirebaseMessagingTypes.RemoteMessage;
+  message: ReceivedNotification;
   type: number | undefined;
   // eslint-disable-next-line @typescript-eslint/ban-types
   onDismissNotification: Function | any;
