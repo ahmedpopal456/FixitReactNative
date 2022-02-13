@@ -6,7 +6,6 @@ import { DeviceInstallationUpsertRequest } from '../../common/models/notificatio
 import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
 import { Platform } from 'react-native';
-import { v4 as uuidv4 } from 'uuid';
 
 const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
 
@@ -92,8 +91,9 @@ export default class NotificationHandlerService {
   public onNotificationReceived(remoteMessage: any) {
     const { unseenNotificationsNumber, notifications } = store.getState().persist;
     if (!remoteMessage.id) {
-      remoteMessage.id = uuidv4();
+      remoteMessage.id = this.genUniqueId();
     }
+
     if (remoteMessage && remoteMessage.id) {
       notifications.unshift({
         remoteMessage,
@@ -122,5 +122,11 @@ export default class NotificationHandlerService {
 
   public abandonPermissions() {
     PushNotification.abandonPermissions();
+  }
+
+  private genUniqueId(): string {
+    const dateStr = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    return `${dateStr}-${randomStr}`;
   }
 }
