@@ -90,10 +90,7 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
 
   useAsyncEffect(async () => {
     if (props.message.data?.fixitdata) {
-      const parsedFixtData: FixesModel =
-        Platform.OS === 'ios'
-          ? (props.message.data.fixitdata as FixesModel)
-          : (JSON.parse(props.message.data.fixitdata) as FixesModel);
+      const parsedFixtData: FixesModel = JSON.parse(props.message.data.fixitdata) as FixesModel;
       setFix(parsedFixtData);
       const returnedFixResponse = await fixesService.getFix(parsedFixtData.id);
       setFixFromDatabase(returnedFixResponse);

@@ -5,7 +5,7 @@ import jwtDecode from 'jwt-decode';
 import { DeviceInstallationUpsertRequest } from '../../common/models/notifications/DeviceInstallationUpsertRequest';
 import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
-import { Platform } from 'react-native';
+import { v4 as uuidv4 } from 'uuid';
 
 const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
 
@@ -91,16 +91,13 @@ export default class NotificationHandlerService {
   public onNotificationReceived(remoteMessage: any) {
     const { unseenNotificationsNumber, notifications } = store.getState().persist;
     if (!remoteMessage.id) {
-      remoteMessage.id = this.genUniqueId();
+      remoteMessage.id = uuidv4();
     }
 
     if (remoteMessage && remoteMessage.id) {
       notifications.unshift({
         remoteMessage,
-        fix:
-          Platform.OS === 'ios'
-            ? (remoteMessage.data.fixitdata as FixesModel)
-            : (JSON.parse(remoteMessage.data.fixitdata) as FixesModel),
+        fix: JSON.parse(remoteMessage.data.fixitdata) as FixesModel,
         visited: false,
       });
       store.dispatch(persistentActions.default.setNotifications(notifications, unseenNotificationsNumber + 1));
@@ -122,11 +119,5 @@ export default class NotificationHandlerService {
 
   public abandonPermissions() {
     PushNotification.abandonPermissions();
-  }
-
-  private genUniqueId(): string {
-    const dateStr = Date.now().toString(36);
-    const randomStr = Math.random().toString(36).substring(2, 8);
-    return `${dateStr}-${randomStr}`;
   }
 }
