@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
-import { Text, View, StyleSheet, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, Image } from 'react-native';
 import { Button, Divider, H2, H3, Icon, P, Spacer, Tag } from 'fixit-common-ui';
 import {
   FixRequestService,
@@ -22,6 +22,7 @@ import FixRequestHeader from './fixRequestHeader';
 import { NavigationProps } from '../../../common/types/navigationProps';
 import NavigationEnum from '../../../common/enums/navigationEnum';
 import config from '../../../core/config/appConfig';
+import { DeletableCameraAssets } from '../../../components/DeletableCameraAssets';
 
 export type FixProps = {
   id: string;
@@ -486,12 +487,17 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
     return <></>;
   };
 
-  const Images = () => (
-    <>
-      <H3 style={globalStyles.boldTitle}>Images</H3>
-      <Divider />
-    </>
-  );
+  const Images = () => {
+    return (
+      <>
+        <H3 style={globalStyles.boldTitle}>Images</H3>
+        <View style={{ flexDirection: 'row', flexGrow: 1, flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+          <DeletableCameraAssets files={fix?.images} />
+        </View>
+        <Divider />
+      </>
+    );
+  };
 
   const Location = () => (
     <>

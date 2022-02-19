@@ -6,14 +6,14 @@ import DeterminateProgressIndicator from './determinate/determinateProgressIndic
 import IndeterminateProgressIndicator from './indeterminate/indeterminateProgressIndicator';
 import { DeterminateProgressIndicatorProps } from './determinate/determinateProgressIndicatorProps';
 
-const ProgressIndicatorFactory : FunctionComponent<PropsWithChildren<ProgressIndicatorFactoryProps>> = (props) => {
+const ProgressIndicatorFactory: FunctionComponent<PropsWithChildren<ProgressIndicatorFactoryProps>> = (props) => {
   switch (props.type) {
     case 'determinate':
-      return <DeterminateProgressIndicator
-        {...(props.children as DeterminateProgressIndicatorProps & ReactNode)} />;
+      return <DeterminateProgressIndicator {...(props.children as DeterminateProgressIndicatorProps & ReactNode)} />;
     case 'indeterminate':
-      return <IndeterminateProgressIndicator
-        {...(props.children as IndeterminateProgressIndicatorProps & ReactNode)} />;
+      return (
+        <IndeterminateProgressIndicator {...(props.children as IndeterminateProgressIndicatorProps & ReactNode)} />
+      );
     default:
       return <></>;
   }

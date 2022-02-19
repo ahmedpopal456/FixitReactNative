@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     justifyContent: 'center',
+    height: 200,
   },
   searchSection: {
     marginTop: 10,

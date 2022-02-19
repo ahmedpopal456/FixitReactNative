@@ -271,22 +271,20 @@ const AddressSelectorScreen: FunctionComponent<AddressSelectorScreenProps> = (pr
       </View>
       {queriedAddresses.length <= 0 ? (
         <View style={styles.savedLocations}>
-          <ScrollView
+          <Text style={{ fontSize: 14, fontWeight: '100', color: 'black' }}>Saved locations</Text>
+          <FlatList
             refreshControl={<RefreshControl refreshing={refreshState} onRefresh={onRefresh} colors={[colors.orange]} />}
-            showsVerticalScrollIndicator={false}>
-            <Text style={{ fontSize: 14, fontWeight: '100', color: 'black' }}>Saved locations</Text>
-            <FlatList
-              style={{
-                marginTop: 20,
-                marginLeft: 10,
-              }}
-              focusable
-              contentContainerStyle={{ justifyContent: 'space-evenly' }}
-              data={user.savedAddresses}
-              renderItem={renderExistingAddress}
-              keyExtractor={(item) => item.id}
-            />
-          </ScrollView>
+            showsVerticalScrollIndicator={false}
+            style={{
+              marginTop: 20,
+              marginLeft: 10,
+            }}
+            focusable
+            contentContainerStyle={{ justifyContent: 'space-evenly' }}
+            data={user.savedAddresses}
+            renderItem={renderExistingAddress}
+            keyExtractor={(item) => item.id}
+          />
         </View>
       ) : (
         <></>

@@ -1,4 +1,5 @@
 import 'react-native-gesture-handler';
+import 'react-native-get-random-values';
 import { AppRegistry, LogBox } from 'react-native';
 import React from 'react';
 import App from './src/App';

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React, { FunctionComponent, useState } from 'react';
-import { Modal, Platform, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 import { Button, colors, H1, Icon, Tag } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FixesModel, FixesService, Schedule, store } from 'fixit-common-data-store';

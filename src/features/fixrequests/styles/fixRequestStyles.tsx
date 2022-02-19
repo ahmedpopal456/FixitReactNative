@@ -8,11 +8,17 @@ const FixRequestStyles = StyleSheet.create({
   titleActionWrapper: {
     flexGrow: 0,
     marginTop: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.dark,
+    width: 100,
+    height: 40,
+    borderRadius: 2,
   },
   titleActionLabel: {
     color: colors.accent,
     fontWeight: 'bold',
-    textDecorationLine: 'underline',
+    textAlignVertical: 'center',
   },
   nextPageIconWrapper: {
     position: 'absolute',

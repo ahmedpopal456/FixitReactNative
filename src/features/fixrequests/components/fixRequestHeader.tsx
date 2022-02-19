@@ -11,9 +11,9 @@ export default class FixRequestHeader extends React.Component<{
   textHeight: number;
   backFunction?: () => void;
 }> {
-  handleGoBack = (): void => {
+  handleGoBack = async (): Promise<void> => {
     if (this.props.backFunction) {
-      this.props.backFunction();
+      await this.props.backFunction();
     } else if (this.props.navigation.canGoBack()) {
       this.props.navigation.goBack();
     }
