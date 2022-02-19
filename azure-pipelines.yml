@@ -76,10 +76,10 @@ stages:
             inputs:
               apkFiles: '**/*.apk'
               apksign: true
-              apksignerKeystoreFile: 'development-key.keystore'
-              apksignerKeystorePassword: '$(keystores-password)'
-              apksignerKeystoreAlias: 'devkey-alias'
-              apksignerKeyPassword: '$(keystores-password)'
+              apksignerKeystoreFile: 'release.keystore'
+              apksignerKeystorePassword: '$(release-keystore-password)'
+              apksignerKeystoreAlias: 'production-keystore'
+              apksignerKeyPassword: '$(release-keystore-password)'
               apksignerArguments: --out $(System.DefaultWorkingDirectory)/android/app/build/outputs/apk/dev/release/$(apkName).dev.release.apk
               zipalign: true
 
