@@ -23,7 +23,7 @@ stages:
     jobs:
       - job: 'FixitMobileApp_Android_Dev_Build'
         variables:
-          redirectUrl: $(devAndroidRedirectUrl)        
+          redirectUrl: $(devAndroidRedirectUrl)
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -32,21 +32,6 @@ stages:
             inputs:
               versionSpec: '14.17.0'
             displayName: 'Install Node.js'
-
-          - task: Npm@1
-            displayName: 'Npm install'
-            inputs:
-              command: 'install'
-
-          # Npm Versioning
-          - task: android-manifest-version@1
-            displayName: 'Update Android version'
-            inputs:
-              sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
-              versionCodeOption: 'buildid'
-              versionCode: '$(Build.BuildId)'
-              versionName: '$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
-              printFile: true
 
           - task: replacetokens@5
             inputs:
@@ -65,6 +50,21 @@ stages:
           - task: CmdLine@2
             inputs:
               script: 'cat $(System.DefaultWorkingDirectory)/src/core/config/msalConfig.ts'
+
+          - task: Npm@1
+            displayName: 'Npm install'
+            inputs:
+              command: 'install'
+
+          # Npm Versioning
+          - task: android-manifest-version@1
+            displayName: 'Update Android version'
+            inputs:
+              sourcePath: '$(System.DefaultWorkingDirectory)/android/app/src/main/AndroidManifest.xml'
+              versionCodeOption: 'buildid'
+              versionCode: '$(Build.BuildId)'
+              versionName: '$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
+              printFile: true
 
           - task: Gradle@2
             inputs:
@@ -101,7 +101,7 @@ stages:
 
       - job: 'FixitMobileApp_IOS_Dev_Build'
         variables:
-          redirectUrl: $(devIosRedirectUrl)          
+          redirectUrl: $(devIosRedirectUrl)
         pool:
           vmImage: 'macOS-11'
         condition: succeeded()

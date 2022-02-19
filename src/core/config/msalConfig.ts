@@ -4,7 +4,7 @@ export const b2cConfig: B2CTypes.B2CConfiguration = {
   auth: {
     clientId: '60d0d7ce-85ff-427d-ae26-8e1510bb776d',
     authorityBase: 'https://fixitb2ctest.b2clogin.com/tfp/b590826f-dbb4-4f2c-9f72-cfc9ea116b5d',
-    redirectUrl: 'msauth://fixit.android.dev/T363hRqMFoYyxYLJ92fIVXykFIw%3D',
+    redirectUrl: '__redirectUrl__',
     policies: {
       signIn: 'B2C_1A_SIGNIN',
       signUp: 'B2C_1A_SIGNUP',
