@@ -33,7 +33,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 10, height: 10 },
     shadowOpacity: 1,
     zIndex: 9,
-    shadowColor: 'grey',
+    elevation: 10,
+    shadowColor: colors.grey,
   },
   tagsContainer: {
     marginRight: 10,

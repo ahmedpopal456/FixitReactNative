@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, FlatList, LogBox, RefreshControl } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, LogBox, RefreshControl } from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
 import { store, FixesService, StoreState, useSelector, FixesModel } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
@@ -44,9 +44,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     elevation: 3,
     shadowColor: 'grey',
-    shadowOffset: { width: 0, height: 100 },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
   statusBar: {
     flex: 0.1,
@@ -74,14 +72,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
-
-interface FixProps {
-  fixTitle: string;
-  fixSubtitle: string;
-  setShowFix: (value: React.SetStateAction<boolean>) => void;
-  shouldShowFix: boolean;
-  fixData: Array<FixesModel>;
-}
 
 const FixesScreen: FunctionComponent<any> = () => {
   const navigation = useNavigation<any>();
@@ -127,7 +117,7 @@ const FixesScreen: FunctionComponent<any> = () => {
     setRefreshState(false);
   };
 
-  const renderItem = ({ item }: { item: FixesModel }): JSX.Element => {
+  const renderFixes = ({ item }: { item: FixesModel }): JSX.Element => {
     const getStatusColor = (status: number) => {
       switch (status) {
         case 0: // new
@@ -194,107 +184,113 @@ const FixesScreen: FunctionComponent<any> = () => {
     );
   };
 
-  const renderFixes = () => {
-    const renderFixesForFixType = (fixProps: FixProps) => (
-      <View key={`${fixProps.fixTitle}_${fixProps.fixSubtitle}`} style={{ margin: 5 }}>
-        {/* Section Title */}
-        <View>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>{fixProps.fixTitle}</Text>
-            <TouchableOpacity onPress={() => fixProps.setShowFix(!fixProps.shouldShowFix)}>
-              {fixProps.shouldShowFix ? (
-                <Icon library="AntDesign" name="caretdown" />
-              ) : (
-                <Icon library="AntDesign" name="caretup" />
-              )}
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.subtitle}>{fixProps.fixSubtitle}</Text>
-        </View>
-        {fixProps.shouldShowFix ? (
-          <View>
-            {/* body of each section */}
-            <FlatList
-              nestedScrollEnabled={true}
-              data={fixProps.fixData}
-              renderItem={renderItem}
-              keyExtractor={(item: FixesModel) => item.id}
-            />
-          </View>
-        ) : null}
-      </View>
-    );
+  const renderFixesState = () => {
+    const fixStates = [];
+    if (pendingFixes && pendingFixes.fixes.length) {
+      fixStates.push({
+        fixTitle: 'Pending',
+        fixSubtitle: 'The fix plan is still in progress.',
+        fixData: pendingFixes.fixes,
+        setShowFix: setShowPending,
+        shouldShowFix: showPending,
+      });
+    }
+
+    if (inProgressFixes && inProgressFixes.fixes.length) {
+      fixStates.push({
+        fixTitle: 'In Progress',
+        fixSubtitle: 'These fixes are under way.',
+        fixData: inProgressFixes.fixes,
+        setShowFix: setShowProgress,
+        shouldShowFix: showProgress,
+      });
+    }
+    if (inReviewFixes && inReviewFixes.fixes.length) {
+      fixStates.push({
+        fixTitle: 'In Review',
+        fixSubtitle: 'You need to approve the completion of the fix.',
+        fixData: inReviewFixes.fixes,
+        setShowFix: setShowReview,
+        shouldShowFix: showReview,
+      });
+    }
+    if (completedFixes && completedFixes.fixes.length) {
+      fixStates.push({
+        fixTitle: 'Completed',
+        fixSubtitle: 'All tasks are completed.',
+        fixData: completedFixes.fixes,
+        setShowFix: setShowCompleted,
+        shouldShowFix: showCompleted,
+      });
+    }
+
+    if (terminatedFixes && terminatedFixes.fixes.length) {
+      fixStates.push({
+        fixTitle: 'Terminated',
+        fixSubtitle: 'Abandoned Fixes.',
+        fixData: terminatedFixes.fixes,
+        setShowFix: setShowTerminated,
+        shouldShowFix: showTerminated,
+      });
+    }
+
+    if (terminatedByClientFixes && terminatedByClientFixes.fixes.length) {
+      fixStates.push({
+        fixTitle: 'Terminated by client',
+        fixSubtitle: 'Abandoned Fixes.',
+        fixData: terminatedByClientFixes.fixes,
+        setShowFix: setShowTerminated,
+        shouldShowFix: showTerminated,
+      });
+    }
+    if (terminatedByCraftsmanFixes && terminatedByCraftsmanFixes.fixes.length) {
+      fixStates.push({
+        fixTitle: 'Terminated by craftsman',
+        fixSubtitle: 'Abandoned Fixes.',
+        fixData: terminatedByCraftsmanFixes.fixes,
+        setShowFix: setShowTerminated,
+        shouldShowFix: showTerminated,
+      });
+    }
+
     return (
-      <>
-        {!pendingFixes || !pendingFixes.fixes.length
-          ? null
-          : renderFixesForFixType({
-              fixTitle: 'Pending',
-              fixSubtitle: 'The fix plan is still in progress.',
-              fixData: pendingFixes.fixes,
-              setShowFix: setShowPending,
-              shouldShowFix: showPending,
-            })}
-
-        {!inProgressFixes || !inProgressFixes.fixes.length
-          ? null
-          : renderFixesForFixType({
-              fixTitle: 'In Progress',
-              fixSubtitle: 'These fixes are under way.',
-              fixData: inProgressFixes.fixes,
-              setShowFix: setShowProgress,
-              shouldShowFix: showProgress,
-            })}
-
-        {!inReviewFixes || !inReviewFixes.fixes.length
-          ? null
-          : renderFixesForFixType({
-              fixTitle: 'In Review',
-              fixSubtitle: 'You need to approve the completion of the fix.',
-              fixData: inReviewFixes.fixes,
-              setShowFix: setShowReview,
-              shouldShowFix: showReview,
-            })}
-
-        {!completedFixes || !completedFixes.fixes.length
-          ? null
-          : renderFixesForFixType({
-              fixTitle: 'Completed',
-              fixSubtitle: 'All tasks are completed.',
-              fixData: completedFixes.fixes,
-              setShowFix: setShowCompleted,
-              shouldShowFix: showCompleted,
-            })}
-
-        {!terminatedFixes || !terminatedFixes.fixes.length
-          ? null
-          : renderFixesForFixType({
-              fixTitle: 'Terminated',
-              fixSubtitle: 'Abandoned Fixes.',
-              fixData: terminatedFixes.fixes,
-              setShowFix: setShowTerminated,
-              shouldShowFix: showTerminated,
-            })}
-
-        {!terminatedByClientFixes || !terminatedByClientFixes.fixes.length
-          ? null
-          : renderFixesForFixType({
-              fixTitle: 'Terminated by client',
-              fixSubtitle: 'Abandoned Fixes.',
-              fixData: terminatedByClientFixes.fixes,
-              setShowFix: setShowTerminated,
-              shouldShowFix: showTerminated,
-            })}
-        {!terminatedByCraftsmanFixes || !terminatedByCraftsmanFixes.fixes.length
-          ? null
-          : renderFixesForFixType({
-              fixTitle: 'Terminated by craftsman',
-              fixSubtitle: 'Abandoned Fixes.',
-              fixData: terminatedByCraftsmanFixes.fixes,
-              setShowFix: setShowTerminated,
-              shouldShowFix: showTerminated,
-            })}
-      </>
+      <FlatList
+        nestedScrollEnabled={true}
+        refreshControl={
+          <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+        }
+        data={fixStates}
+        renderItem={(fixState) => {
+          return (
+            <View key={`${fixState.item.fixTitle}_${fixState.item.fixSubtitle}`} style={{ margin: 5 }}>
+              {/* Section Title */}
+              <View>
+                <View style={styles.titleContainer}>
+                  <Text style={styles.title}>{fixState.item.fixTitle}</Text>
+                  <TouchableOpacity onPress={() => fixState.item.setShowFix(!fixState.item.shouldShowFix)}>
+                    {fixState.item.shouldShowFix ? (
+                      <Icon library="AntDesign" name="caretdown" />
+                    ) : (
+                      <Icon library="AntDesign" name="caretup" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.subtitle}>{fixState.item.fixSubtitle}</Text>
+              </View>
+              {fixState.item.shouldShowFix ? (
+                <View>
+                  {/* body of each section */}
+                  <FlatList
+                    data={fixState.item.fixData}
+                    renderItem={renderFixes}
+                    keyExtractor={(item: FixesModel) => item.id}
+                  />
+                </View>
+              ) : null}
+            </View>
+          );
+        }}
+      />
     );
   };
 
@@ -350,13 +346,7 @@ const FixesScreen: FunctionComponent<any> = () => {
                 <Text>You have no on-going fixes.</Text>
               </View>
             ) : (
-              <ScrollView
-                nestedScrollEnabled={true}
-                refreshControl={
-                  <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
-                }>
-                {renderFixes()}
-              </ScrollView>
+              renderFixesState()
             )}
           </View>
         ) : (
@@ -366,20 +356,16 @@ const FixesScreen: FunctionComponent<any> = () => {
                 <Text>You have no fix requests.</Text>
               </View>
             ) : (
-              <ScrollView
-                nestedScrollEnabled={true}
+              <FlatList
                 refreshControl={
                   <RefreshControl refreshing={refreshState} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
-                }>
-                <FlatList
-                  nestedScrollEnabled={true}
-                  data={newFixes.fixes
-                    .slice()
-                    .sort((fixA, fixB) => fixB?.createdTimestampUtc - fixA?.createdTimestampUtc)}
-                  renderItem={renderItem}
-                  keyExtractor={(item: FixesModel) => item.id}
-                />
-              </ScrollView>
+                }
+                data={newFixes.fixes
+                  .slice()
+                  .sort((fixA, fixB) => fixB?.createdTimestampUtc - fixA?.createdTimestampUtc)}
+                renderItem={renderFixes}
+                keyExtractor={(item: FixesModel) => item.id}
+              />
             )}
           </View>
         )}

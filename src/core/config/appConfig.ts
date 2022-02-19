@@ -1,5 +1,9 @@
 import { ApplicationTypesEnum, Config, ConfigFactory } from 'fixit-common-data-store';
 
+// I didn't want to update the Config type so adding it as a const
+
+export const fileApiBaseUrl = 'https://fixitdevfilemsapi.azurewebsites.net/api';
+
 const config: Config = {
   production: true,
   fixApiBaseUrl: 'https://fixit-dev-fms-api.azurewebsites.net/api',

@@ -53,6 +53,7 @@ export default class SearchTextInput extends React.Component<{
           value={this.props.value}
           onChangeText={this.props.onChange}
           placeholder={this.props.placeholder}
+          placeholderTextColor={colors.grey}
           onSubmitEditing={this.props.onSubmitEditing}
           maxLength={25}
         />

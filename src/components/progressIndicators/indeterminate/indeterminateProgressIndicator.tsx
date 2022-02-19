@@ -1,23 +1,16 @@
-import React, {
-  FunctionComponent,
-} from 'react';
+import React, { FunctionComponent } from 'react';
 import * as Progress from 'react-native-progress';
 import { IndeterminateProgressIndicatorProps } from './indeterminateProgressIndicatorProps';
 
 const IndeterminateProgressIndicator: FunctionComponent<IndeterminateProgressIndicatorProps> = (props) => {
-  const render = () : JSX.Element => {
-    let progressBar : JSX.Element = <></>;
+  const render = (): JSX.Element => {
+    let progressBar: JSX.Element = <></>;
     if (props.indicatorType === 'linear') {
-      progressBar = <Progress.Bar
-        color={props.color}
-        indeterminate={true} />;
+      progressBar = <Progress.Bar color={props.color} indeterminate={true} style={{ width: '100%' }} />;
     } else if (props.indicatorType === 'circular') {
-      progressBar = <Progress.Circle
-        color={props.color}
-        indeterminate={true} />;
+      progressBar = <Progress.Circle color={props.color} indeterminate={true} />;
     }
-    return (
-      progressBar);
+    return progressBar;
   };
 
   return render();
