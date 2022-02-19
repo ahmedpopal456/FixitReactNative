@@ -7,6 +7,8 @@ import { b2cConfig, b2cScopes as scopes } from '../../../core/config/msalConfig'
 import bgImage from '../../../common/assets/fixitRegisterBg.png';
 import { MSALWebviewParams } from '../../../common/models/auth/B2CTypes';
 
+NativeAuthService.setInstance(b2cConfig);
+
 type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
@@ -19,28 +21,25 @@ export type RegisterScreenProps = {
 };
 
 export default class RegisterScreen extends React.Component<RegisterScreenProps> {
-  b2cClient = new NativeAuthService(b2cConfig);
-
-  // Whether the session should ask the browser for a private authentication session for iOS
   webviewParameters: MSALWebviewParams = {
     ios_prefersEphemeralWebBrowserSession: false,
   };
 
   handleSignUpPress = async (): Promise<void> => {
-    this.b2cClient.signUp({ scopes });
+    NativeAuthService.signUp({ scopes });
   };
 
   handleSignInPress = async (): Promise<void> => {
     const { webviewParameters } = this;
-    this.b2cClient.signIn({ scopes, webviewParameters });
+    NativeAuthService.signIn({ scopes, webviewParameters });
   };
 
   handleAcquireTokenPress = async (): Promise<void> => {
-    this.b2cClient.acquireTokenSilent();
+    NativeAuthService.acquireTokenSilent();
   };
 
   handleSignOutPress = async (): Promise<void> => {
-    this.b2cClient.signOut();
+    NativeAuthService.signOut();
   };
 
   render(): JSX.Element {

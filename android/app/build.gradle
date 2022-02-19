@@ -210,11 +210,8 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
-
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-
-    implementation 'com.microsoft.identity.client:msal:1.5.+' // MSAL
-
+    implementation 'com.microsoft.identity.client:msal:2.0.+' // MSAL
     implementation 'com.android.support:multidex:1.0.3'
 
     // Import the BoM for the Firebase platform

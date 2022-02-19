@@ -2,9 +2,9 @@ import React, { FunctionComponent } from 'react';
 import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Icon } from 'fixit-common-ui';
 import NativeAuthService from '../../../core/services/authentication/nativeAuthService';
-import { b2cConfig } from '../../../core/config/msalConfig';
+import { b2cConfig } from '../../..//core/config/msalConfig';
 
-const b2cClient = new NativeAuthService(b2cConfig);
+NativeAuthService.setInstance(b2cConfig);
 
 const styles = StyleSheet.create({
   container: {
@@ -85,7 +85,7 @@ const AccountScreen: FunctionComponent<any> = (props) => {
           {option('loginSecurityBtn', 'Login & Security', undefined, null, styles.button)}
           {option('paymentBtn', 'Payments', undefined, null, styles.button)}
           {option('ratingsBtn', 'Ratings', 'Ratings', null, styles.button)}
-          {option('signOutBtn', 'Sign Out', undefined, async () => b2cClient.signOut(), styles.buttonLast)}
+          {option('signOutBtn', 'Sign Out', undefined, async () => NativeAuthService.signOut(), styles.buttonLast)}
         </View>
       </View>
       <View
