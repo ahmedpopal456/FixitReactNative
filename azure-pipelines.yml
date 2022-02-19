@@ -22,6 +22,8 @@ stages:
     condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/staging'))
     jobs:
       - job: 'FixitMobileApp_Android_Dev_Build'
+        variables:
+          redirectUrl: $(devAndroidRedirectUrl)        
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -45,6 +47,20 @@ stages:
               versionCode: '$(Build.BuildId)'
               versionName: '$(majorProductVersion).$(minorProductVersion).$(buildProductVersion)'
               printFile: true
+
+          - task: replacetokens@5
+            inputs:
+              rootDirectory: '$(System.DefaultWorkingDirectory)/src/core/config'
+              targetFiles: '**/msalConfig.ts'
+              encoding: 'auto'
+              tokenPattern: 'rm'
+              writeBOM: true
+              actionOnMissing: 'warn'
+              keepToken: false
+              actionOnNoFiles: 'continue'
+              enableTransforms: false
+              useLegacyPattern: false
+              enableTelemetry: true
 
           - task: Gradle@2
             inputs:
@@ -80,6 +96,8 @@ stages:
               publishLocation: 'container'
 
       - job: 'FixitMobileApp_IOS_Dev_Build'
+        variables:
+          redirectUrl: $(devIosRedirectUrl)          
         pool:
           vmImage: 'macOS-11'
         condition: succeeded()
@@ -97,6 +115,20 @@ stages:
               versionCodeOption: 'buildid'
               versionCode: '$(Build.BuildId)'
               printFile: true
+
+          - task: replacetokens@5
+            inputs:
+              rootDirectory: '$(System.DefaultWorkingDirectory)/src/core/config'
+              targetFiles: '**/msalConfig.ts'
+              encoding: 'auto'
+              tokenPattern: 'rm'
+              writeBOM: true
+              actionOnMissing: 'warn'
+              keepToken: false
+              actionOnNoFiles: 'continue'
+              enableTransforms: false
+              useLegacyPattern: false
+              enableTelemetry: true
 
           - task: CocoaPods@0
             inputs:
