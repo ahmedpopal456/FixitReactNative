@@ -97,7 +97,7 @@ export default class NotificationHandlerService {
     if (remoteMessage && remoteMessage.id) {
       notifications.unshift({
         remoteMessage,
-        fix: JSON.parse(remoteMessage.data.fixitdata) as FixesModel,
+        fix: remoteMessage.data.fixitdata as FixesModel,
         visited: false,
       });
       store.dispatch(persistentActions.default.setNotifications(notifications, unseenNotificationsNumber + 1));
