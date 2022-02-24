@@ -24,8 +24,9 @@ import { FixRequestHeader, FixTemplateFormTextInput, FixTemplatePicker } from '.
 import fixRequestConstants from './constants';
 import NavigationEnum from '../../../common/enums/navigationEnum';
 
-const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
+const FixRequestMetaStep: FunctionComponent = (props: any): JSX.Element => {
   const navigation = useNavigation();
+  let { fromFixitPlan } = props.route.params;
   const fixTemplate = useSelector((storeState: StoreState) => storeState.fixTemplate);
   const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
   const [tagInputText, setTagInputText] = useState<string>('');
@@ -45,6 +46,8 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
     setTemplateType(fixTemplate.workType);
     setTemplateUnit(fixTemplate.fixUnit);
     setTemplateTags(fixTemplate.tags);
+    setTemplateCategoryName(fixTemplate.workCategory.name);
+    setTemplateTypeName(fixTemplate.types.find((type) => type?.name.toLowerCase() === 'quick fix')?.name || '');
   }, [fixTemplate.name, fixTemplate.workCategory, fixTemplate.workType, fixTemplate.fixUnit, fixTemplate.tags]);
 
   const handleNextStep = (): void => {
@@ -160,47 +163,39 @@ const FixRequestMetaStep: FunctionComponent = (): JSX.Element => {
 
   const render = (): JSX.Element => (
     <>
-      <FixRequestHeader
-        showBackBtn={true}
-        navigation={navigation}
-        screenTitle="Create a Fixit Template and your Fixit Request"
-        textHeight={60}
-      />
+      <FixRequestHeader showBackBtn={true} navigation={navigation} screenTitle="Create your Fixit request" />
       <StyledPageWrapper>
         <StepIndicator numberSteps={fixRequestConstants.NUMBER_OF_STEPS} currentStep={1} />
         <ScrollView>
           <StyledContentWrapper>
-            <P>
-              This section will be part of your new Fixit Template. You can fill in the fields with your requirement.
-            </P>
             <Spacer height="20px" />
             <FixTemplateFormTextInput
-              header={'Template Name'}
+              header={'Subject'}
               value={templateName}
               onChange={(value: string) => setTemplateName(value)}
+              editable={true}
             />
             <Spacer height="20px" />
-            <FixTemplatePicker
-              header={'Category'}
-              selectedValue={templateCategoryName}
-              onChange={(value: string) => {
-                setTemplateCategoryName(value);
-                setTemplateCategory(
-                  fixTemplate.categories.find((category: Category) => category.name === value) as Category,
-                );
-              }}
-              values={fixTemplate.categories || []}
-            />
-            <Spacer height="20px" />
-            <FixTemplatePicker
-              header={'Type'}
-              selectedValue={templateTypeName}
-              onChange={(value: string) => {
-                setTemplateTypeName(value);
-                setTemplateType(fixTemplate.types.find((type: Type) => type.name === value) as Type);
-              }}
-              values={fixTemplate.types || []}
-            />
+            {fromFixitPlan ? (
+              <FixTemplateFormTextInput
+                header={'Category'}
+                value={templateCategoryName}
+                onChange={(value: string) => setTemplateName(value)}
+                editable={false}
+              />
+            ) : (
+              <FixTemplatePicker
+                header={'Category'}
+                selectedValue={templateCategoryName}
+                onChange={(value: string) => {
+                  setTemplateCategoryName(value);
+                  setTemplateCategory(
+                    fixTemplate.categories.find((category: Category) => category.name === value) as Category,
+                  );
+                }}
+                values={fixTemplate.categories || []}
+              />
+            )}
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Unit'}

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
-import { H2, P, Spacer, Divider, Icon, Label, colors, Button } from 'fixit-common-ui';
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable } from 'react-native';
+import { H2, Spacer, Divider, Icon, Label, colors } from 'fixit-common-ui';
+import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import {
   fixRequestActions,
   store,
@@ -11,28 +11,20 @@ import {
   SectionModel,
   AddressModel,
   UserSummaryModel,
-  ImageModel,
 } from 'fixit-common-data-store';
 import { useNavigation } from '@react-navigation/native';
 import useAsyncEffect from 'use-async-effect';
 import StepIndicator from '../../../components/stepIndicator';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
-import GlobalStyles from '../../../common/styles/globalStyles';
+
 import { FormTextInput, FormNextPageArrows } from '../../../components/forms/index';
-import FixRequestStyles from '../styles/fixRequestStyles';
+
 import FixRequestHeader from '../components/fixRequestHeader';
 import constants from './constants';
 import { FixTemplatePicker } from '../components';
 import Calendar from '../../../components/calendar/calendar';
 import NavigationEnum from '../../../common/enums/navigationEnum';
 import { TagModel } from 'fixit-common-data-store/src/slices/fixesSlice';
-import { Asset } from 'react-native-image-picker';
-import { CameraAndImage } from '../../../components/CameraAndImage';
-import { v4 as uuidv4 } from 'uuid';
-import FileManagementService, { UploadFileResponse } from '../../../core/services/file/fileManagementService';
-import Logger from '../../../logger';
-import { FixitError } from '../../../common/FixitError';
-import { DeletableCameraAssets } from '../../../components/DeletableCameraAssets';
 
 interface ScheduleType {
   id: string;
@@ -54,7 +46,7 @@ const initialState = {
 
 const styles = StyleSheet.create({
   formField: {
-    width: '100%',
+    width: '90%',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
@@ -66,96 +58,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   searchIcon: {
     padding: 10,
   },
 });
 
-const fileManagementService = new FileManagementService();
-
-const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
+const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Element => {
   const navigation = useNavigation();
+  const { fixId, images } = props.route.params;
+  console.log(images);
   const user = useSelector((storeState: StoreState) => storeState.user);
   const fixRequest = useSelector((storeState: StoreState) => storeState.fixRequest);
   const fixTemplate = useSelector((storeState: StoreState) => storeState.fixTemplate);
 
-  const [fixId, setFixId] = useState<string>('');
   const [state, setState] = useState<FixRequestImagesLocationStepState>(initialState);
   const [scheduleTypeName, setScheduleTypeName] = useState<string>(scheduleTypes[0].name);
   const [scheduleType, setScheduleType] = useState<ScheduleType>(scheduleTypes[0]);
   const [schedules, setSchedules] = useState<Array<Schedule>>([]);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [assets, setAssets] = useState<Array<Asset & { isUploaded: boolean }>>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<Array<UploadFileResponse>>([]);
-  const [isUploading, setIsUploading] = useState<{ [key: string]: boolean }>({});
-  const [errorMessage, setErrorMessage] = useState<string>('');
-
-  const [assetToFile, setAssetToFile] = useState<{ [key: string]: string }>({});
-
-  const setErrorMesssageWithTime = (message: string) => {
-    setErrorMessage(message);
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 5000);
-  };
-
-  useEffect(() => {
-    if (!fixId) {
-      setFixId(uuidv4());
-    }
-  }, []);
 
   useAsyncEffect(async () => {
     setState({
       userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress)?.address,
     });
   }, [user]);
-
-  const uploadFiles = async () => {
-    const tempAssets = [...assets];
-    let updateAssetToFile = assetToFile;
-    const tempUploadedFiles = [...uploadedFiles];
-    let i = tempAssets.length;
-
-    while (i--) {
-      try {
-        if (!tempAssets[i].isUploaded) {
-          const uri = tempAssets[i].uri as string;
-          setIsUploading({
-            ...isUploading,
-            [uri]: true,
-          });
-
-          const uploadedFile = await fileManagementService.uploadFile(fixId, tempAssets[i]);
-          tempAssets[i].isUploaded = true;
-          updateAssetToFile = {
-            ...updateAssetToFile,
-            [tempAssets[i].uri as string]: uploadedFile.fileCreatedId,
-          };
-          tempUploadedFiles.push(uploadedFile);
-          let updateisUploading = isUploading;
-          delete updateisUploading[uri];
-          setIsUploading({
-            ...updateisUploading,
-          });
-        }
-      } catch (e: any & FixitError) {
-        tempAssets.splice(i, 1);
-        setErrorMesssageWithTime(e.message);
-        Logger.instance.trackException({ exception: e.error });
-      }
-    }
-    setUploadedFiles(tempUploadedFiles);
-    setAssetToFile(updateAssetToFile);
-    setAssets(tempAssets);
-  };
-
-  useAsyncEffect(async () => {
-    if (fixId) {
-      await uploadFiles();
-    }
-  }, [assets.length]);
 
   const handleNextStep = (): void => {
     let updatedSchedules;
@@ -200,18 +127,6 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
     };
 
     const updatedByUser = createdByClient;
-    const images: Array<ImageModel> = [];
-    uploadedFiles.forEach((uploadedFile) => {
-      images.push({
-        id: uploadedFile.fileCreatedId,
-        url: uploadedFile.imageUrl.url.toString(),
-        metadata: {
-          createdTimeStampUTC: uploadedFile.fileCreatedTimestampUtc,
-          updatedTimeStampUTC: uploadedFile.fileCreatedTimestampUtc,
-        },
-        name: uploadedFile.fileCreatedName,
-      });
-    });
 
     const fix: FixRequestModel = {
       id: fixId,
@@ -245,43 +160,11 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
 
   return (
     <>
-      <FixRequestHeader
-        showBackBtn={true}
-        navigation={navigation}
-        screenTitle="Create a Fixit Template and your Fixit Request"
-        textHeight={60}
-        backFunction={async () => {
-          if (navigation.canGoBack()) {
-            navigation.goBack();
-          }
-          await fileManagementService.deleteDirectoryByFixId(fixId);
-        }}
-      />
+      <FixRequestHeader showBackBtn={true} navigation={navigation} screenTitle="Create your Fixit request" />
       <StyledPageWrapper>
         <StepIndicator numberSteps={constants.NUMBER_OF_STEPS} currentStep={4} />
-        <Text
-          style={{
-            color: colors.dark,
-            textAlign: 'center',
-            width: '100%',
-            height: 40,
-            paddingTop: 10,
-            backgroundColor: `${errorMessage ? colors.error : colors.transparent}`,
-          }}>
-          {errorMessage}
-        </Text>
-        <CameraAndImage
-          assets={assets}
-          setAssets={setAssets}
-          modalVisible={modalVisible}
-          setErrorMessage={setErrorMessage}
-          setModalVisible={setModalVisible}
-        />
+
         <ScrollView style={{ padding: 10 }}>
-          <P>
-            This section is not saved inside a Fixit Template. The Information are required to complete your Fixit
-            Request.
-          </P>
           {/** Location */}
           <View style={{ paddingBottom: 10 }}>
             <View style={{ height: 50 }}>
@@ -345,6 +228,7 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
                       ? ''
                       : fixRequest.clientEstimatedCost.minimumCost.toString()
                   }
+                  editable={true}
                 />
                 <Icon
                   library="FontAwesome5"
@@ -379,6 +263,7 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
                       fixRequestActions.setFixRequestClientMaxEstimatedCost({ maximumCost: parseInt(cost, 10) }),
                     )
                   }
+                  editable={true}
                   value={
                     fixRequest.clientEstimatedCost.maximumCost === 0
                       ? ''
@@ -431,27 +316,6 @@ const FixRequestImagesLocationStep: FunctionComponent = (): JSX.Element => {
               </View>
             ) : null}
           </View>
-          <Divider />
-          {/** Images */}
-          <View style={[GlobalStyles.flexRow, { marginBottom: 5 }]}>
-            <H2 style={FixRequestStyles.titleWithAction}>Images</H2>
-            <Pressable style={FixRequestStyles.titleActionWrapper} onPress={() => setModalVisible(true)}>
-              <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
-            </Pressable>
-          </View>
-          <View style={{ flexDirection: 'row', flexGrow: 1, flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-            <DeletableCameraAssets
-              fixId={fixId}
-              assets={assets}
-              setAssets={setAssets}
-              uploadedFiles={uploadedFiles}
-              setUploadedFiles={setUploadedFiles}
-              assetToFile={assetToFile}
-              setassetToFile={setAssetToFile}
-              isUploading={isUploading}
-            />
-          </View>
-          <Divider />
           <Spacer height="50px" />
         </ScrollView>
       </StyledPageWrapper>

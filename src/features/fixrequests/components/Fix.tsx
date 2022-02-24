@@ -382,13 +382,6 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
               <H3 style={globalStyles.boldTitle}>Category</H3>
               <P>{fix?.details.category as string}</P>
             </View>
-            <View
-              style={{
-                flexGrow: 1,
-              }}>
-              <H3 style={globalStyles.boldTitle}>Type</H3>
-              <P>{fix?.details.type as string}</P>
-            </View>
           </View>
           <Divider />
         </>
@@ -545,7 +538,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
     if (schedule.length === 1 && schedule[0].startTimestampUtc === schedule[0].endTimestampUtc) {
       return (
         <>
-          <H3 style={globalStyles.boldTitle}>Schedules</H3>
+          <H3 style={globalStyles.boldTitle}>Schedule</H3>
           <P>Right away</P>
           <Divider />
         </>
@@ -554,7 +547,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
     if (schedule.length >= 1) {
       return (
         <>
-          <H3 style={globalStyles.boldTitle}>Schedules</H3>
+          <H3 style={globalStyles.boldTitle}>Schedule</H3>
           <Calendar parentSchedules={schedule || []} canUpdate={false} />
           <Divider />
         </>

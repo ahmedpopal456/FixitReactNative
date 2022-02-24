@@ -27,12 +27,7 @@ export default class StepIndicator extends React.Component<{ numberSteps: number
       <>
         <View
           style={{
-            position: 'absolute',
-            flex: 1,
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 20,
+            height: 30,
             backgroundColor: '#fff',
             padding: 10,
             paddingLeft: 18,

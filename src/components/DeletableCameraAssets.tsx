@@ -209,15 +209,6 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
       ) : (
         <></>
       )}
-      {isImageDownloadStillInProgress && (
-        <ProgressIndicatorFactory
-          type="indeterminate"
-          children={{
-            indicatorType: 'linear',
-            color: colors.orange,
-          }}
-        />
-      )}
       <DeleteButton />
     </View>
   );

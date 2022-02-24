@@ -1,9 +1,9 @@
-import { colors } from 'fixit-common-ui';
-import React from 'react';
+import { colors, Icon } from 'fixit-common-ui';
+import React, { FunctionComponent, useRef } from 'react';
 import { TextInput, Text, View } from 'react-native';
 import StyledTextInput from '../styledElements/styledTextInput';
 
-export default class FormTextInput extends React.Component<{
+interface FormTextInputProps {
   onChange: (text: string) => void;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -13,43 +13,37 @@ export default class FormTextInput extends React.Component<{
   padLeft?: boolean;
   top?: boolean;
   numeric?: boolean;
-}> {
-  textInput: TextInput | null | undefined;
+  editable: boolean;
+}
 
-  state = {
-    value: this.props.value,
-  };
-
-  onFocus = (): void => {
-    if (this.textInput) {
-      this.textInput.setNativeProps({
-        style: { borderColor: colors.accent },
-      });
-    }
-    if (this.props.onFocus) {
-      this.props.onFocus();
+const FormTextInput: FunctionComponent<FormTextInputProps> = (props: FormTextInputProps) => {
+  let textInputRef = useRef<TextInput>();
+  const onFocus = (): void => {
+    textInputRef?.current?.setNativeProps({
+      style: { borderColor: colors.accent },
+    });
+    if (props.onFocus) {
+      props.onFocus();
     }
   };
 
-  onBlur = (): void => {
-    if (this.textInput) {
-      this.textInput.setNativeProps({
-        style: { borderColor: colors.grey },
-      });
-    }
-    if (this.props.onBlur) {
-      this.props.onBlur();
+  const onBlur = (): void => {
+    textInputRef?.current?.setNativeProps({
+      style: { borderColor: colors.grey },
+    });
+    if (props.onBlur) {
+      props.onBlur();
     }
   };
 
-  render(): JSX.Element {
-    return (
-      <>
-        <View
-          style={{
-            position: 'relative',
-          }}>
-          {this.props.title && (
+  return (
+    <>
+      <View
+        style={{
+          position: 'relative',
+        }}>
+        <View style={{ flexDirection: 'row' }}>
+          {props.title ? (
             <View
               style={{
                 backgroundColor: 'transparent',
@@ -65,29 +59,38 @@ export default class FormTextInput extends React.Component<{
                   backgroundColor: '#fff',
                   padding: 3,
                 }}>
-                {this.props.title}
+                {props.title}
               </Text>
             </View>
+          ) : (
+            <></>
           )}
-          <StyledTextInput
-            ref={(c) => {
-              this.textInput = c;
-            }}
-            keyboardType={this.props.numeric ? 'numeric' : 'default'}
-            onBlur={() => this.onBlur()}
-            onFocus={() => this.onFocus()}
-            style={{
-              height: this.props.big ? 150 : 50,
-              paddingLeft: this.props.padLeft ? 30 : 10,
-              textAlignVertical: this.props.top ? 'top' : 'center',
-            }}
-            multiline={this.props.big}
-            selectionColor={colors.accent}
-            value={this.props.value}
-            onChangeText={this.props.onChange}
-          />
         </View>
-      </>
-    );
-  }
-}
+        <StyledTextInput
+          ref={(value: any) => {
+            textInputRef.current = value;
+          }}
+          keyboardType={props.numeric ? 'numeric' : 'default'}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          style={{
+            height: props.big ? 150 : 50,
+            paddingLeft: props.padLeft ? 30 : 10,
+            textAlignVertical: props.top ? 'top' : 'center',
+          }}
+          multiline={props.big}
+          selectionColor={colors.accent}
+          value={props.value}
+          onChangeText={props.onChange}
+          editable={props.editable}
+        />
+      </View>
+    </>
+  );
+};
+
+FormTextInput.defaultProps = {
+  editable: true,
+};
+
+export default FormTextInput;

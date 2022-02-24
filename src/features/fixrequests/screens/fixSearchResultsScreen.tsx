@@ -48,12 +48,12 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
     const serv = new FixRequestService(config, store);
     serv.getFixTemplateById(id);
 
-    navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP);
+    navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP, { fromFixitPlan: true });
   };
 
   const handleBlankFixTemplate = (): void => {
     dispatch(fixRequestActions.clearData());
-    navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP);
+    navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP, { fromFixitPlan: false });
   };
 
   const handleGoBack = (): void => {
@@ -173,7 +173,7 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
           style={{
             height: 40,
           }}>
-          <H1>Start from a Fixit Template</H1>
+          <H1>Start from a Fixit plan</H1>
         </View>
       </View>
       <StyledPageWrapper>
@@ -238,7 +238,7 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
         testID="startBlankFixTemplateBtn"
         onPress={() => handleBlankFixTemplate()}
         style={FixRequestStyles.searchResultsContinueBtn}>
-        Start with a blank fix template
+        Write your own plan
       </Button>
     </>
   );

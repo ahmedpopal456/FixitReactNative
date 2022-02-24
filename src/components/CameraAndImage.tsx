@@ -56,9 +56,7 @@ export const CameraAndImage: FunctionComponent<PropsWithChildren<CameraAndImageP
   props: CameraAndImageProps,
 ): JSX.Element => {
   const { modalVisible, setModalVisible, assets, setAssets, setErrorMessage } = props;
-  const [isFetchingAssets, setIsFetchingAssets] = useState<boolean>(false);
   const launch = async (isCamera: boolean) => {
-    setIsFetchingAssets(true);
     const response: ImagePickerResponse = await new Promise((resolve, reject) => {
       setTimeout(() => {
         if (isCamera) {
@@ -85,7 +83,6 @@ export const CameraAndImage: FunctionComponent<PropsWithChildren<CameraAndImageP
 
     setAssets(assetsUpdate);
     setModalVisible(!modalVisible);
-    setIsFetchingAssets(false);
   };
 
   return (
@@ -97,38 +94,26 @@ export const CameraAndImage: FunctionComponent<PropsWithChildren<CameraAndImageP
         setModalVisible(!modalVisible);
       }}>
       <View style={styles.centeredView}>
-        {isFetchingAssets ? (
-          <View style={{ width: '50%' }}>
-            <ProgressIndicatorFactory
-              type="indeterminate"
-              children={{
-                indicatorType: 'linear',
-                color: colors.orange,
-              }}
-            />
-          </View>
-        ) : (
-          <View style={styles.modalView}>
-            <Text style={{ marginBottom: 3, fontWeight: 'bold' }}> Select image </Text>
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={async () => {
-                await launch(true);
-              }}>
-              <Text>Take photo</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={async () => {
-                await launch(false);
-              }}>
-              <Text>Choose from library</Text>
-            </Pressable>
-            <Pressable style={[styles.button, styles.buttonCancel]} onPress={() => setModalVisible(!modalVisible)}>
-              <Text style={{ fontWeight: 'bold' }}>Cancel</Text>
-            </Pressable>
-          </View>
-        )}
+        <View style={styles.modalView}>
+          <Text style={{ marginBottom: 3, fontWeight: 'bold' }}> Select image </Text>
+          <Pressable
+            style={[styles.button, styles.buttonClose]}
+            onPress={async () => {
+              await launch(true);
+            }}>
+            <Text>Take photo</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.button, styles.buttonClose]}
+            onPress={async () => {
+              await launch(false);
+            }}>
+            <Text>Choose from library</Text>
+          </Pressable>
+          <Pressable style={[styles.button, styles.buttonCancel]} onPress={() => setModalVisible(!modalVisible)}>
+            <Text style={{ fontWeight: 'bold' }}>Cancel</Text>
+          </Pressable>
+        </View>
       </View>
     </Modal>
   );

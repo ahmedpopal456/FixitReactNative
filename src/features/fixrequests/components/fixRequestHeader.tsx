@@ -8,7 +8,7 @@ export default class FixRequestHeader extends React.Component<{
   showBackBtn: boolean;
   navigation: any;
   screenTitle: string;
-  textHeight: number;
+  textHeight?: number;
   backFunction?: () => void;
 }> {
   handleGoBack = async (): Promise<void> => {
@@ -26,7 +26,7 @@ export default class FixRequestHeader extends React.Component<{
           style={{
             backgroundColor: colors.accent,
             paddingLeft: 20,
-            paddingBottom: 40,
+            paddingBottom: 20,
             paddingTop: 20,
             flexDirection: 'row',
             alignItems: 'flex-start',
