@@ -1,6 +1,14 @@
 import React, { useState, FunctionComponent, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Text, StyleSheet, View, TouchableOpacity, SafeAreaView } from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  SafeAreaView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import { FixesService, FixRequestService, store, StoreState, useSelector } from 'fixit-common-data-store';
 import { Button, colors, Icon, Tag } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
@@ -28,7 +36,7 @@ const styles = StyleSheet.create({
   baseContainer_View_View_View: {
     padding: 20,
     borderRadius: 25,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#E6E6E6',
     marginTop: 10,
     shadowOffset: { width: 10, height: 10 },
     shadowOpacity: 1,
@@ -102,7 +110,7 @@ const HomeScreenClient: FunctionComponent = () => {
     fixRequestService.getUnits();
   };
 
-  const addTag = (): void => {
+  const addTag = (): Array<string> | void => {
     if (selectedTagsState.length > maxSelectedTags) {
       Toast.show({
         type: 'error',
@@ -125,6 +133,7 @@ const HomeScreenClient: FunctionComponent = () => {
     updatedTags.push(tagInputTextState);
     setSelectedTagsState(updatedTags);
     setTagInputTextState('');
+    return updatedTags;
   };
 
   const removeTag = (tag: string): void => {
@@ -164,14 +173,21 @@ const HomeScreenClient: FunctionComponent = () => {
   };
 
   const search = (): void => {
+    let tags = selectedTagsState;
+    if (tagInputTextState) {
+      const result = addTag();
+      if (result) {
+        tags = result;
+      }
+    }
     navigation.navigate('SearchResultsScreen', {
-      tags: selectedTagsState,
+      tags,
     });
   };
 
   return (
     <SafeAreaView style={styles.baseContainer}>
-      <View style={styles.baseContainer_View}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={styles.baseContainer_View}>
         <View style={styles.baseContainer_View_View}>
           <View style={styles.baseContainer_View_View_View}>
             {suggestedTagsState.length > 0 ? <Text>Suggested Tags</Text> : <></>}
@@ -259,7 +275,7 @@ const HomeScreenClient: FunctionComponent = () => {
             </View>
           </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
       <Toast ref={(ref) => Toast.setRef(ref)} />
     </SafeAreaView>
   );
