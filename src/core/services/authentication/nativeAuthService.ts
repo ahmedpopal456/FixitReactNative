@@ -53,9 +53,9 @@ export default class NativeAuthService {
       try {
         this.instance.publicClientApplication = await this.instance.publicClientApplication.init();
       } catch (error: any) {
-        Logger.instance.trackException({
-          exception: error as any,
-        });
+        // Logger.instance.trackException({
+        //   exception: error as any,
+        // });
       }
     }
   }
@@ -74,9 +74,9 @@ export default class NativeAuthService {
       userService.fetchUser(userId);
       return msalResult;
     } catch (error: any) {
-      Logger.instance.trackException({
-        exception: error as any,
-      });
+      // Logger.instance.trackException({
+      //   exception: error as any,
+      // });
       if (
         error.message.includes(NativeAuthService.B2C_PASSWORD_CHANGE) &&
         this.instance.b2cConfig.auth.policies.passwordReset

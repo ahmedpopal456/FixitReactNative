@@ -3,7 +3,7 @@ import React, { FunctionComponent, useState } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 import { Button, colors, H1, Icon, Tag } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
-import { FixesModel, FixesService, Schedule, store } from 'fixit-common-data-store';
+import { FixesModel, FixesService, NotificationTypes, Schedule, store } from 'fixit-common-data-store';
 import { StackActions } from '@react-navigation/native';
 import useAsyncEffect from 'use-async-effect';
 import { NotificationProps } from '../../common/models/notifications/NotificationProps';
@@ -77,23 +77,21 @@ const styles = StyleSheet.create({
   },
 });
 
-const fixesService = new FixesService(config, store);
-
 const FixNotifications: FunctionComponent<NotificationProps> = (props: NotificationProps): JSX.Element => {
   const [isRightAway, setIsRightAway] = useState<boolean>(false);
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<string>('');
   const [expectedStartDate, setExpectedStartDate] = useState<string>('');
-  // TODO: fixFromDatabase is to see if a fix has been assigned to a craftsman
-  const [fixFromDatabase, setFixFromDatabase] = useState<FixesModel | undefined>();
+  const [isVisible, setIsVisible] = useState<boolean>(true);
   const [fix, setFix] = useState<FixesModel | undefined>();
-  const isFixClientRequest = props?.message?.data?.action === 'FixClientRequest';
 
-  useAsyncEffect(async () => {
-    if (props.message.data?.fixitdata) {
-      const parsedFixtData: FixesModel = props.message.data.fixitdata as FixesModel;
+  const isFixClientRequest = props?.currentDisplayedRemoteMessageData.action === NotificationTypes.FixClientRequest;
+  const onRefresh = (): void => {
+    const systemPayload = props.currentDisplayedRemoteMessageData.systemPayload;
+    console.log(props.currentDisplayedRemoteMessageData.systemPayload);
+
+    if (systemPayload) {
+      const parsedFixtData: FixesModel = systemPayload as FixesModel;
       setFix(parsedFixtData);
-      const returnedFixResponse = await fixesService.getFix(parsedFixtData.id);
-      setFixFromDatabase(returnedFixResponse);
       const { schedule } = parsedFixtData;
       if (schedule.length === 1 && schedule[0].startTimestampUtc === schedule[0].endTimestampUtc) {
         setIsRightAway(true);
@@ -108,15 +106,14 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
             tempExpectedDeliveryDate = s.endTimestampUtc;
           }
         });
-
         setExpectedStartDate(new Date(tempExpectedStartDate * 1000).toISOString().split('T')[0]);
         setExpectedDeliveryDate(new Date(tempExpectedDeliveryDate * 1000).toISOString().split('T')[0]);
       }
+      setIsVisible(true);
     }
-  }, [props.message]);
+  };
 
   const handleViewDetails = (): void => {
-    props.onDismissNotification(props.message?.id);
     if (fix && props.navRef) {
       if (isFixClientRequest) {
         props.navRef.current?.dispatch(
@@ -314,7 +311,7 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
           <Button
             width={150}
             onPress={() => {
-              props.onDismissNotification(props.message?.id);
+              setIsVisible(false);
             }}
             color="accent"
             outline>
@@ -355,16 +352,11 @@ const FixNotifications: FunctionComponent<NotificationProps> = (props: Notificat
       </>
     );
   };
+
   const render = (): JSX.Element => {
-    const isVisible = props.message !== undefined;
+    onRefresh();
     return (
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isVisible}
-        onRequestClose={() => {
-          props.onDismissNotification(props.message?.id);
-        }}>
+      <Modal animationType="slide" transparent={true} visible={isVisible}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <ScrollView style={{ width: '100%' }}>

@@ -2,14 +2,19 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Text, TouchableOpacity, View, Image, ScrollView } from 'react-native';
 import { Button, colors, H1, H2, Icon, Spacer } from 'fixit-common-ui';
-import { store, StoreState, useSelector, persistentActions, FixesModel } from 'fixit-common-data-store';
+import {
+  store,
+  FixesModel,
+  EnqueueNotificationRequestDto,
+  NotificationsService,
+  NotificationTypes,
+} from 'fixit-common-data-store';
 import { useNavigation } from '@react-navigation/native';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
 import StyledContentWrapper from '../../../components/styledElements/styledContentWrapper';
 import FadeInAnimator from '../../../common/animators/fadeInAnimator';
 import backArrowIcon from '../../../common/assets/back-icon.png';
 import { NavigationProps } from '../../../common/types/navigationProps';
-import NotificationService from '../../../core/services/notification/notificationService';
 import config from '../../../core/config/appConfig';
 
 export type FixSuggestChangesReviewProps = {
@@ -17,7 +22,7 @@ export type FixSuggestChangesReviewProps = {
   cost: string;
   comments: string;
 };
-const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
+const notificationService = new NotificationsService(config, store);
 
 const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChangesReviewProps>> = (
   props: NavigationProps<FixSuggestChangesReviewProps>,
@@ -25,50 +30,41 @@ const FixSuggestChangesReview: FunctionComponent<NavigationProps<FixSuggestChang
   const navigation = useNavigation();
   const { fix, cost, comments } = props.route.params;
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { notifications, unseenNotificationsNumber } = useSelector((storeState: StoreState) => storeState.persist);
 
   const handleContinue = async (): Promise<void> => {
-    const notificationBody = {
-      message: 'Knock Knock',
+    const notificationBody: EnqueueNotificationRequestDto = {
+      title: 'Knock Knock',
+      message: 'Incoming Response from Craftsman',
       payload: {
-        ...fix,
-        assignedToCraftsman: {
-          id: store.getState().user.userId,
-          firstName: store.getState().user.firstName,
-          lastName: store.getState().user.lastName,
+        systemPayload: {
+          ...fix,
+          assignedToCraftsman: {
+            id: store.getState().user.userId,
+            firstName: store.getState().user.firstName,
+            lastName: store.getState().user.lastName,
+          },
+          craftsmanEstimatedCost: {
+            cost,
+            comment: comments,
+          },
+          schedule: fix.schedule,
         },
-        craftsmanEstimatedCost: {
-          cost,
-          comment: comments,
-        },
-        schedule: fix.schedule,
+        action: NotificationTypes.FixCraftsmanResponse,
       },
-      action: 'FixCraftsmanResponse',
-      recipients: [
+      recipientUsers: [
         {
-          id: fix.createdByClient.id,
+          id: fix.createdByClient.id as string,
           firstName: fix.createdByClient.firstName,
           lastName: fix.createdByClient.lastName,
         },
       ],
-      Silent: false,
+      tags: [],
+      silent: false,
     };
 
     try {
       await notificationService.enqueue(notificationBody);
-
-      const notificationsToSet = notifications.filter((notification) => {
-        if (notification?.fix.id !== fix.id) {
-          return notification;
-        }
-        return null;
-      });
-
-      let unseenNotificationsNumberUpdated = unseenNotificationsNumber;
-      if (unseenNotificationsNumber > notificationsToSet.length) {
-        unseenNotificationsNumberUpdated = notificationsToSet.length;
-      }
-      store.dispatch(persistentActions.default.setNotifications(notificationsToSet, unseenNotificationsNumberUpdated));
+      // TODO: delete notification
       navigation.navigate('HomeScreen');
     } catch (e) {
       console.error(e);

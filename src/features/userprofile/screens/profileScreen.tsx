@@ -1,17 +1,13 @@
 import React, { FunctionComponent, useState } from 'react';
-import {
-  Text, View, StyleSheet, ScrollView, Dimensions, TextInput,
-} from 'react-native';
+import { Text, View, StyleSheet, ScrollView, Dimensions, TextInput } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  store, StoreState, useSelector,
-} from 'fixit-common-data-store';
+import { store, StoreState, useSelector } from 'fixit-common-data-store';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';
 
 interface ProfileScreenState {
-  userAddress: string | undefined
+  userAddress: string | undefined;
 }
 
 const styles = StyleSheet.create({
@@ -94,7 +90,7 @@ const initialState = {
   userAddress: store.getState().profile?.address?.address?.formattedAddress,
 };
 
-const ProfileScreen : FunctionComponent<any> = (props) => {
+const ProfileScreen: FunctionComponent<any> = (props) => {
   const [state, setState] = useState<ProfileScreenState>(initialState);
   const user = useSelector((storeState: StoreState) => storeState.user);
 
@@ -107,20 +103,15 @@ const ProfileScreen : FunctionComponent<any> = (props) => {
   const render = () => (
     <SafeAreaView style={styles.container}>
       <View style={styles.topContainer}>
-        <Button onPress={() => props.navigation.goBack()} color='transparent'>
-          <Icon library='AntDesign' name='back' size={30} />
+        <Button onPress={() => props.navigation.goBack()} color="transparent">
+          <Icon library="AntDesign" name="back" size={30} />
         </Button>
         <Text style={styles.title}>My Profile</Text>
       </View>
 
       <View style={styles.bodyContainer}>
-        <ScrollView
-          contentContainerStyle={styles.scrollViewContent}>
-          <Avatar
-            size="xlarge"
-            rounded
-            icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
-          />
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <Avatar size="xlarge" rounded icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }} />
           <Text style={styles.text}>Name</Text>
           <TextInput
             editable={false}
@@ -148,7 +139,7 @@ const ProfileScreen : FunctionComponent<any> = (props) => {
               maxLength={30}
               onTouchEnd={() => props.navigation.navigate('AddressSelector')}
             />
-            <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
+            <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20} />
           </View>
         </ScrollView>
       </View>

@@ -33,7 +33,7 @@
     "axios": "^0.21.1",
     "base-64": "^1.0.0",
     "enzyme": "^3.11.0",
-    "fixit-common-data-store": "0.5.233-hyjaz",
+    "fixit-common-data-store": "0.6.8-ahmed",
     "fixit-common-ui": "1.0.10-alpha",
     "i18next": "^20.3.2",
     "jwt-decode": "^3.1.2",

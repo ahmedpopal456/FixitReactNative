@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Text, View, StyleSheet, SafeAreaView, Dimensions, Image,
-} from 'react-native';
+import { Text, View, StyleSheet, SafeAreaView, Dimensions, Image } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import { Avatar } from 'react-native-elements';
 import { Button, Icon } from 'fixit-common-ui';
@@ -54,7 +52,7 @@ const RatingItemScreen = (props: {
   navigation: {
     goBack: () => void;
     navigate: (arg0: string) => void;
-  },
+  };
   route: {
     params: {
       firstName: string;
@@ -62,31 +60,27 @@ const RatingItemScreen = (props: {
       score: number;
       comment: string;
     };
-  },
-  unseenNotificationsNumber: number,
+  };
+  unseenNotificationsNumber: number;
 }): JSX.Element => (
   <SafeAreaView style={styles.container}>
     <View style={styles.topContainer}>
-      <Button onPress={() => props.navigation.goBack()} color='transparent'>
-        <Icon library='AntDesign' name='back' size={30} />
+      <Button onPress={() => props.navigation.goBack()} color="transparent">
+        <Icon library="AntDesign" name="back" size={30} />
       </Button>
     </View>
     <View style={styles.bodyContainer}>
       <View style={styles.infoContainer}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Avatar
-            size="small"
-            rounded
-            icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
-          />
+          <Avatar size="small" rounded icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }} />
           <Text style={styles.textName}>
             {props.route.params.firstName} {props.route.params.lastName}
           </Text>
         </View>
-        <View testID='ratingItemDetails' style={styles.ratingContainer}>
+        <View testID="ratingItemDetails" style={styles.ratingContainer}>
           <Rating
             style={{ alignSelf: 'flex-start', marginVertical: 5, marginLeft: -5 }}
-            type='custom'
+            type="custom"
             ratingColor={'#FFD14A'}
             ratingBackgroundColor={'gray'}
             tintColor={'white'}

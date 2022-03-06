@@ -2,18 +2,21 @@ import React, { FunctionComponent, PropsWithChildren } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import {
-  persistentActions,
-  NotificationModel,
   StoreState,
   store,
   useSelector,
-  notificationActions,
+  notificationsActions,
+  NotificationDocument,
   FixesModel,
+  NotificationsService,
+  NotificationTypes,
+  NotificationStatus,
 } from 'fixit-common-data-store';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Avatar } from 'react-native-elements';
-import NotificationTypes from '../models/notificationTypes';
-import { ReceivedNotification } from 'react-native-push-notification';
+import useAsyncEffect from 'use-async-effect';
+import config from '../../../core/config/appConfig';
+import { useState } from 'react';
 
 const styles = StyleSheet.create({
   container: {
@@ -65,44 +68,43 @@ export interface NotificationsScreenWithNavigationProps extends PropsWithChildre
   navigation: NavigationProp<ParamListBase, string>;
 }
 
+const notificationService = new NotificationsService(config, store);
+
 const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
-  const notifications = useSelector((storeState: StoreState) => storeState.persist.notifications);
-  const unseenNotificationsNumber = useSelector(
-    (storeState: StoreState) => storeState.persist.unseenNotificationsNumber,
-  );
-  const onPressNotification = (item: any) => {
-    const currentNotifications: Array<NotificationModel> = [...notifications];
+  const notifications = useSelector((storeState: StoreState) => storeState.notifications.notifications);
 
-    const index = currentNotifications.findIndex(
-      (currentNotification) => currentNotification.remoteMessage.id === item.remoteMessage.id,
-    );
-    if (!item.visited) {
-      currentNotifications[index] = {
-        remoteMessage: currentNotifications[index].remoteMessage,
-        fix: currentNotifications[index].fix,
-        visited: true,
-      };
+  const user = useSelector((storeState: StoreState) => storeState.user);
+  const pageSize = 20;
 
-      store.dispatch(persistentActions.default.setNotifications(currentNotifications, unseenNotificationsNumber - 1));
-    }
+  const [currentPageIndex, setCurrentPageIndex] = useState<number>(1);
+  const [refreshState, setRefreshState] = useState<boolean>(false);
 
-    const action = item?.data?.action;
-    if (action === NotificationTypes.NEW_CONVERSATION || action === NotificationTypes.NEW_MESSAGE) {
+  useAsyncEffect(async () => {
+    await onRefresh();
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshState(true);
+    await notificationService.getNotificationsPaginated(user.userId as string, currentPageIndex, pageSize);
+    setRefreshState(false);
+  };
+
+  const onPressNotification = (item: NotificationDocument) => {
+    const action = item.payload.action;
+    if (action === NotificationTypes.NewConversation || action === NotificationTypes.NewMessage) {
       props.navigation.navigate('Chat');
     } else {
       props.navigation.navigate('Home');
     }
-    if (item.remoteMessage && item.remoteMessage.id) {
-      store.dispatch(notificationActions.displayNotification({ messages: [item.remoteMessage] }));
-    }
+    store.dispatch(notificationsActions.DISPLAY_NOTIFICATION(item.payload));
   };
 
-  const renderItem = ({ item }: { item: NotificationModel }): JSX.Element => {
-    const isFixClientRequest = item.remoteMessage?.data?.action === 'FixClientRequest';
-    const firstName = isFixClientRequest
-      ? item.fix?.createdByClient?.firstName
-      : item.fix.assignedToCraftsman.firstName;
-    const lastName = isFixClientRequest ? item.fix?.createdByClient?.lastName : item.fix.assignedToCraftsman.lastName;
+  const renderItem = ({ item }: { item: NotificationDocument }): JSX.Element => {
+    const isFixClientRequest = item.payload.action === NotificationTypes.FixClientRequest;
+    const fix = item.payload.systemPayload as FixesModel;
+
+    const firstName = isFixClientRequest ? fix?.createdByClient?.firstName : fix?.assignedToCraftsman?.firstName;
+    const lastName = isFixClientRequest ? fix?.createdByClient?.lastName : fix?.assignedToCraftsman?.lastName;
     return (
       <TouchableOpacity
         onPress={() => {
@@ -120,8 +122,11 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
           />
         </View>
         <View style={styles.textContainer}>
-          <Text style={item.visited ? styles.seenNotif : styles.unseenNotif}>{`${firstName} ${lastName}`}</Text>
-          <Text>{item.fix.details?.category}</Text>
+          <Text
+            style={
+              item.status === NotificationStatus.READ ? styles.seenNotif : styles.unseenNotif
+            }>{`${firstName} ${lastName}`}</Text>
+          <Text>{fix?.details?.category}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -137,7 +142,7 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
           <Text style={styles.title}>Notifications</Text>
         </View>
         <View style={styles.bodyContainer}>
-          {!notifications || notifications.length === 0 ? (
+          {!notifications || notifications?.notifications?.length === 0 ? (
             <View
               style={{
                 flex: 1,
@@ -148,9 +153,9 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
             </View>
           ) : (
             <FlatList
-              data={notifications}
+              data={notifications?.notifications}
               renderItem={renderItem}
-              keyExtractor={(item: NotificationModel) => item.remoteMessage.id as string}
+              keyExtractor={(item: NotificationDocument) => item.id as string}
             />
           )}
         </View>

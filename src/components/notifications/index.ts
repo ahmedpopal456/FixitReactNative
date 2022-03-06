@@ -1,1 +1,1 @@
-export { default as FixNotifications } from './FixNotifications';
+export { default as FixNotifications } from './fixNotifications';

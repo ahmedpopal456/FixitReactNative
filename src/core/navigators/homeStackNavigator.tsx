@@ -15,9 +15,9 @@ import UserRoles from '../../common/models/users/userRolesEnum';
 import HomeScreenCraftsman from '../../screens/home/homeScreenCraftsman';
 import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
 import AddressSelectorScreen from '../../screens/address/addressSelectorScreen';
-import Fix from '../../features/fixrequests/components/Fix';
 import { Platform } from 'react-native';
 import { SupportedOSConstants } from '../../core/constants/SupportedOSConstants';
+import Fix from '../../features/fixrequests/components/fix';
 
 const Stack = createStackNavigator();
 
@@ -29,7 +29,6 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
         headerShown: false,
         header: ({ navigation }) => (
           <Header
-            notificationsBadgeCount={props.otherProp.notificationCount}
             userRatings={props.otherProp.averageRating}
             navigation={navigation}
             height={Number(SupportedOSConstants.get(Platform.OS)?.get('height'))}
@@ -129,7 +128,6 @@ function mapStateToProps(state: StoreState) {
     firstName: state.user.firstName,
     lastName: state.user.lastName,
     role: state.user.role,
-    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

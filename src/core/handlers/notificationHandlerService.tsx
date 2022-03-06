@@ -1,13 +1,17 @@
 import PushNotification from 'react-native-push-notification';
-import { FixesModel, notificationActions, persistentActions, store } from 'fixit-common-data-store';
 import DeviceInfo from 'react-native-device-info';
 import jwtDecode from 'jwt-decode';
-import { DeviceInstallationUpsertRequest } from '../../common/models/notifications/DeviceInstallationUpsertRequest';
-import NotificationService from '../services/notification/notificationService';
 import config from '../config/appConfig';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  DeviceInstallationUpsertRequestDto,
+  NotificationPlatform,
+  notificationsActions,
+  NotificationsService,
+  store,
+} from 'fixit-common-data-store';
 
-const notificationService = new NotificationService(config.rawConfig.notificationApiUrl);
+const notificationService = new NotificationsService(config, store);
 
 export default class NotificationHandlerService {
   private state: any;
@@ -42,11 +46,6 @@ export default class NotificationHandlerService {
       popInitialNotification: true,
       requestPermissions: true,
     });
-    PushNotification.getApplicationIconBadgeNumber(function (number: number) {
-      if (number > 0) {
-        PushNotification.setApplicationIconBadgeNumber(0);
-      }
-    });
   }
 
   public async onTokenReceived(token: any) {
@@ -62,19 +61,19 @@ export default class NotificationHandlerService {
     if (!isRegistered) {
       try {
         this.state = { ...this.state, isBusy: true, status };
-        const pnPlatform = this.state.registeredOS == 'ios' ? 'apns' : 'fcm';
+        const pnPlatform = this.state.registeredOS == 'ios' ? NotificationPlatform.APNS : NotificationPlatform.FCM;
         const pnToken = this.state.registeredToken;
         const state = store.getState();
         if (state.user.authToken) {
           const decodedAuthToken: { sub: string } = jwtDecode(state.user.authToken);
           const userId = decodedAuthToken.sub;
-          const deviceInstallationUpsertRequest: DeviceInstallationUpsertRequest = {
-            UserId: userId,
-            InstallationId: deviceId,
-            Platform: pnPlatform,
-            PushChannelToken: pnToken,
-            Tags: [{ key: 'userId', value: userId }],
-            Templates: {},
+          const deviceInstallationUpsertRequest: DeviceInstallationUpsertRequestDto = {
+            userId: userId,
+            installationId: deviceId,
+            platform: pnPlatform,
+            pushChannelToken: pnToken,
+            tags: [{ key: 'userId', value: userId }],
+            templates: null,
           };
           await notificationService.installDevice(deviceInstallationUpsertRequest);
           status = `Registered for ${this.state.registeredOS} push notifications`;
@@ -88,20 +87,10 @@ export default class NotificationHandlerService {
     }
   }
 
-  public onNotificationReceived(remoteMessage: any) {
-    const { unseenNotificationsNumber, notifications } = store.getState().persist;
-    if (!remoteMessage.id) {
-      remoteMessage.id = uuidv4();
-    }
-
-    if (remoteMessage && remoteMessage.id) {
-      notifications.unshift({
-        remoteMessage,
-        fix: remoteMessage.data.fixitdata as FixesModel,
-        visited: false,
-      });
-      store.dispatch(persistentActions.default.setNotifications(notifications, unseenNotificationsNumber + 1));
-      store.dispatch(notificationActions.displayNotification({ messages: [remoteMessage] }));
+  public async onNotificationReceived(remoteMessage: any) {
+    if (remoteMessage && remoteMessage.data && remoteMessage.data.systemPayload) {
+      store.dispatch(notificationsActions.RESET_NOTIFICATIONS_SLICE());
+      store.dispatch(notificationsActions.DISPLAY_NOTIFICATION(remoteMessage.data));
     }
   }
 

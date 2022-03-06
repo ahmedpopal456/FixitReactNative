@@ -7,7 +7,6 @@ import {
   StoreState,
   FixRequestModel,
   useSelector,
-  persistentActions,
   FixesService,
   FixesModel,
 } from 'fixit-common-data-store';
@@ -59,7 +58,6 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
   const [submitFixModalOpen, setSubmitFixModalOpen] = useState<boolean>(false);
   const [rejectFixModalOpen, setRejectFixModalOpen] = useState<boolean>(false);
   const [acceptCraftsmanModalOpen, setAcceptCraftsmanModalOpen] = useState<boolean>(false);
-  const { notifications, unseenNotificationsNumber } = useSelector((storeState: StoreState) => storeState.persist);
 
   const handleConfirm = (): void => {
     const fixRequestService = new FixRequestService(config, store);
@@ -87,17 +85,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
   };
 
   const handleRefuse = (): void => {
-    const notificationsToSet = notifications.filter((notification) => {
-      if (notification?.fix.id !== fix?.id) {
-        return notification;
-      }
-      return null;
-    });
-    let unseenNotificationsNumberUpdated = unseenNotificationsNumber;
-    if (unseenNotificationsNumber > notificationsToSet.length) {
-      unseenNotificationsNumberUpdated = notificationsToSet.length;
-    }
-    store.dispatch(persistentActions.default.setNotifications(notificationsToSet, unseenNotificationsNumberUpdated));
+    // delete current notification with id of the fix
     navigation.navigate('HomeScreen');
   };
 
@@ -125,20 +113,7 @@ const Fix: FunctionComponent<NavigationProps<FixProps>> = (props: NavigationProp
       fixesService
         .updateFixAssign(fix?.id as string, fix?.assignedToCraftsman?.id as string, body)
         .then(() => {
-          setAcceptCraftsmanModalOpen(true);
-          const notificationsToSet = notifications.filter((notification) => {
-            if (notification?.fix.id !== fix?.id) {
-              return notification;
-            }
-            return null;
-          });
-          let unseenNotificationsNumberUpdated = unseenNotificationsNumber;
-          if (unseenNotificationsNumber > notificationsToSet.length) {
-            unseenNotificationsNumberUpdated = notificationsToSet.length;
-          }
-          store.dispatch(
-            persistentActions.default.setNotifications(notificationsToSet, unseenNotificationsNumberUpdated),
-          );
+          // delete notification from the system
         })
         .catch((error) => console.error(error));
     }

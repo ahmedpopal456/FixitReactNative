@@ -49,7 +49,7 @@
             <category android:name="android.intent.category.BROWSABLE" />
             <data
               android:host="fixit.android.dev"
-              android:path="/T363hRqMFoYyxYLJ92fIVXykFIw="
+              android:path="/Xo8WBi6jzSxKDVR4drqm84yr9iU="
               android:scheme="msauth" />
           </intent-filter>
         </activity>

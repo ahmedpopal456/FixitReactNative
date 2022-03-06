@@ -12,7 +12,7 @@ const notificationService = new NotificationHandlerService();
 notificationService.configure();
 
 LogBox.ignoreLogs(['Require cycle: node_modules\\react-native\\Libraries\\Network\\fetch.js']);
-Logger.instance.loadAppInsights();
+//Logger.instance.loadAppInsights();
 
 const HeadlessCheck = ({ isHeadless }) => {
   if (isHeadless) {

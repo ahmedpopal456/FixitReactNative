@@ -1,37 +1,24 @@
-import React from 'react';
-import { connect, notificationActions, StoreState } from 'fixit-common-data-store';
+import React, { FunctionComponent, useEffect } from 'react';
+import { StoreState, useSelector } from 'fixit-common-data-store';
 import { NotificationProps } from '../../common/models/notifications/NotificationProps';
 import { FixNotifications } from '.';
 
-class NotificationRenderer extends React.Component<any> {
-  render() {
-    const props = this.buildChildProps();
-    if (props.message && props.message.data) {
-      return <FixNotifications {...props} />;
+export const NotificationRenderer: FunctionComponent<NotificationProps> = (props: NotificationProps): JSX.Element => {
+  const currentDisplayedRemoteMessage = useSelector(
+    (storeState: StoreState) => storeState.notifications.currentDisplayedRemoteMessage,
+  );
+
+  useEffect(() => {}, [currentDisplayedRemoteMessage]);
+
+  const render = (): JSX.Element => {
+    console.log(currentDisplayedRemoteMessage);
+    if (currentDisplayedRemoteMessage) {
+      return FixNotifications({
+        currentDisplayedRemoteMessageData: currentDisplayedRemoteMessage,
+        navRef: props.navRef,
+      }) as JSX.Element;
     }
     return <></>;
-  }
-
-  private buildChildProps(): NotificationProps {
-    const message = this.props.messages[this.props.messages?.length - 1];
-    const notificationType = +message?.data?.type;
-    return {
-      message,
-      type: notificationType,
-      onDismissNotification: this.props.onDismissNotification,
-      navRef: this.props.navRef,
-    };
-  }
-}
-
-const mapStateToProps = (state: StoreState) => ({
-  messages: state.remoteMessages?.messages,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  onDismissNotification: (id: string) => {
-    dispatch(notificationActions.dismissNotification({ messageId: id }));
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(NotificationRenderer);
+  };
+  return render();
+};
