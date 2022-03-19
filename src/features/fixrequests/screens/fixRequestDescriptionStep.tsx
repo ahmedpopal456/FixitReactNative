@@ -117,20 +117,6 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
     navigation.navigate(NavigationEnum.FIXREQUESTIMAGESLOCATIONSTEP, { fixId, images });
   };
 
-  // const nextPageOptions = [
-  //   {
-  //     label: 'Save Fixit Template & Continue',
-  //     onClick: handleContinue,
-  //   },
-  //   {
-  //     label: 'Go to first fix section',
-  //     onClick: () => {
-  //       store.dispatch(fixTemplateActions.updateFixTemplate({ description }));
-  //       navigation.navigate(NavigationEnum.FIXREQUESTSECTIONSSTEP);
-  //     },
-  //   },
-  // ];
-
   const render = (): JSX.Element => (
     <>
       <FixRequestHeader

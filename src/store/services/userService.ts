@@ -39,7 +39,7 @@ export default class UserService {
     );
 
     const data = await response.json();
-    this.store.dispatch(FETCH_USER_SUCCESS(data));
+    this.store.dispatch(FETCH_USER_SUCCESS(data.result));
     return data;
   }
 

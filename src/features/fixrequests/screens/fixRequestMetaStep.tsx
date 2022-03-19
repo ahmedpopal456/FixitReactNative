@@ -10,6 +10,7 @@ import {
   Type,
   Unit,
   useSelector,
+  LicenseDto,
 } from '../../../store';
 
 import { useNavigation } from '@react-navigation/native';
@@ -26,7 +27,6 @@ import NavigationEnum from '../../../common/enums/navigationEnum';
 
 const FixRequestMetaStep: FunctionComponent = (props: any): JSX.Element => {
   const navigation = useNavigation();
-  let { fromFixitPlan } = props.route.params;
   const fixTemplate = useSelector((storeState: StoreState) => storeState.fixTemplate);
   const [tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
   const [tagInputText, setTagInputText] = useState<string>('');
@@ -175,26 +175,12 @@ const FixRequestMetaStep: FunctionComponent = (props: any): JSX.Element => {
               editable={true}
             />
             <Spacer height="20px" />
-            {fromFixitPlan ? (
-              <FixTemplateFormTextInput
-                header={'Category'}
-                value={templateCategoryName}
-                onChange={(value: string) => setTemplateName(value)}
-                editable={false}
-              />
-            ) : (
-              <FixTemplatePicker
-                header={'Category'}
-                selectedValue={templateCategoryName}
-                onChange={(value: string) => {
-                  setTemplateCategoryName(value);
-                  setTemplateCategory(
-                    fixTemplate.categories.find((category: Category) => category.name === value) as Category,
-                  );
-                }}
-                values={fixTemplate.categories || []}
-              />
-            )}
+            <FixTemplateFormTextInput
+              header={'Category'}
+              value={templateCategoryName}
+              onChange={(value: string) => setTemplateName(value)}
+              editable={false}
+            />
             <Spacer height="20px" />
             <FixTemplatePicker
               header={'Unit'}

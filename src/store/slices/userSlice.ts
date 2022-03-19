@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { FixitAction } from '../models/common/fixitAction';
+import { UserLicenseDto } from '../models/license/userLicenseDto';
+import { UserSummaryModel } from '../models/user';
 import { AddressModel } from './addressSlice';
 
 export interface UserStatus {
@@ -15,16 +17,6 @@ export interface UserAddressModelBase {
 export interface UserAddressModel extends UserAddressModelBase {
   id: string;
 }
-export interface UserSummaryModel {
-  id?: string;
-  firstName: string;
-  lastName: string;
-  profilePictureUrl?: string;
-  userPrincipalName: string;
-  role: number;
-  savedAddresses: Array<UserAddressModel>;
-  status: UserStatus;
-}
 export interface UserModel {
   isAuthenticated: boolean;
   authToken: string | undefined;
@@ -35,6 +27,7 @@ export interface UserModel {
   email: string | undefined;
   role: number;
   savedAddresses: Array<UserAddressModel>;
+  licenses: UserLicenseDto[];
   status: UserStatus | undefined;
   profilePictureUrl: string | undefined;
 }
@@ -47,6 +40,7 @@ export const userInitialState: UserState = {
   isAuthenticated: false,
   userPrincipalName: undefined,
   authToken: undefined,
+  licenses: [],
   userId: undefined,
   firstName: undefined,
   lastName: undefined,

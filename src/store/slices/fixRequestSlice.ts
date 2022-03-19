@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Schedule } from '../models/common/scheduleModel';
-import { UserSummaryModel } from './userSlice';
+import { UserSummaryModel } from '../models/user';
 import { AddressModel } from './addressSlice';
 import { FixesModel, SectionDetailsModel, SectionModel, TagModel } from './fixesSlice';
 
@@ -16,6 +16,7 @@ export type FixRequestModel = Pick<
   | 'updatedByUser'
   | 'status'
   | 'images'
+  | 'licenses'
 >;
 
 export type FixRequestState = FixRequestModel;
@@ -23,6 +24,7 @@ export type FixRequestState = FixRequestModel;
 export const fixRequestInitialState: FixRequestState = {
   id: '',
   tags: [],
+  licenses: [],
   details: {
     name: '',
     description: '',
@@ -54,6 +56,9 @@ export const fixRequestInitialState: FixRequestState = {
   createdByClient: {
     userPrincipalName: '',
     firstName: '',
+    id: '',
+    licenses: [],
+    profilePictureUrl: '',
     lastName: '',
     savedAddresses: [],
     role: 1,
@@ -62,6 +67,9 @@ export const fixRequestInitialState: FixRequestState = {
   updatedByUser: {
     userPrincipalName: '',
     firstName: '',
+    id: '',
+    licenses: [],
+    profilePictureUrl: '',
     lastName: '',
     savedAddresses: [],
     role: 1,
@@ -72,12 +80,28 @@ export const fixRequestInitialState: FixRequestState = {
 
 type CreatedByUserPick = Pick<
   UserSummaryModel,
-  'firstName' | 'lastName' | 'savedAddresses' | 'role' | 'status' | 'userPrincipalName'
+  | 'firstName'
+  | 'lastName'
+  | 'savedAddresses'
+  | 'role'
+  | 'status'
+  | 'userPrincipalName'
+  | 'licenses'
+  | 'id'
+  | 'profilePictureUrl'
 >;
 
 type UpdatedByUserPick = Pick<
   UserSummaryModel,
-  'firstName' | 'lastName' | 'savedAddresses' | 'role' | 'status' | 'userPrincipalName'
+  | 'firstName'
+  | 'lastName'
+  | 'savedAddresses'
+  | 'role'
+  | 'status'
+  | 'userPrincipalName'
+  | 'licenses'
+  | 'id'
+  | 'profilePictureUrl'
 >;
 
 const fixRequestSlice = createSlice({

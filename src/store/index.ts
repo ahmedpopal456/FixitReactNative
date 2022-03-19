@@ -28,7 +28,7 @@ import { RatingsModel } from './slices/ratingSlice';
 import { Category, Type, Unit } from './models/common';
 import Status from './models/common/fixTemplateStatus';
 import { Schedule } from './models/common/scheduleModel';
-import { UserAddressModel, UserAddressModelBase, UserSummaryModel } from './slices/userSlice';
+import { UserAddressModel, UserAddressModelBase } from './slices/userSlice';
 import {
   DeviceInstallation,
   DeviceInstallationUpsertRequestDto,
@@ -40,7 +40,7 @@ import {
   NotificationTemplateBaseDto,
 } from './models/notification';
 import { NotificationDocument } from './models/notification/notificationDocument';
-import { UserBaseModel } from './models/user';
+import { UserBaseModel, UserSummaryModel } from './models/user';
 import { PagedDocumentCollection } from './models/common/pagedDocumentCollection';
 import { OperationStatus } from './models/common/operationStatus';
 import { NotificationPlatform, NotificationStatus, NotificationTypes } from './models/notification/enums';
@@ -60,6 +60,7 @@ import {
   TimestampsQueryModel,
   UserQueryModel,
 } from './models/chat/chatModels';
+import { LicenseDto, UserLicenseDto } from './models/license';
 
 const persistedRootReducer: Reducer<RootState & PersistPartial, any> = persistReducer(persistConfig, rootReducer);
 const store = createStore(persistedRootReducer, applyMiddleware(thunk));
@@ -150,6 +151,8 @@ export type {
   ContextDetailsQueryModel,
   ParticipantQueryModel,
   UserQueryModel,
+  LicenseDto,
+  UserLicenseDto,
   TimestampsQueryModel,
   ConversationUpsertMessageModel,
   PagedDocumentCollection,

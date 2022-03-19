@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Category, Type, Unit, FixTemplateStatus } from '../models/common';
+import { LicenseDto } from '../models/license/licenseDto';
 
 export interface FixTemplateSectionField {
   id?: string;
@@ -24,6 +25,7 @@ export interface FixTemplateModel {
   createdByUserId: string;
   updatedByUserId: string;
   systemCostEstimate: number;
+  licenses: LicenseDto[];
   tags: Array<string>;
   sections: Array<FixTemplateSection>;
   categories: Array<Category>;
@@ -41,6 +43,7 @@ interface PartialUpdateTemplateModel {
   description?: string;
   createdByUserId?: string;
   updatedByUserId?: string;
+  licenses?: LicenseDto[];
   systemCostEstimate?: number;
   tags?: Array<string>;
   sections?: Array<FixTemplateSection>;
@@ -59,6 +62,7 @@ export const fixTemplateInitialState: FixTemplateState = {
   createdByUserId: '',
   updatedByUserId: '',
   systemCostEstimate: 0,
+  licenses: [],
   tags: [],
   sections: [],
   categories: [],
@@ -85,6 +89,7 @@ const fixTemplateSlice = createSlice({
       if (action.payload.updatedByUserId) state.updatedByUserId = action.payload.updatedByUserId;
       if (action.payload.tags) state.tags = action.payload.tags;
       if (action.payload.sections) state.sections = action.payload.sections;
+      if (action.payload.licenses) state.licenses = action.payload.licenses;
     },
     setCategories: (state: FixTemplateState, action: PayloadAction<Array<Category>>) => {
       state.categories = action.payload;

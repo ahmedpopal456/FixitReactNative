@@ -18,7 +18,7 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
   const dispatch = useDispatch();
   const [fixes, setFixes] = useState<Array<any>>([]);
   const [searching, setSearching] = useState<boolean>(true);
-  const [tags, setTags] = useState<Array<string>>(props.route.params.tags);
+  const [tags, setTags] = useState<Array<string>>(props.route?.params?.tags);
   const [tagInput, setTagInput] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
 
@@ -28,7 +28,7 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
 
   const onRefresh = async () => {
     setIsRefreshing(true);
-    const joinedTags = props.route.params.tags?.join() || undefined;
+    const joinedTags = props.route?.params.tags?.join() || undefined;
     await search(joinedTags);
     setIsRefreshing(false);
   };
@@ -49,11 +49,6 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
     serv.getFixTemplateById(id);
 
     navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP, { fromFixitPlan: true });
-  };
-
-  const handleBlankFixTemplate = (): void => {
-    dispatch(fixRequestActions.clearData());
-    navigation.navigate(NavigationEnum.FIXREQUESTMETASTEP, { fromFixitPlan: false });
   };
 
   const handleGoBack = (): void => {
@@ -234,12 +229,6 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
           )}
         </ScrollView>
       </StyledPageWrapper>
-      <Button
-        testID="startBlankFixTemplateBtn"
-        onPress={() => handleBlankFixTemplate()}
-        style={FixRequestStyles.searchResultsContinueBtn}>
-        Write your own plan
-      </Button>
     </>
   );
 };

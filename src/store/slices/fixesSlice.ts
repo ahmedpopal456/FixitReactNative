@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { FixitAction } from '../models/common/fixitAction';
-import { UserSummaryModel } from './userSlice';
 import { Schedule } from '../models/common/scheduleModel';
 import { ClientEstimatedCostModel } from '../models/common/clientEstimatedCostModel';
 import { AddressModel } from './addressSlice';
+import { LicenseDto } from '../models/license/licenseDto';
+import { UserSummaryModel } from '../models/user';
 
 export interface TagModel {
   id?: string;
@@ -80,6 +81,7 @@ export interface FixesModel {
   craftsmanEstimatedCost: CraftsmanEstimatedCostModel;
   details: Details;
   images: Array<ImageModel>;
+  licenses: Array<LicenseDto>;
   location?: AddressModel;
   schedule: Array<Schedule>;
   status: number;

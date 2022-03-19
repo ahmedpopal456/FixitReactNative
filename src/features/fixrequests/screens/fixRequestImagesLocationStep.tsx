@@ -138,6 +138,7 @@ const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Elemen
         unit: fixTemplate.fixUnit.name,
         sections: fixRequestSections,
       },
+      licenses: fixTemplate.licenses,
       tags,
       clientEstimatedCost: {
         minimumCost: fixRequest.clientEstimatedCost.minimumCost,
