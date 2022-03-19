@@ -2,28 +2,22 @@ import React, { useRef, useEffect, FunctionComponent } from 'react';
 import { Animated } from 'react-native';
 import { BottomTabIconAnimatorProps } from '../models/animators/bottomTabIconAnimatorProps';
 
-const BottomTabIconAnimator : FunctionComponent<BottomTabIconAnimatorProps> = (props) => {
+const BottomTabIconAnimator: FunctionComponent<BottomTabIconAnimatorProps> = (props) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (props.focused) {
-      Animated.timing(
-        scaleAnim,
-        {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        },
-      ).start();
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     } else {
-      Animated.timing(
-        scaleAnim,
-        {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        },
-      ).start();
+      Animated.timing(scaleAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     }
   }, [props.focused]);
 
@@ -45,8 +39,7 @@ const BottomTabIconAnimator : FunctionComponent<BottomTabIconAnimatorProps> = (p
             }),
           },
         ],
-      }}
-    >
+      }}>
       {props.children}
     </Animated.View>
   );

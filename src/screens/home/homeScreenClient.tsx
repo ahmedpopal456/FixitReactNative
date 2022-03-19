@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import { FixesService, FixRequestService, store, StoreState, useSelector } from 'fixit-common-data-store';
+import { FixesService, FixRequestService, store, StoreState, useSelector } from '../../store';
 import { Button, colors, Icon, Tag } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
@@ -90,7 +90,7 @@ const HomeScreenClient: FunctionComponent = () => {
   const [tagInputTextState, setTagInputTextState] = useState<string>('');
   const [selectedTagsState, setSelectedTagsState] = useState<Array<string>>(['']);
   const [suggestedTagsState, setSuggestedTagsState] = useState<Array<string>>(['']);
-  const [_tagSuggestionsVisible, setTagSuggestionsVisible] = useState<boolean>(false);
+  const [, setTagSuggestionsVisible] = useState<boolean>(false);
 
   useAsyncEffect(async () => {
     await onRefresh();

@@ -2,7 +2,7 @@ import React from 'react';
 import 'react-native';
 import { shallow } from 'enzyme';
 import { NavigationContainer } from '@react-navigation/native';
-import { Provider, store } from 'fixit-common-data-store';
+import { Provider, store } from '../../../store';
 import RootTabNavigator from '../rootTabNavigator';
 
 jest.mock('../../../features/userprofile/screens/accountScreen');
@@ -13,7 +13,8 @@ it('renders correctly', async () => {
     <Provider store={store}>
       <NavigationContainer>
         <RootTabNavigator />
-      </NavigationContainer>,
+      </NavigationContainer>
+      ,
     </Provider>,
   );
 });

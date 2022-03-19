@@ -2,11 +2,12 @@ import React, { FunctionComponent, useState } from 'react';
 import { Text, View, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { Button, colors, Icon } from 'fixit-common-ui';
 import { ScrollView } from 'react-native-gesture-handler';
-import { StoreState, useSelector } from 'fixit-common-data-store';
+import { StoreState, useSelector, store } from '../../../store';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';
-import ChatService from '../../../core/services/chat/chatService';
-import { ConversationModel } from '../models/chatModels';
+import ChatService from '../../../store/services/chatService';
+import { ConversationModel } from '../../../store/models/chat/chatModels';
+import config from '../../../core/config/appConfig';
 
 const styles = StyleSheet.create({
   container: {
@@ -51,25 +52,22 @@ const ChatScreen: FunctionComponent<any> = (props) => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const user = useSelector((storeState: StoreState) => storeState.user);
-  const notifications = useSelector((storeState: StoreState) => storeState.remoteMessages);
+  const notifications = useSelector((storeState: StoreState) => storeState.notifications.notifications);
+  const userConversations = useSelector((storeState: StoreState) => storeState.chat.userConversations);
+  const userConversationMessages = useSelector(
+    (storeState: StoreState) => storeState.chat.selectedConversationMessages,
+  );
 
-  const chatService: ChatService = new ChatService(user.userId as string);
+  const chatService: ChatService = new ChatService(user.userId as string, config, store);
 
   useAsyncEffect(async () => {
-    setRefreshing(true);
-    await fetchConversations();
-    setRefreshing(false);
+    await onRefreshAsync();
   }, []);
 
   useAsyncEffect(async () => {
-    fetchConversations();
-  }, [notifications]);
-
-  const fetchConversations = async () => {
-    const response = await chatService.getConversations();
     const active: ConversationModel[] = [];
     const matched: ConversationModel[] = [];
-    response.forEach((conversation) => {
+    userConversations?.conversations?.forEach((conversation) => {
       if (conversation.lastMessage == null) {
         matched.unshift(conversation);
       } else {
@@ -79,13 +77,20 @@ const ChatScreen: FunctionComponent<any> = (props) => {
 
     setActiveConversations(active);
     setMatchedConversations(matched);
-  };
+    setRefreshing(false);
+  }, [userConversations]);
 
-  const onRefresh = () => {
+  useAsyncEffect(async () => {
+    await onRefreshAsync();
+  }, [notifications]);
+
+  useAsyncEffect(async () => {
+    await onRefreshAsync();
+  }, [userConversationMessages]);
+
+  const onRefreshAsync = async () => {
     setRefreshing(true);
-    fetchConversations().then(() => {
-      setRefreshing(false);
-    });
+    await chatService.getConversations();
   };
 
   const renderActiveConversations = () => (
@@ -213,7 +218,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh.bind(this)}
+              onRefresh={onRefreshAsync.bind(this)}
               colors={[colors.orange]}
               size={1}
             />

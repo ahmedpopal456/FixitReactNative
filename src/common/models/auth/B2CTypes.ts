@@ -19,6 +19,7 @@ export type B2CConfiguration = Omit<MSALConfiguration, 'auth'> & {
     authorityBase: string;
     policies: B2CPolicies;
     redirectUri?: string;
+    redirectUrl?: string;
   };
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import 'react-native';
 import { shallow } from 'enzyme';
-import { Provider, store } from 'fixit-common-data-store';
+import { Provider, store } from '../../../../store';
 import AccountScreen from '../accountScreen';
 
 jest.mock('../../../../core/services/authentication/nativeAuthService');

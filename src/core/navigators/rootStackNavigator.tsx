@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { StoreState, useSelector } from 'fixit-common-data-store';
+import { StoreState, useSelector } from '../../store';
 import RegisterScreen from '../../features/onboarding/screens/registerScreen';
 import RootTabNavigator from './rootTabNavigator';
 

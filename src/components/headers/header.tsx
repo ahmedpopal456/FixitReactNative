@@ -2,9 +2,9 @@ import React, { FunctionComponent } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import { colors, Icon, NotificationBell } from 'fixit-common-ui';
 import { Rating } from 'react-native-ratings';
-import { Avatar } from 'react-native-elements';
 import { HeaderProps } from './headerProps';
 import ViewWrapper from './style';
+import { UserProfileAvatar } from '../UserProfileAvatar';
 
 const styles = StyleSheet.create({
   searchSection: {
@@ -50,23 +50,24 @@ const Header: FunctionComponent<HeaderProps> = (props) => {
           maxLength={30}
         />
       </View>
-      {props.notificationsBadgeCount !== undefined ? (
+      {props?.notificationsBadgeCount !== undefined ? (
         <NotificationBell
-          notifications={props.notificationsBadgeCount}
+          notifications={props?.notificationsBadgeCount}
           onPress={() => props.navigation.navigate('Notifications')}
         />
       ) : (
         <></>
       )}
       <View style={styles.profileSection}>
-        <Avatar
-          size={80}
-          rounded
-          title={`${props.userFirstName?.charAt(0)}${props.userLastName?.charAt(0)}`}
-          titleStyle={{ color: 'black' }}
-          activeOpacity={0.7}
-          avatarStyle={{ resizeMode: 'cover', backgroundColor: '#EEEEEE', opacity: 0.75 }}
-        />
+        <View>
+          <UserProfileAvatar
+            isEditable={false}
+            size={80}
+            nameAbbrev={`${props.userFirstName?.charAt(0)}${props.userLastName?.charAt(0)}`}
+            profilePictureUrl={props.profilePictureUrl}
+            userId={props.userId}
+          />
+        </View>
         <Text
           style={{
             height: '30%',
@@ -116,6 +117,7 @@ Header.defaultProps = {
   notificationsBadgeCount: 0,
   userFirstName: '',
   userLastName: '',
+  profilePictureUrl: '',
   userAddress: {
     id: '',
     isCurrentAddress: false,

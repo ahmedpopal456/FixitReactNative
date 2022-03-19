@@ -1,10 +1,6 @@
-import React, {
-  FunctionComponent,
-} from 'react';
+import React, { FunctionComponent } from 'react';
 import SwiperFlatList from 'react-native-swiper-flatlist';
-import {
-  Text, View, StyleSheet, TouchableOpacity,
-} from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import ViewWrapper from './style';
 import { SwipeableFlatListProps } from './swipeableFlatListProps';
 
@@ -21,12 +17,21 @@ const SwipeableFlatList: FunctionComponent<SwipeableFlatListProps> = (props) => 
     <ViewWrapper>
       <View style={{ flexDirection: 'row', marginLeft: 15 }}>
         <Text style={{ alignSelf: 'flex-start', marginTop: 15 }}>{props.title}</Text>
-        <TouchableOpacity onPress={() => props.navigationProps.navigation.navigate(props.navigationProps.title, {
-          screen: props.navigationProps.title,
-        })}>
-          <Text style={{
-            alignSelf: 'flex-end', marginTop: 15, marginLeft: 250, color: 'grey',
-          }}>See All</Text>
+        <TouchableOpacity
+          onPress={() =>
+            props.navigationProps.navigation.navigate(props.navigationProps.title, {
+              screen: props.navigationProps.title,
+            })
+          }>
+          <Text
+            style={{
+              alignSelf: 'flex-end',
+              marginTop: 15,
+              marginLeft: 250,
+              color: 'grey',
+            }}>
+            See All
+          </Text>
         </TouchableOpacity>
       </View>
     </ViewWrapper>
@@ -34,7 +39,7 @@ const SwipeableFlatList: FunctionComponent<SwipeableFlatListProps> = (props) => 
       <SwiperFlatList
         style={{ marginBottom: 25 }}
         showPagination
-        paginationActiveColor='black'
+        paginationActiveColor="black"
         paginationStyleItem={styles.pagination}
         nestedScrollEnabled={true}
         data={props.data}

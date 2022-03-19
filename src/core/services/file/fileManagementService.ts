@@ -22,17 +22,17 @@ export interface UploadFileResponse {
 export default class FileManagementService {
   constructor(private fileApiBaseUrlSelf: string = fileApiBaseUrl) {}
 
-  async uploadFile(fixId: string, asset: Asset): Promise<UploadFileResponse> {
+  async uploadFile(id: string, asset: Asset, type: string): Promise<UploadFileResponse> {
     try {
       const searchRegExp = /\-/g;
-      fixId = fixId.replace(searchRegExp, '');
+      id = id.replace(searchRegExp, '');
 
       var formData = new FormData();
       formData.append('FilePathToCreate', asset.fileName as string);
       formData.append('FormFile', { uri: asset.uri, type: asset.type as string, name: asset.fileName } as any);
       formData.append('FileMetadataSummary.ContentType', asset.type as string);
 
-      const response = await axios.post(`${this.fileApiBaseUrlSelf}/FileSystem/fixes/${fixId}/Files/Upload`, formData, {
+      const response = await axios.post(`${this.fileApiBaseUrlSelf}/FileSystem/${type}/${id}/Files/Upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Accept: 'application/json',
@@ -40,16 +40,17 @@ export default class FileManagementService {
       });
       return response.data;
     } catch (e: any) {
+      console.log(JSON.stringify(e));
       throw new FixitError('Failed to upload image', e);
     }
   }
 
-  async deleteFile(fixId: string, fileCreatedId: string) {
+  async deleteFile(id: string, fileCreatedId: string, type: string) {
     try {
       const searchRegExp = /\-/g;
-      fixId = fixId.replace(searchRegExp, '');
+      id = id.replace(searchRegExp, '');
       const response = await axios.delete(
-        `${this.fileApiBaseUrlSelf}/FileSystem/fixes/${fixId}/Files/${fileCreatedId}/Delete`,
+        `${this.fileApiBaseUrlSelf}/FileSystem/${type}/${id}/Files/${fileCreatedId}/Delete`,
       );
       return response.data;
     } catch (e: any) {
@@ -57,11 +58,11 @@ export default class FileManagementService {
     }
   }
 
-  async deleteDirectoryByFixId(fixId: string) {
+  async deleteDirectoryByFixId(id: string, type: string) {
     try {
       const searchRegExp = /\-/g;
-      fixId = fixId.replace(searchRegExp, '');
-      const response = await axios.delete(`${this.fileApiBaseUrlSelf}/FileSystem/fixes/${fixId}/Folders/Delete`);
+      id = id.replace(searchRegExp, '');
+      const response = await axios.delete(`${this.fileApiBaseUrlSelf}/FileSystem/${type}/${id}/Folders/Delete`);
       return response.data;
     } catch (e: any) {
       throw new FixitError('Failed to delete image', e);

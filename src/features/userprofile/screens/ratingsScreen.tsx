@@ -1,8 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Text, View, StyleSheet, Dimensions, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { Button, colors, Icon } from 'fixit-common-ui';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { store, RatingsService, StoreState, useSelector } from 'fixit-common-data-store';
+import { store, RatingsService, StoreState, useSelector } from '../../../store';
 import { Rating } from 'react-native-ratings';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';

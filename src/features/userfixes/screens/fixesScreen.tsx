@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, FlatList, LogBox, RefreshControl } from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
-import { store, FixesService, StoreState, useSelector, FixesModel } from 'fixit-common-data-store';
+import { store, FixesService, StoreState, useSelector, FixesModel } from '../../../store';
 import useAsyncEffect from 'use-async-effect';
 import { useNavigation } from '@react-navigation/native';
 import NavigationEnum from '../../../common/enums/navigationEnum';

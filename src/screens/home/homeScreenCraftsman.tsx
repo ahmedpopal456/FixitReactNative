@@ -11,7 +11,8 @@ import {
   useSelector,
   FixesModel,
   Schedule,
-} from 'fixit-common-data-store';
+  TagModel,
+} from '../../store';
 import useAsyncEffect from 'use-async-effect';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +20,6 @@ import SwipeableFlatList from '../../components/lists/swipeableFlatList';
 import bgImage from '../../common/assets/background-right.png';
 import image from '../../common/assets/bedroom.jpg';
 import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
-import { TagModel } from 'fixit-common-data-store/src/slices/fixesSlice';
 import NavigationEnum from '../../common/enums/navigationEnum';
 import config from '../../core/config/appConfig';
 

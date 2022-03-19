@@ -11,7 +11,8 @@ import {
   SectionModel,
   AddressModel,
   UserSummaryModel,
-} from 'fixit-common-data-store';
+  TagModel,
+} from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import useAsyncEffect from 'use-async-effect';
 import StepIndicator from '../../../components/stepIndicator';
@@ -24,7 +25,6 @@ import constants from './constants';
 import { FixTemplatePicker } from '../components';
 import Calendar from '../../../components/calendar/calendar';
 import NavigationEnum from '../../../common/enums/navigationEnum';
-import { TagModel } from 'fixit-common-data-store/src/slices/fixesSlice';
 
 interface ScheduleType {
   id: string;

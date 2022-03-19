@@ -3,18 +3,18 @@ import React from 'react';
 import { Animated, TextStyle } from 'react-native';
 
 type FadeInAnimatorProps = {
-  visible: boolean,
-  style?:TextStyle & React.CSSProperties
+  visible: boolean;
+  style?: TextStyle & React.CSSProperties;
 };
 
 class FadeInAnimator extends React.Component<FadeInAnimatorProps> {
   visibility: Animated.Value;
 
-  state={
+  state = {
     visible: false,
-  }
+  };
 
-  constructor(props:FadeInAnimatorProps) {
+  constructor(props: FadeInAnimatorProps) {
     super(props);
     this.state = {
       visible: props.visible,
@@ -22,7 +22,7 @@ class FadeInAnimator extends React.Component<FadeInAnimatorProps> {
     this.visibility = new Animated.Value(this.props.visible ? 1 : 0);
   }
 
-  componentDidUpdate(prevProps:FadeInAnimatorProps) : void {
+  componentDidUpdate(prevProps: FadeInAnimatorProps): void {
     if (this.props.visible !== prevProps.visible) {
       this.setState({ visible: this.props.visible });
       Animated.timing(this.visibility, {
@@ -35,7 +35,7 @@ class FadeInAnimator extends React.Component<FadeInAnimatorProps> {
     }
   }
 
-  render() : JSX.Element {
+  render(): JSX.Element {
     const containerStyle = {
       opacity: this.visibility.interpolate({
         inputRange: [0, 1],
@@ -52,11 +52,7 @@ class FadeInAnimator extends React.Component<FadeInAnimatorProps> {
       ...this.props.style,
     };
 
-    return (
-      <Animated.View style={containerStyle}>
-        {this.state.visible ? this.props.children : null}
-      </Animated.View>
-    );
+    return <Animated.View style={containerStyle}>{this.state.visible ? this.props.children : null}</Animated.View>;
   }
 }
 

@@ -1,7 +1,7 @@
-import { ImageModel } from 'fixit-common-data-store';
+import { ImageModel } from '../store';
 import { colors, Button } from 'fixit-common-ui';
 import React, { FunctionComponent, PropsWithChildren, useState } from 'react';
-import { StyleSheet, View, Image, Pressable, Text } from 'react-native';
+import { View, Image, Pressable } from 'react-native';
 import { Asset } from 'react-native-image-picker';
 import FileManagementService, { UploadFileResponse } from '../core/services/file/fileManagementService';
 import Logger from '../logger';
@@ -28,7 +28,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
   const [shouldDeleteImage, setShouldDeleteImage] = useState<{ [key: string]: boolean }>({});
   const [isDeleting, setIsDeleting] = useState<{ [key: string]: boolean }>({});
   const [isImageLoading, setIsImageLoading] = useState<{ [key: string]: boolean }>({});
-  const [isImageDownloadStillInProgress, setIsImageDownloadStillInProgress] = useState<boolean>(false);
+  const [, setIsImageDownloadStillInProgress] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
 
   const addOrRemoveUriOfAssetsToDelete = (uri: string) => {
@@ -88,7 +88,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
             [uriOfAssetToDelete]: true,
           });
           const fileCreatedId = assetToFile[uriOfAssetToDelete];
-          await fileManagementService.deleteFile(fixId, fileCreatedId);
+          await fileManagementService.deleteFile(fixId, fileCreatedId, 'fixes');
 
           // delete asset from assets
           const tempUpdateAssets: Array<Asset & { isUploaded: boolean }> = [];

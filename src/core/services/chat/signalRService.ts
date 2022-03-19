@@ -1,12 +1,9 @@
 import axios from 'axios';
-// import { persistentStore } from 'fixit-common-data-store';
+// import { persistentStore } from 'store';
 import * as signalR from '@microsoft/signalr';
 import { HubConnection } from '@microsoft/signalr';
-import {
-  ConversationMessageModel,
-  ConversationUpsertMessageModel,
-  UserSummaryModel,
-} from 'src/features/chat/models/chatModels';
+import { ConversationMessageModel, ConversationUpsertMessageModel } from '../../../store/models/chat/chatModels';
+import { UserSummaryModel } from '../../../store/models/user';
 import config from '../../config/appConfig';
 
 export interface SignalRConnectionOptions {

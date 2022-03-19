@@ -1,37 +1,31 @@
-import React from 'react';
-import { connect, notificationActions, StoreState } from 'fixit-common-data-store';
+import React, { FunctionComponent, useEffect } from 'react';
+import { NotificationTypes, StoreState, useSelector } from '../../store';
 import { NotificationProps } from '../../common/models/notifications/NotificationProps';
-import { FixNotifications } from '.';
+import FixNotification from './fixrequests/fixNotification';
 
-class NotificationRenderer extends React.Component<any> {
-  render() {
-    const props = this.buildChildProps();
-    if (props.message && props.message.data) {
-      return <FixNotifications {...props} />;
+export const NotificationRenderer: FunctionComponent<NotificationProps> = (props: NotificationProps): JSX.Element => {
+  const currentDisplayedNotificationPayload = useSelector(
+    (storeState: StoreState) => storeState.notifications.currentDisplayedNotificationPayload,
+  );
+
+  useEffect(() => {}, [currentDisplayedNotificationPayload]);
+
+  const render = (): JSX.Element => {
+    if (currentDisplayedNotificationPayload) {
+      const notificationProps = {
+        currentDisplayedRemoteMessageData: currentDisplayedNotificationPayload,
+        navRef: props.navRef,
+      };
+
+      switch (currentDisplayedNotificationPayload.payload?.action) {
+        case NotificationTypes.FixClientRequest:
+        case NotificationTypes.FixCraftsmanResponse:
+          return <FixNotification {...notificationProps}></FixNotification>;
+        default:
+          break;
+      }
     }
     return <></>;
-  }
-
-  private buildChildProps(): NotificationProps {
-    const message = this.props.messages[this.props.messages?.length - 1];
-    const notificationType = +message?.data?.type;
-    return {
-      message,
-      type: notificationType,
-      onDismissNotification: this.props.onDismissNotification,
-      navRef: this.props.navRef,
-    };
-  }
-}
-
-const mapStateToProps = (state: StoreState) => ({
-  messages: state.remoteMessages?.messages,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  onDismissNotification: (id: string) => {
-    dispatch(notificationActions.dismissNotification({ messageId: id }));
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(NotificationRenderer);
+  };
+  return render();
+};

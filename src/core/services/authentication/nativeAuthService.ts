@@ -1,5 +1,5 @@
 import PublicClientApplication from 'react-native-msal';
-import { store, userActions, UserService } from 'fixit-common-data-store';
+import { rootReducerActions, store, userActions, UserService } from '../../../store';
 import jwtDecode from 'jwt-decode';
 import * as constants from '../constants/authConstants';
 import {
@@ -71,7 +71,7 @@ export default class NativeAuthService {
       const userId = decodedAuthToken.sub;
 
       store.dispatch(userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult?.accessToken }));
-      userService.fetchUser(userId);
+      await userService.fetchUser(userId);
       return msalResult;
     } catch (error: any) {
       Logger.instance.trackException({
@@ -140,7 +140,7 @@ export default class NativeAuthService {
       this.instance.publicClientApplication.signOut({ ...params, account }),
     );
     await Promise.all(signOutPromises);
-    store.dispatch(userActions.UPDATE_AUTH_STATUS({ isAuthenticated: false, authToken: '' }));
+    store.dispatch(rootReducerActions.RESET_ROOT_STATE());
     return true;
   }
 

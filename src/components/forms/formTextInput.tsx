@@ -1,4 +1,4 @@
-import { colors, Icon } from 'fixit-common-ui';
+import { colors } from 'fixit-common-ui';
 import React, { FunctionComponent, useRef } from 'react';
 import { TextInput, Text, View } from 'react-native';
 import StyledTextInput from '../styledElements/styledTextInput';

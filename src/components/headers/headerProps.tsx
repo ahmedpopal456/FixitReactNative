@@ -1,6 +1,6 @@
 import { ParamListBase } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack/lib/typescript/src/types';
-import { UserAddressModel } from 'fixit-common-data-store';
+import { UserAddressModel } from '../../store';
 import { PropsWithChildren } from 'react';
 
 export interface HeaderProps extends PropsWithChildren<any> {
@@ -24,4 +24,6 @@ export interface HeaderProps extends PropsWithChildren<any> {
   userAddress: UserAddressModel;
   /** User's rating count */
   ratingCount?: number;
+  profilePictureUrl?: string;
+  userId: string;
 }

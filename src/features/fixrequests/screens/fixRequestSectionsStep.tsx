@@ -8,7 +8,7 @@ import {
   useSelector,
   FixTemplateSectionField,
   fixTemplateActions,
-} from 'fixit-common-data-store';
+} from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import { FormTextInput, FormNextPageArrows } from '../../../components/forms/index';
 import { StepIndicator } from '../../../components/index';
@@ -160,6 +160,7 @@ const FixRequestSectionsStep: FunctionComponent = (): JSX.Element => {
                   <FormTextInput
                     onChange={(text: string) => setSectionName(text, sectionIndex)}
                     value={section ? section.name : 'loading...'}
+                    editable={true}
                   />
                   <Spacer height="20px" />
                   <View
@@ -220,12 +221,14 @@ const FixRequestSectionsStep: FunctionComponent = (): JSX.Element => {
                               title={'Field Title'}
                               value={field.name}
                               onChange={(text: string) => setFieldName(text, fieldIndex, sectionIndex)}
+                              editable={true}
                             />
                             <Spacer height="20px" />
                             <FormTextInput
                               title={'Field Information'}
                               value={field.value}
                               onChange={(text: string) => setFieldValue(text, fieldIndex, sectionIndex)}
+                              editable={true}
                             />
                           </View>
                         </View>

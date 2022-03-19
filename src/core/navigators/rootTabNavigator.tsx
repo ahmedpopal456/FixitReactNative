@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect } from 'react';
 import { colors } from 'fixit-common-ui';
-import { RatingsService, store, StoreState, useSelector } from 'fixit-common-data-store';
+import { NotificationsService, RatingsService, store, StoreState, useSelector } from '../../store';
 import ProfileStackNavigator from '../../features/userprofile/navigators/profileStackNavigator';
 import HomeStackNavigator from './homeStackNavigator';
 import FixesStackNavigator from '../../features/userfixes/navigators/fixesStackNavigator';
@@ -9,60 +9,70 @@ import { routes, icons } from '../constants';
 import Tab from './Tab';
 import tabScreen from './tabScreen';
 import config from '../config/appConfig';
+import { Dimensions } from 'react-native';
 
 const ratingsService = new RatingsService(config, store);
+const notificationService = new NotificationsService(config, store);
 
 const RootTabNavigator: FunctionComponent = () => {
   const userRatingState = useSelector((storeState: StoreState) => storeState.ratings);
-  const notificationCount = useSelector((storeState: StoreState) => storeState.persist.unseenNotificationsNumber);
+  const notifications = useSelector((storeState: StoreState) => storeState.notifications.notifications);
   const user = useSelector((storeState: StoreState) => storeState.user);
 
+  //TODO: Add paging to screen
+  const pageSize = 100000;
+
   useEffect(() => {
-    const fetchRatings = async () => {
+    const initialCalls = async () => {
       await ratingsService.getUserRatingsAverage(user.userId as string);
+      await notificationService.getNotificationsPaginated(user.userId as string, 1, pageSize);
     };
-    fetchRatings();
-  }, []);
+    initialCalls();
+  }, [user]);
 
   const tabBarOptions = {
     activeTintColor: colors.accent,
     inactiveTintColor: colors.primary,
     keyboardHidesTabBar: true,
     style: {
-      paddingBottom: 30,
-      height: 100,
+      paddingBottom: (Dimensions.get('window').height * 3) / 100,
+      height: (Dimensions.get('window').height * 12) / 100,
     },
   };
   const home = {
     name: routes.home,
-    iconName: icons.user,
+    iconName: icons.home,
     StackNavigator: (componentProps: any) => (
       <HomeStackNavigator
         {...componentProps}
         otherProp={{
           averageRating: userRatingState.averageRating,
-          notificationCount,
+          notificationCount: notifications.unreadNotifications,
           userFirstName: user.firstName,
           userLastName: user.lastName,
           userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
           ratingCount: userRatingState.ratings.length,
+          profilePictureUrl: user.profilePictureUrl,
+          userId: user.userId,
         }}
       />
     ),
   };
   const profile = {
     name: routes.profile,
-    iconName: icons.home,
+    iconName: icons.user,
     StackNavigator: (componentProps: any) => (
       <ProfileStackNavigator
         {...componentProps}
         otherProp={{
           averageRating: userRatingState.averageRating,
-          notificationCount,
+          notificationCount: notifications.unreadNotifications,
           userFirstName: user.firstName,
           userLastName: user.lastName,
           userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
           ratingCount: userRatingState.ratings.length,
+          profilePictureUrl: user.profilePictureUrl,
+          userId: user.userId,
         }}
       />
     ),
@@ -75,11 +85,13 @@ const RootTabNavigator: FunctionComponent = () => {
         {...componentProps}
         otherProp={{
           averageRating: userRatingState.averageRating,
-          notificationCount,
+          notificationCount: notifications.unreadNotifications,
           userFirstName: user.firstName,
           userLastName: user.lastName,
           userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
           ratingCount: userRatingState.ratings.length,
+          profilePictureUrl: user.profilePictureUrl,
+          userId: user.userId,
         }}
       />
     ),
@@ -92,11 +104,13 @@ const RootTabNavigator: FunctionComponent = () => {
         {...componentProps}
         otherProp={{
           averageRating: userRatingState.averageRating,
-          notificationCount,
+          notificationCount: notifications.unreadNotifications,
           userFirstName: user.firstName,
           userLastName: user.lastName,
           userAddress: user.savedAddresses?.find((address) => address.isCurrentAddress),
           ratingCount: userRatingState.ratings.length,
+          profilePictureUrl: user.profilePictureUrl,
+          userId: user.userId,
         }}
       />
     ),

@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   View,
-  ScrollView,
   TouchableOpacity,
   RefreshControl,
   SafeAreaView,
@@ -20,7 +19,7 @@ import {
   UserAddressModel,
   UserService,
   useSelector,
-} from 'fixit-common-data-store';
+} from '../../store';
 import { Button, colors, Icon } from 'fixit-common-ui';
 import useAsyncEffect from 'use-async-effect';
 import Toast from 'react-native-toast-message';
@@ -269,7 +268,7 @@ const AddressSelectorScreen: FunctionComponent<AddressSelectorScreenProps> = (pr
           <></>
         )}
       </View>
-      {queriedAddresses.length <= 0 ? (
+      {queriedAddresses?.length <= 0 ? (
         <View style={styles.savedLocations}>
           <Text style={{ fontSize: 14, fontWeight: '100', color: 'black' }}>Saved locations</Text>
           <FlatList

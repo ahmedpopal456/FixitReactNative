@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { connect, StoreState } from 'fixit-common-data-store';
+import { connect, StoreState } from '../../store';
 import { createStackNavigator } from '@react-navigation/stack';
 import AddressEditionScreen from '../../screens/address/addressEditionScreen';
 import Header from '../../components/headers/header';
@@ -10,14 +10,14 @@ import FixRequestDescriptionStep from '../../features/fixrequests/screens/fixReq
 import FixRequestSectionsStep from '../../features/fixrequests/screens/fixRequestSectionsStep';
 import FixRequestImagesLocationStep from '../../features/fixrequests/screens/fixRequestImagesLocationStep';
 import FixSuggestChanges from '../../features/fixrequests/screens/fixSuggestChanges';
-import FixSuggestChangesReview from '../../features/fixrequests/screens/fixSuggestChangesReview';
+import FixRequestSuggestChangesReview from '../../features/fixrequests/screens/fixRequestSuggestChangesReview';
 import UserRoles from '../../common/models/users/userRolesEnum';
 import HomeScreenCraftsman from '../../screens/home/homeScreenCraftsman';
 import NotificationsScreen from '../../features/notifications/screens/notificationsScreen';
 import AddressSelectorScreen from '../../screens/address/addressSelectorScreen';
-import Fix from '../../features/fixrequests/components/Fix';
 import { Platform } from 'react-native';
 import { SupportedOSConstants } from '../../core/constants/SupportedOSConstants';
+import FixRequestActions from '../../features/fixrequests/components/fixRequestActions';
 
 const Stack = createStackNavigator();
 
@@ -29,14 +29,17 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
         headerShown: false,
         header: ({ navigation }) => (
           <Header
-            notificationsBadgeCount={props.otherProp.notificationCount}
             userRatings={props.otherProp.averageRating}
             navigation={navigation}
+            notificationsBadgeCount={props.otherProp.notificationCount}
             height={Number(SupportedOSConstants.get(Platform.OS)?.get('height'))}
             userFirstName={props.otherProp.userFirstName}
             userLastName={props.otherProp.userLastName}
             ratingCount={props.otherProp.ratingCount}
-            userAddress={props.otherProp.userAddress}></Header>
+            userAddress={props.otherProp.userAddress}
+            profilePictureUrl={props.otherProp.profilePictureUrl}
+            userId={props.userId}
+          />
         ),
       }}>
       {props.role === UserRoles.CLIENT && (
@@ -89,7 +92,7 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
       />
       <Stack.Screen
         name="Fix"
-        component={Fix}
+        component={FixRequestActions}
         options={{
           animationEnabled: false,
         }}
@@ -103,7 +106,7 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
       />
       <Stack.Screen
         name="FixSuggestChangesReview"
-        component={FixSuggestChangesReview}
+        component={FixRequestSuggestChangesReview}
         options={{
           animationEnabled: false,
         }}
@@ -126,10 +129,7 @@ const HomeStackNavigator: FunctionComponent<any> = (props) => {
 function mapStateToProps(state: StoreState) {
   return {
     userId: state.user.userId,
-    firstName: state.user.firstName,
-    lastName: state.user.lastName,
     role: state.user.role,
-    unseenNotificationsNumber: state.persist.unseenNotificationsNumber,
   };
 }
 

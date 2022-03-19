@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
-import { P, Spacer, colors, H2 } from 'fixit-common-ui';
-import { store, StoreState, useSelector, fixTemplateActions, ImageModel } from 'fixit-common-data-store';
+import { Spacer, colors } from 'fixit-common-ui';
+import { store, StoreState, useSelector, fixTemplateActions, ImageModel } from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import { FormNextPageArrows } from '../../../components/forms';
 import StyledContentWrapper from '../../../components/styledElements/styledContentWrapper';
@@ -9,7 +9,7 @@ import StyledPageWrapper from '../../../components/styledElements/styledPageWrap
 import FixRequestHeader from '../components/fixRequestHeader';
 import { FixTemplateFormTextInput } from '../components';
 import constants from './constants';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import NavigationEnum from '../../../common/enums/navigationEnum';
 import { Asset } from 'react-native-image-picker';
 import FileManagementService, { UploadFileResponse } from '../../../core/services/file/fileManagementService';
@@ -18,8 +18,6 @@ import Logger from '../../../logger';
 import { FixitError } from '../../../common/FixitError';
 import useAsyncEffect from 'use-async-effect';
 import { CameraAndImage } from '../../../components/CameraAndImage';
-import GlobalStyles from '../../../common/styles/globalStyles';
-import FixRequestStyles from '../styles/fixRequestStyles';
 import { DeletableCameraAssets } from '../../../components/DeletableCameraAssets';
 
 const fileManagementService = new FileManagementService();
@@ -34,7 +32,6 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
   const [isUploading, setIsUploading] = useState<{ [key: string]: boolean }>({});
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [assetToFile, setAssetToFile] = useState<{ [key: string]: string }>({});
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     if (!fixId) {
@@ -68,7 +65,7 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
             [uri]: true,
           });
 
-          const uploadedFile = await fileManagementService.uploadFile(fixId, tempAssets[i]);
+          const uploadedFile = await fileManagementService.uploadFile(fixId, tempAssets[i], 'fixes');
           tempAssets[i].isUploaded = true;
           updateAssetToFile = {
             ...updateAssetToFile,
@@ -144,7 +141,7 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
           if (navigation.canGoBack()) {
             navigation.goBack();
           }
-          await fileManagementService.deleteDirectoryByFixId(fixId);
+          await fileManagementService.deleteDirectoryByFixId(fixId, 'fixes');
         }}
       />
       <StyledPageWrapper>
@@ -160,13 +157,7 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
           }}>
           {errorMessage}
         </Text>
-        <CameraAndImage
-          assets={assets}
-          setAssets={setAssets}
-          modalVisible={modalVisible}
-          setErrorMessage={setErrorMessage}
-          setModalVisible={setModalVisible}
-        />
+
         <ScrollView style={{ flexGrow: 1 }}>
           <StyledContentWrapper>
             <FixTemplateFormTextInput
@@ -178,12 +169,12 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
               editable={true}
             />
             <Spacer height="20px" />
-            <View style={[GlobalStyles.flexRow, { marginBottom: 5 }]}>
-              <H2 style={FixRequestStyles.titleWithAction}>Images</H2>
-              <Pressable style={FixRequestStyles.titleActionWrapper} onPress={() => setModalVisible(true)}>
-                <Text style={FixRequestStyles.titleActionLabel}>Add</Text>
-              </Pressable>
-            </View>
+            <CameraAndImage
+              assets={assets}
+              setAssets={setAssets}
+              setErrorMessage={setErrorMessage}
+              buttonText={'Add images'}
+            />
             <View style={{ flexDirection: 'row', flexGrow: 1, flexWrap: 'wrap', justifyContent: 'flex-start' }}>
               <DeletableCameraAssets
                 fixId={fixId}

@@ -10,7 +10,7 @@ import {
   Type,
   Unit,
   useSelector,
-} from 'fixit-common-data-store';
+} from '../../../store';
 
 import { useNavigation } from '@react-navigation/native';
 import { FormNextPageArrows } from '../../../components/forms';
@@ -37,17 +37,15 @@ const FixRequestMetaStep: FunctionComponent = (props: any): JSX.Element => {
   const [templateType, setTemplateType] = useState<Type>(fixTemplate.workType);
   const [templateUnit, setTemplateUnit] = useState<Unit>(fixTemplate.fixUnit);
   const [templateCategoryName, setTemplateCategoryName] = useState<string>(fixTemplate.workCategory.name);
-  const [templateTypeName, setTemplateTypeName] = useState<string>(fixTemplate.workType.name);
   const [templateUnitName, setTemplateUnitName] = useState<string>(fixTemplate.fixUnit.name);
 
   useEffect(() => {
     setTemplateName(fixTemplate.name);
-    setTemplateCategory(fixTemplate.workCategory);
-    setTemplateType(fixTemplate.workType);
-    setTemplateUnit(fixTemplate.fixUnit);
+    setTemplateCategory(fixTemplate.categories[0]);
+    setTemplateType(fixTemplate.types.find((type) => type.name.toLowerCase() === 'quick fix') as Type);
+    setTemplateUnit(fixTemplate.units[0]);
     setTemplateTags(fixTemplate.tags);
     setTemplateCategoryName(fixTemplate.workCategory.name);
-    setTemplateTypeName(fixTemplate.types.find((type) => type?.name.toLowerCase() === 'quick fix')?.name || '');
   }, [fixTemplate.name, fixTemplate.workCategory, fixTemplate.workType, fixTemplate.fixUnit, fixTemplate.tags]);
 
   const handleNextStep = (): void => {
@@ -156,6 +154,7 @@ const FixRequestMetaStep: FunctionComponent = (props: any): JSX.Element => {
         value={tagInputText}
         onFocus={() => setTagSuggestionsVisible(true)}
         onBlur={() => setTagSuggestionsVisible(false)}
+        editable={true}
       />
       {templateTagsList()}
     </>

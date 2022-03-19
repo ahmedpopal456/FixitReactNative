@@ -1,4 +1,4 @@
-import type { B2CTypes } from 'fixit-common-data-store';
+import * as B2CTypes from '../../common/models/auth/B2CTypes';
 
 export const b2cConfig: B2CTypes.B2CConfiguration = {
   auth: {

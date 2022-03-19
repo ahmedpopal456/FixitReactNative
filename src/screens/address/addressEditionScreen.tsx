@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, ScrollView, RefreshControl, SafeAreaView, TextInput } from 'react-native';
-import { store, StoreState, UserService, useSelector, UserAddressModel } from 'fixit-common-data-store';
+import { store, StoreState, UserService, useSelector, UserAddressModel } from '../../store';
 import { Button, colors, Icon } from 'fixit-common-ui';
 import Toast from 'react-native-toast-message';
 import MapView from 'react-native-maps';

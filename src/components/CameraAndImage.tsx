@@ -1,53 +1,17 @@
-import React, { FunctionComponent, PropsWithChildren, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
-import { colors } from 'fixit-common-ui';
+import React, { Dispatch, FunctionComponent, PropsWithChildren, SetStateAction } from 'react';
+import { Button } from 'fixit-common-ui';
 import { Asset, ImagePickerResponse, launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import ProgressIndicatorFactory from './progressIndicators/progressIndicatorFactory';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 interface CameraAndImageProps {
-  assets: Array<Asset & { isUploaded: boolean }>;
-  setAssets: React.Dispatch<React.SetStateAction<Array<Asset & { isUploaded: boolean }>>>;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  modalVisible: boolean;
-  setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  assets?: Array<Asset & { isUploaded: boolean }>;
+  setAssets?: Dispatch<SetStateAction<Array<Asset & { isUploaded: boolean }>>>;
+  setAsset?: Dispatch<SetStateAction<(Asset & { isUploaded: boolean }) | undefined>>;
+  setErrorMessage: Dispatch<SetStateAction<string>>;
+  buttonText: string;
+  selectionLimit?: number;
 }
 
-const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    flexDirection: 'column',
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 10,
-    alignItems: 'flex-start',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonClose: {
-    backgroundColor: colors.light,
-    margin: 2,
-  },
-  buttonCancel: {
-    alignSelf: 'flex-end',
-  },
-});
 interface AssetsWithIsUploaded extends Asset {
   isUploaded: boolean;
 }
@@ -55,66 +19,73 @@ interface AssetsWithIsUploaded extends Asset {
 export const CameraAndImage: FunctionComponent<PropsWithChildren<CameraAndImageProps>> = (
   props: CameraAndImageProps,
 ): JSX.Element => {
-  const { modalVisible, setModalVisible, assets, setAssets, setErrorMessage } = props;
+  const { assets, setAssets, setAsset, setErrorMessage, buttonText, selectionLimit } = props;
+  const { showActionSheetWithOptions } = useActionSheet();
+
   const launch = async (isCamera: boolean) => {
     const response: ImagePickerResponse = await new Promise((resolve, reject) => {
       setTimeout(() => {
         if (isCamera) {
           resolve(launchCamera({ mediaType: 'photo', includeBase64: true, quality: 0.5 }));
         } else {
-          resolve(launchImageLibrary({ mediaType: 'photo', selectionLimit: 0, includeBase64: true, quality: 0.5 }));
+          resolve(
+            launchImageLibrary({
+              mediaType: 'photo',
+              selectionLimit: selectionLimit ? selectionLimit : 0,
+              includeBase64: true,
+              quality: 0.5,
+            }),
+          );
         }
       }, 200);
-    });
-
-    let assetsWithIsUploaded: Array<AssetsWithIsUploaded> = [];
-    response.assets?.forEach((asset) => {
-      assetsWithIsUploaded.push({ ...asset, isUploaded: false });
     });
 
     if (response.errorCode) {
       setErrorMessage(response.errorMessage || 'something went wrong while lauching your camera');
     }
+    if (assets && setAssets) {
+      let assetsWithIsUploaded: Array<AssetsWithIsUploaded> = [];
+      response.assets?.forEach((responseAsset) => {
+        assetsWithIsUploaded.push({ ...responseAsset, isUploaded: false });
+      });
+      const assetsUpdate = [...assets];
+      if (assetsWithIsUploaded) {
+        assetsUpdate.push(...assetsWithIsUploaded);
+      }
 
-    const assetsUpdate = [...assets];
-    if (assetsWithIsUploaded) {
-      assetsUpdate.push(...assetsWithIsUploaded);
+      setAssets(assetsUpdate);
+    } else if (setAsset) {
+      if (response.assets) {
+        setAsset({ ...response.assets[0], isUploaded: false });
+      }
     }
+  };
 
-    setAssets(assetsUpdate);
-    setModalVisible(!modalVisible);
+  const onPress = async () => {
+    showActionSheetWithOptions(
+      {
+        options: ['Select from gallery', 'Take picture', 'Cancel'],
+        destructiveButtonIndex: 2,
+        cancelButtonIndex: 2,
+        userInterfaceStyle: 'dark',
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          launch(false);
+        } else if (buttonIndex === 1) {
+          launch(true);
+        } else if (buttonIndex === 2) {
+          // Do nothing
+        }
+      },
+    );
   };
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        setModalVisible(!modalVisible);
-      }}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={{ marginBottom: 3, fontWeight: 'bold' }}> Select image </Text>
-          <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={async () => {
-              await launch(true);
-            }}>
-            <Text>Take photo</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={async () => {
-              await launch(false);
-            }}>
-            <Text>Choose from library</Text>
-          </Pressable>
-          <Pressable style={[styles.button, styles.buttonCancel]} onPress={() => setModalVisible(!modalVisible)}>
-            <Text style={{ fontWeight: 'bold' }}>Cancel</Text>
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
+    <>
+      <Button onPress={onPress} key={'add image'}>
+        {buttonText}
+      </Button>
+    </>
   );
 };

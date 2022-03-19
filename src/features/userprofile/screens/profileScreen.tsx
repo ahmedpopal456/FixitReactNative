@@ -1,22 +1,18 @@
 import React, { FunctionComponent, useState } from 'react';
-import {
-  Text, View, StyleSheet, ScrollView, Dimensions, TextInput,
-} from 'react-native';
+import { Text, View, StyleSheet, ScrollView, Dimensions, TextInput } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  store, StoreState, useSelector,
-} from 'fixit-common-data-store';
+import { store, StoreState, useSelector } from '../../../store';
 import useAsyncEffect from 'use-async-effect';
-import { Avatar } from 'react-native-elements';
+import { UserProfileAvatar } from '../../../components/UserProfileAvatar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ProfileScreenState {
-  userAddress: string | undefined
+  userAddress: string | undefined;
 }
 
 const styles = StyleSheet.create({
   container: {
-    height: Dimensions.get('window').height - 95,
+    height: (Dimensions.get('window').height * 90) / 100,
     width: '100%',
     backgroundColor: '#FFD14A',
   },
@@ -78,6 +74,7 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: 'bold',
     alignSelf: 'flex-start',
+    marginTop: 5,
   },
   image: {
     width: 150,
@@ -94,7 +91,7 @@ const initialState = {
   userAddress: store.getState().profile?.address?.address?.formattedAddress,
 };
 
-const ProfileScreen : FunctionComponent<any> = (props) => {
+const ProfileScreen: FunctionComponent<any> = (props) => {
   const [state, setState] = useState<ProfileScreenState>(initialState);
   const user = useSelector((storeState: StoreState) => storeState.user);
 
@@ -107,19 +104,19 @@ const ProfileScreen : FunctionComponent<any> = (props) => {
   const render = () => (
     <SafeAreaView style={styles.container}>
       <View style={styles.topContainer}>
-        <Button onPress={() => props.navigation.goBack()} color='transparent'>
-          <Icon library='AntDesign' name='back' size={30} />
+        <Button onPress={() => props.navigation.goBack()} color="transparent">
+          <Icon library="AntDesign" name="back" size={30} />
         </Button>
         <Text style={styles.title}>My Profile</Text>
       </View>
 
       <View style={styles.bodyContainer}>
-        <ScrollView
-          contentContainerStyle={styles.scrollViewContent}>
-          <Avatar
-            size="xlarge"
-            rounded
-            icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }}
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <UserProfileAvatar
+            isEditable={true}
+            profilePictureUrl={user.profilePictureUrl}
+            nameAbbrev={`${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`}
+            userId={user.userId as string}
           />
           <Text style={styles.text}>Name</Text>
           <TextInput
@@ -148,7 +145,7 @@ const ProfileScreen : FunctionComponent<any> = (props) => {
               maxLength={30}
               onTouchEnd={() => props.navigation.navigate('AddressSelector')}
             />
-            <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20}/>
+            <Icon style={styles.searchIcon} library="FontAwesome5" name="map-marker-alt" color={'dark'} size={20} />
           </View>
         </ScrollView>
       </View>

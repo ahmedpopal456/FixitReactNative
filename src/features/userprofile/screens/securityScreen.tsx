@@ -1,7 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import {
-  StyleSheet, Dimensions,
-} from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
@@ -14,7 +12,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const SecurityScreen : FunctionComponent<any> = (props) => {
+const SecurityScreen: FunctionComponent<any> = (props) => {
   function render() {
     return (
       <SafeAreaView style={styles.container}>

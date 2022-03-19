@@ -16,7 +16,7 @@ describe('Client Common Views', () => {
     await expect(element(by.id('signupButton'))).toBeVisible();
   });
 
-  it('should show client\'s home page', async () => {
+  it("should show client's home page", async () => {
     await element(by.id('skipClient')).tap();
     await expect(element(by.text('Most Popular Fixes'))).toBeVisible();
     await expect(element(by.text('Explore'))).toBeVisible();

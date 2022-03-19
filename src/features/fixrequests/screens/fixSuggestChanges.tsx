@@ -2,7 +2,7 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { TouchableOpacity, View, Image, StyleSheet, ScrollView, Text } from 'react-native';
 import { Button, colors, Divider, H1, H2, Icon, Label, Spacer } from 'fixit-common-ui';
-import { FixesModel, FixRequestModel, Schedule } from 'fixit-common-data-store';
+import { FixesModel, FixRequestModel, Schedule } from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import { FormTextInput } from '../../../components/forms/index';
 import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
@@ -14,6 +14,7 @@ import Calendar from '../../../components/calendar/calendar';
 
 export type FixSuggestChangesProps = {
   fix: FixesModel;
+  notificationId: string;
   fixRequestObj: FixRequestModel;
 };
 
@@ -51,15 +52,16 @@ const styles = StyleSheet.create({
 const FixSuggestChanges: FunctionComponent<NavigationProps<FixSuggestChangesProps>> = (
   props: NavigationProps<FixSuggestChangesProps>,
 ) => {
-  const { fix } = props.route.params;
+  const { fix, notificationId } = props.route.params;
+
   const navigation = useNavigation();
   const [cost, setCost] = useState<string>('');
   const [errorMesage, setErrorMessage] = useState<string>('');
   const [comments, setComments] = useState<string>('');
-  const [schedule, setSChedule] = useState<Array<Schedule>>(fix.schedule || []);
+  const [schedule, setSchedule] = useState<Array<Schedule>>(fix.schedule || []);
 
   useEffect(() => {
-    setSChedule(fix.schedule);
+    setSchedule(fix.schedule);
   }, [fix.schedule]);
 
   const handleDone = (): void => {
@@ -77,6 +79,7 @@ const FixSuggestChanges: FunctionComponent<NavigationProps<FixSuggestChangesProp
     fix.schedule = schedule;
     navigation.navigate(NavigationEnum.FIXSUGGESTCHANGESREVIEW, {
       fix,
+      notificationId,
       cost,
       comments,
     });
@@ -114,7 +117,7 @@ const FixSuggestChanges: FunctionComponent<NavigationProps<FixSuggestChangesProp
             make it.
           </Label>
           <Spacer height="20px" />
-          <Calendar parentSchedules={schedule} canUpdate={true} parentSetSchedules={setSChedule} />
+          <Calendar parentSchedules={schedule} canUpdate={true} parentSetSchedules={setSchedule} />
         </>
       );
     }
@@ -124,7 +127,7 @@ const FixSuggestChanges: FunctionComponent<NavigationProps<FixSuggestChangesProp
         <Label>Below you will see the days on which the client is available for you to come and fix his issue.</Label>
         <Spacer height="20px" />
 
-        <Calendar parentSchedules={schedule} canUpdate={true} parentSetSchedules={setSChedule} />
+        <Calendar parentSchedules={schedule} canUpdate={true} parentSetSchedules={setSchedule} />
       </>
     );
   };
@@ -145,14 +148,20 @@ const FixSuggestChanges: FunctionComponent<NavigationProps<FixSuggestChangesProp
             </Label>
             <Label>What is your cost estimate on this problem?</Label>
             <Spacer height="10px" />
-            <FormTextInput numeric padLeft onChange={(value: string) => setCost(value)} value={cost} />
+            <FormTextInput numeric padLeft onChange={(value: string) => setCost(value)} value={cost} editable={true} />
             <Icon library="FontAwesome5" name="dollar-sign" color={'dark'} size={20} style={styles.fixCost} />
             <Spacer height="20px" />
             <Divider />
             <H2>Comments</H2>
             <Label>If you wish to let the client know about something, here is the place.</Label>
             <Spacer height="10px" />
-            <FormTextInput big onChange={(text: string) => setComments(text)} value={comments} top={true} />
+            <FormTextInput
+              big
+              onChange={(text: string) => setComments(text)}
+              value={comments}
+              top={true}
+              editable={true}
+            />
             <Text style={{ color: 'red', textAlign: 'left', margin: 5 }}>{errorMesage}</Text>
             <Button onPress={handleDone} block>
               DONE

@@ -1,4 +1,4 @@
-import { ApplicationTypesEnum, Config, ConfigFactory } from 'fixit-common-data-store';
+import { ApplicationTypesEnum, Config, ConfigFactory } from '../../store';
 
 // I didn't want to update the Config type so adding it as a const
 
@@ -6,6 +6,7 @@ export const fileApiBaseUrl = 'https://fixitdevfilemsapi.azurewebsites.net/api';
 
 const config: Config = {
   production: true,
+  nmsBaseApiUrl: 'https://fixit-dev-nms-api.azurewebsites.net/api',
   fixApiBaseUrl: 'https://fixit-dev-fms-api.azurewebsites.net/api',
   notificationApiUrl: 'https://fixit-dev-nms-api.azurewebsites.net/api/Notifications',
   chatApiUrl: 'https://fixit-dev-chms-func-api.azurewebsites.net/api/chat',

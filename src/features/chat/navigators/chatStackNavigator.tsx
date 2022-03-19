@@ -15,13 +15,16 @@ const ChatStackNavigator: FunctionComponent<any> = (props) => (
       header: ({ navigation }) => (
         <Header
           height={Number(SupportedOSConstants.get(Platform.OS)?.get('height'))}
-          notificationsBadgeCount={props.otherProp.notificationCount}
+          notificationsBadgeCount={props?.otherProp?.notificationCount}
           userRatings={props.otherProp.averageRating}
           navigation={navigation}
           userFirstName={props.otherProp.userFirstName}
           userLastName={props.otherProp.userLastName}
           ratingCount={props.otherProp.ratingCount}
-          userAddress={props.otherProp.userAddress}></Header>
+          userAddress={props.otherProp.userAddress}
+          profilePictureUrl={props.otherProp.profilePictureUrl}
+          userId={props.otherProp.userId}
+        />
       ),
     }}>
     <Stack.Screen

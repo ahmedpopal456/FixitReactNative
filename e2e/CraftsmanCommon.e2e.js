@@ -16,7 +16,7 @@ describe('Craftsman Common Views', () => {
     await expect(element(by.id('signupButton'))).toBeVisible();
   });
 
-  it('should show craftsman\'s home page', async () => {
+  it("should show craftsman's home page", async () => {
     await element(by.id('skipCraftsman')).tap();
     await expect(element(by.text('Your Fix Requests'))).toBeVisible();
     await expect(element(by.text('Your Ongoing Fixes'))).toBeVisible();

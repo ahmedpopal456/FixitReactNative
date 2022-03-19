@@ -1,13 +1,15 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Dimensions, ViewStyle, RefreshControl, Keyboard } from 'react-native';
+import { Text, View, StyleSheet, Dimensions, ViewStyle, RefreshControl, Keyboard, Platform } from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
-import { StoreState, useSelector } from 'fixit-common-data-store';
+import { store, StoreState, useSelector } from '../../../store';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';
-import { ConversationModel, ConversationMessageModel } from '../models/chatModels';
+import { ConversationModel, ConversationMessageModel } from '../../../store/models/chat/chatModels';
 import SignalRService, { SignalRConnectionOptions } from '../../../core/services/chat/signalRService';
-import ChatService from '../../../core/services/chat/chatService';
+import ChatService from '../../../store/services/chatService';
+import config from '../../../core/config/appConfig';
+import { PUSH_MESSAGE_TO_CONVERSATION, RESET_MESSAGES_FROM_CONVERSATION } from '../../../store/slices/chatSlice';
 
 const styles = StyleSheet.create({
   container: {
@@ -81,14 +83,18 @@ const signalRService = new SignalRService();
 const ChatMessagingScreen: FunctionComponent<any> = (props) => {
   const scrollRef: React.RefObject<ScrollView> = React.createRef();
   const user = useSelector((storeState: StoreState) => storeState.user);
+  const userConversationMessages = useSelector(
+    (storeState: StoreState) => storeState.chat.selectedConversationMessages,
+  );
   const [conversation] = useState<ConversationModel>(props.route.params.conversation);
-  const [messagesState, setMessages] = useState<ConversationMessageState>({} as any);
+
   const [message, setMessage] = useState<string>('');
   const [newMessage, setNewMessage] = useState<ConversationMessageModel>({} as any);
+
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [scrollViewBottomPadding, setScrollViewBottomPadding] = useState<number>(30);
 
-  const chatService: ChatService = new ChatService(user.userId as string);
+  const chatService: ChatService = new ChatService(user.userId as string, config, store);
   signalRService.setGroup(user.userId as string, conversation.id);
 
   const onNewMessage = useCallback<(receivedMessage: ConversationMessageModel) => void>(
@@ -97,8 +103,59 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
       setNewMessage(jsonMessage as ConversationMessageModel);
       setMessage('');
     },
-    [messagesState],
+    [userConversationMessages],
   );
+
+  useEffect(() => {
+    return () => {
+      store.dispatch(RESET_MESSAGES_FROM_CONVERSATION());
+      signalRService.leaveGroup();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+        setScrollViewBottomPadding(350);
+      });
+      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+        setScrollViewBottomPadding(20);
+      });
+
+      return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+      };
+    }
+  }, []);
+
+  useAsyncEffect(async () => {
+    await signalRService.initializeGetConnectionInfoListener(onNewMessage, {
+      rejoinGroupOnHubStart: true,
+    } as SignalRConnectionOptions);
+  }, []);
+
+  useAsyncEffect(async () => {
+    await onRefreshAsync();
+    setTimeout(() => {
+      setTimeout(() => {
+        scrollRef?.current?.scrollToEnd({ animated: false });
+      });
+    });
+  }, []);
+
+  useAsyncEffect(async () => {
+    setRefreshing(false);
+  }, [userConversationMessages]);
+
+  useAsyncEffect(async () => {
+    store.dispatch(PUSH_MESSAGE_TO_CONVERSATION(newMessage));
+  }, [newMessage]);
+
+  const onRefreshAsync = async () => {
+    setRefreshing(true);
+    await chatService.getMessages(conversation.id, 1, 1000);
+  };
 
   const getParticipant = (isSelf: boolean) => {
     const participantNeeded = conversation.participants.find((participant) =>
@@ -113,58 +170,12 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
   const selfParticipant = getParticipant(true);
   const otherParticipant = getParticipant(false);
 
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setScrollViewBottomPadding(350);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setScrollViewBottomPadding(20);
-    });
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
-
-  // TODO: Add paging, so that more than 1000 items get shown
-  useEffect(() => {
-    onRefresh();
-    scrollRef?.current?.scrollToEnd({ animated: false });
-
-    return () => {
-      signalRService.leaveGroup();
-    };
-  }, []);
-
-  useAsyncEffect(async () => {
-    await signalRService.initializeGetConnectionInfoListener(onNewMessage, {
-      rejoinGroupOnHubStart: true,
-    } as SignalRConnectionOptions);
-  }, []);
-
-  useAsyncEffect(async () => {
-    messagesState.messages?.push(newMessage);
-    setMessages(messagesState);
-  }, [newMessage]);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    chatService.getMessages(conversation.id, 1, 1000).then((data) => {
-      setMessages({
-        messages: data.reverse(),
-        length: data.length,
-      });
-      setRefreshing(false);
-    });
-  };
-
   const renderMessages = (): JSX.Element => (
     <>
-      {messagesState.messages?.map((mess) => {
+      {userConversationMessages.messages?.map((mess) => {
         const isSelf = mess?.createdByUser?.id === user.userId;
         return (
-          <View key={mess?.createdTimestampUtc}>
+          <View>
             {isSelf ? (
               <>
                 <View style={[styles.messageContainer, messageContainer(isSelf)]}>
@@ -186,7 +197,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
               </>
             ) : (
               <>
-                <View key={mess?.createdTimestampUtc} style={[styles.messageContainer, messageContainer(isSelf)]}>
+                <View style={[styles.messageContainer, messageContainer(isSelf)]}>
                   <View style={styles.messageAvatar}>
                     <Avatar
                       size="medium"
@@ -236,17 +247,19 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
-                onRefresh={onRefresh.bind(this)}
+                onRefresh={onRefreshAsync.bind(this)}
                 size={1}
                 colors={[colors.orange]}
               />
             }
             ref={scrollRef}
             onContentSizeChange={() => {
-              scrollRef?.current?.scrollToEnd({ animated: false });
+              setTimeout(() => {
+                scrollRef?.current?.scrollToEnd({ animated: false });
+              });
             }}>
             <View>
-              {messagesState.length !== 0
+              {userConversationMessages.messages?.length !== 0
                 ? renderMessages()
                 : renderNoMessage(
                     otherParticipant?.user.firstName as string,
@@ -315,11 +328,11 @@ function toCamel(o: any) {
   let newKey;
   let value;
   if (o instanceof Array) {
-    return o.map((value) => {
-      if (typeof value === 'object') {
-        value = toCamel(value);
+    return o.map((mappedValue) => {
+      if (typeof mappedValue === 'object') {
+        value = toCamel(mappedValue);
       }
-      return value;
+      return mappedValue;
     });
   }
   newO = {};

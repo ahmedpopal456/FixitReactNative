@@ -2,7 +2,7 @@ import { H2, Spacer, colors } from 'fixit-common-ui';
 import React from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { View } from 'react-native';
-import { Category, Type, Unit } from 'fixit-common-data-store';
+import { Category, Type, Unit } from '../../../store';
 import GlobalStyles from '../../../common/styles/globalStyles';
 
 type Value = Category | Type | Unit | any;

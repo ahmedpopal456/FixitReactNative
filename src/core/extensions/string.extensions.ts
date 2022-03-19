@@ -3,9 +3,11 @@
  * @param length The length at which the string should be trimmed
  * @returns The truncated string.
  */
- declare global {
+declare global {
   interface String {
-      trimEllip(length: number): string}}
+    trimEllip(length: number): string;
+  }
+}
 
 // eslint-disable-next-line no-extend-native
 String.prototype.trimEllip = function (length: number): string {

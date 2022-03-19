@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Button, Divider, H1, H3, Icon, P, Tag, colors } from 'fixit-common-ui';
 import { TouchableOpacity, View, Text, Image, RefreshControl, ScrollView } from 'react-native';
-import { fixRequestActions, FixRequestService, store, useDispatch } from 'fixit-common-data-store';
+import { fixRequestActions, FixRequestService, store, useDispatch } from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import useAsyncEffect from 'use-async-effect';
 import { SearchTextInput } from '../../../components/index';

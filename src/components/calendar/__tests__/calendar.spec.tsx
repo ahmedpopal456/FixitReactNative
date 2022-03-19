@@ -10,9 +10,7 @@ describe('Fix Search Header', () => {
   };
 
   it('renders correctly', async () => {
-    const calendar = renderer.create(
-      <Calendar {...props} />,
-    ).toJSON();
+    const calendar = renderer.create(<Calendar {...props} />).toJSON();
     expect(calendar).toMatchSnapshot();
   });
 });

@@ -1,5 +1,4 @@
-import { isDate } from '@microsoft/applicationinsights-core-js';
-import { Schedule } from 'fixit-common-data-store';
+import { Schedule } from '../../store';
 import { colors, Icon } from 'fixit-common-ui';
 import React, { FunctionComponent, useState, useEffect } from 'react';
 

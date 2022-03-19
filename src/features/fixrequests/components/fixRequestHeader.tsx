@@ -1,6 +1,6 @@
 import { colors, H1 } from 'fixit-common-ui';
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import backArrowIcon from '../../../common/assets/back-icon.png';
 

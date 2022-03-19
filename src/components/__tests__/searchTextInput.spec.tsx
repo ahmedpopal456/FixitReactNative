@@ -17,9 +17,7 @@ describe('Search Text Input', () => {
   };
 
   it('renders correctly', async () => {
-    const searchTextInput = renderer.create(
-      <SearchTextInput {...props} />,
-    ).toJSON();
+    const searchTextInput = renderer.create(<SearchTextInput {...props} />).toJSON();
     expect(searchTextInput).toMatchSnapshot();
   });
 });
