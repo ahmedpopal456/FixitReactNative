@@ -1,6 +1,14 @@
 import React, { FunctionComponent } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground } from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ImageBackground,
+  ImageSourcePropType,
+} from 'react-native';
 import { colors, DonutChart, Tag } from 'fixit-common-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -18,10 +26,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import SwipeableFlatList from '../../components/lists/swipeableFlatList';
 import bgImage from '../../common/assets/background-right.png';
-import image from '../../common/assets/bedroom.jpg';
 import ProgressIndicatorFactory from '../../components/progressIndicators/progressIndicatorFactory';
 import NavigationEnum from '../../common/enums/navigationEnum';
 import config from '../../core/config/appConfig';
+import { Divider } from 'react-native-elements';
 
 const fixesService = new FixesService(config, store);
 const ratingsService = new RatingsService(config, store);
@@ -47,7 +55,7 @@ const styles = StyleSheet.create({
   },
   fixContainer: {
     flexDirection: 'row',
-    width: Dimensions.get('window').width - 35,
+    width: Dimensions.get('window').width / 1.5,
     backgroundColor: 'white',
     borderRadius: 10,
     marginVertical: 5,
@@ -56,7 +64,6 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   fixContainerView: {
-    width: 300,
     paddingVertical: 5,
     margin: 7,
   },
@@ -141,9 +148,6 @@ const HomeScreenCraftsman: FunctionComponent = () => {
 
   const renderPendingFixItems = ({ item }: Item): JSX.Element => (
     <View key={item.id} style={styles.fixContainer}>
-      <View style={{ padding: 10 }}>
-        <DonutChart value={75} radius={50} strokeWidth={7} color="yellow" textColor="dark" />
-      </View>
       <View style={styles.fixContainerView}>
         <Text style={styles.fixContainerText}>{item.details.name}</Text>
         <View style={styles.fixContainerDetailsView}>
@@ -181,23 +185,27 @@ const HomeScreenCraftsman: FunctionComponent = () => {
       });
       expectedDeliveryDate = tempExpectedDeliveryDate;
     }
-
+    const sampleImage = item.images.length > 0 ? item.images[0] : null;
     return (
       <View key={item.id} style={styles.fixContainer}>
-        <View>
-          <ImageBackground
-            source={image}
-            imageStyle={{
-              borderTopLeftRadius: 10,
-              borderBottomLeftRadius: 10,
-            }}
-            style={{
-              width: 120,
-              height: 141,
-              justifyContent: 'flex-start',
-            }}
-          />
-        </View>
+        {sampleImage !== null ? (
+          <View>
+            <ImageBackground
+              source={{ uri: sampleImage.url } as ImageSourcePropType}
+              imageStyle={{
+                borderTopLeftRadius: 10,
+                borderBottomLeftRadius: 10,
+              }}
+              style={{
+                width: 120,
+                height: 141,
+                justifyContent: 'flex-start',
+              }}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
         <View style={styles.fixContainerView}>
           <Text style={styles.fixContainerFinePrints}>
             {item.createdByClient.firstName} {item.createdByClient.lastName}
@@ -236,7 +244,6 @@ const HomeScreenCraftsman: FunctionComponent = () => {
           data={pendingFixes.fixes}
           renderItem={renderPendingFixItems}></SwipeableFlatList>
       ) : null;
-
     const showInProgressFixes =
       inProgressFixes.fixes.length > 0 ? (
         <SwipeableFlatList

@@ -79,6 +79,8 @@ const prepareFailure = <T>(error: any): FixitAction<T> => ({
   error,
 });
 
+// TODO: Add property in the backend to tell the number of unread notifs
+
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState: notificationInitialState,
@@ -146,15 +148,19 @@ const notificationsSlice = createSlice({
           ? state.notifications.notifications?.concat(action.payload.results as NotificationDocument[])
           : action.payload.results;
 
-        state.notifications.notifications = removeDuplicates(distinctArray, 'id');
-        state.notifications.notifications.forEach(
-          (item) => (item.payload.systemPayload = JSON.parse(item.payload.systemPayload)),
-        );
+        if (distinctArray) {
+          state.notifications.notifications = removeDuplicates(distinctArray, 'id');
+          state.notifications.notifications.forEach(
+            (item) => (item.payload.systemPayload = JSON.parse(item.payload.systemPayload)),
+          );
+          state.notifications.unreadNotifications = state.notifications.notifications?.filter(
+            (item) => item.status === NotificationStatus.SEND,
+          )?.length;
 
-        // TODO: Add property in the backend to tell the number of unread notifs
-        state.notifications.unreadNotifications = state.notifications.notifications?.filter(
-          (item) => item.status === NotificationStatus.SEND,
-        )?.length;
+          state.notifications.notifications = state.notifications.notifications.sort(
+            (a, b) => b.createdTimestampUtc - a.createdTimestampUtc,
+          );
+        }
         state.notifications.isLoading = false;
         state.notifications.error = null;
       },
@@ -178,7 +184,6 @@ const notificationsSlice = createSlice({
         const notificationToUpdate = state.notifications.notifications?.find(
           (item) => item.id === action.payload.result?.notificationId,
         );
-
         if (notificationToUpdate) {
           notificationToUpdate.status = NotificationStatus.READ;
         }
@@ -201,16 +206,19 @@ const notificationsSlice = createSlice({
         state.notifications.isLoading = false;
         state.notifications.error = null;
         let notificationIdsDeleted = action.payload.map((item) => item.result?.notificationId as string);
-
         const notificationsRemaining = state.notifications.notifications?.filter(
           (item) => notificationIdsDeleted.find((id) => id === item.id) === undefined,
         );
-        state.notifications.notifications = notificationsRemaining;
+        if (notificationsRemaining) {
+          state.notifications.notifications = notificationsRemaining;
+          state.notifications.unreadNotifications = state.notifications.notifications?.filter(
+            (item) => item.status === NotificationStatus.SEND,
+          )?.length;
 
-        // TODO: Add property in the backend to tell the number of unread notifs
-        state.notifications.unreadNotifications = state.notifications.notifications?.filter(
-          (item) => item.status === NotificationStatus.SEND,
-        )?.length;
+          state.notifications.notifications = state.notifications.notifications.sort(
+            (a, b) => b.createdTimestampUtc - a.createdTimestampUtc,
+          );
+        }
       },
       prepare: (payload: OperationStatus<NotificationStatusDeleteResponseDto>[]) => prepareSuccess(payload),
     },
@@ -223,10 +231,12 @@ const notificationsSlice = createSlice({
     },
     PUSH_NOTIFICATION: (state, action: PayloadAction<NotificationDocument>) => {
       state.notifications.notifications?.push(action.payload);
-      // TODO: Add property in the backend to tell the number of unread notifs
       state.notifications.unreadNotifications = state.notifications.notifications?.filter(
         (item) => item.status === NotificationStatus.SEND,
       )?.length;
+      state.notifications.notifications = state.notifications.notifications.sort(
+        (a, b) => b.createdTimestampUtc - a.createdTimestampUtc,
+      );
     },
     DISPLAY_NOTIFICATION: (state, action: PayloadAction<NotificationDocument>) => {
       state.currentDisplayedNotificationPayload = action.payload;
