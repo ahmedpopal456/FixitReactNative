@@ -48,10 +48,10 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexDirection: 'column',
     width: '90%',
-    flexBasis: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
+    marginTop: 50,
   },
   searchSection: {
     flexDirection: 'row',

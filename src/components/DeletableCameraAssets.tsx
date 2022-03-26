@@ -8,7 +8,7 @@ import Logger from '../logger';
 import ProgressIndicatorFactory from './progressIndicators/progressIndicatorFactory';
 
 interface DeletableCameraAssetsProps {
-  fixId?: string;
+  id?: string;
   assets?: Array<Asset & { isUploaded: boolean }>;
   setAssets?: React.Dispatch<React.SetStateAction<Array<Asset & { isUploaded: boolean }>>>;
   uploadedFiles?: Array<UploadFileResponse>;
@@ -17,13 +17,14 @@ interface DeletableCameraAssetsProps {
   setassetToFile?: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
   isUploading?: { [key: string]: boolean };
   files?: Array<ImageModel>;
+  type?: string;
 }
 
 const fileManagementService = new FileManagementService();
 export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<DeletableCameraAssetsProps>> = (
   props: DeletableCameraAssetsProps,
 ): JSX.Element => {
-  const { assets, setAssets, assetToFile, fixId, uploadedFiles, setUploadedFiles, isUploading, files } = props;
+  const { assets, setAssets, assetToFile, id, uploadedFiles, setUploadedFiles, isUploading, files, type } = props;
   const [uriOfAssetsToDelete, setUriOfAssetsToDelete] = useState<Array<string>>([]);
   const [shouldDeleteImage, setShouldDeleteImage] = useState<{ [key: string]: boolean }>({});
   const [isDeleting, setIsDeleting] = useState<{ [key: string]: boolean }>({});
@@ -78,7 +79,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
   };
 
   const deleteSelectedFiles = async () => {
-    if (assets && setAssets && uploadedFiles && setUploadedFiles && assetToFile && fixId) {
+    if (assets && setAssets && uploadedFiles && setUploadedFiles && assetToFile && id && type) {
       let updateAssets = [...assets];
       let updateUploadedFiles = [...uploadedFiles];
       for (const uriOfAssetToDelete of uriOfAssetsToDelete) {
@@ -88,7 +89,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
             [uriOfAssetToDelete]: true,
           });
           const fileCreatedId = assetToFile[uriOfAssetToDelete];
-          await fileManagementService.deleteFile(fixId, fileCreatedId, 'fixes');
+          await fileManagementService.deleteFile(id, fileCreatedId, type);
 
           // delete asset from assets
           const tempUpdateAssets: Array<Asset & { isUploaded: boolean }> = [];
@@ -198,7 +199,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
                     height: 100,
                     margin: 2,
                     borderRadius: 10,
-                    opacity: shouldDeleteImage[uri as string] ? 0.5 : 1,
+                    opacity: shouldDeleteImage[uri as string] ? 0.3 : 1,
                   }}
                   source={{ uri: uri }}
                 />

@@ -81,11 +81,11 @@ export interface TimestampsQueryModel {
 }
 
 export enum QueryBuilderOperators {
-  Equal,
-  GreaterThan,
-  GreaterThanEqual,
-  LessThan,
-  LessThanEqual,
+  EQUAL,
+  GREATERTHAN,
+  GREATHANEQUAL,
+  LESSTHAN,
+  LESSTHANEQUAL,
 }
 
 export interface ConversationUpsertMessageModel {

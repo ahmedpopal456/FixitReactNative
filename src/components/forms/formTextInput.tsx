@@ -49,9 +49,6 @@ const FormTextInput: FunctionComponent<FormTextInputProps> = (props: FormTextInp
                 backgroundColor: 'transparent',
                 zIndex: 1,
                 elevation: 1,
-                position: 'absolute',
-                top: -10,
-                left: 10,
               }}>
               <Text
                 style={{

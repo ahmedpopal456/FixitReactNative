@@ -1,21 +1,18 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Button, Divider, H1, H3, Icon, P, Tag, colors } from 'fixit-common-ui';
-import { TouchableOpacity, View, Text, Image, RefreshControl, ScrollView } from 'react-native';
-import { fixRequestActions, FixRequestService, store, useDispatch } from '../../../store';
+import { TouchableOpacity, View, Text, RefreshControl, ScrollView } from 'react-native';
+import { FixRequestService, store } from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import useAsyncEffect from 'use-async-effect';
 import { SearchTextInput } from '../../../components/index';
 import GlobalStyles from '../../../common/styles/globalStyles';
 import FixRequestStyles from '../styles/fixRequestStyles';
-import StyledPageWrapper from '../../../components/styledElements/styledPageWrapper';
-import backArrowIcon from '../../../common/assets/back-icon.png';
 import FixManagementService from '../../../core/services/search/fixManagementService';
 import NavigationEnum from '../../../common/enums/navigationEnum';
 import config from '../../../core/config/appConfig';
 
 const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const [fixes, setFixes] = useState<Array<any>>([]);
   const [searching, setSearching] = useState<boolean>(true);
   const [tags, setTags] = useState<Array<string>>(props.route?.params?.tags);
@@ -79,38 +76,23 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
       <View
         style={{
           backgroundColor: '#EEEEEE',
-          padding: 10,
-          paddingTop: 60,
-          borderBottomLeftRadius: 12,
-          borderBottomRightRadius: 12,
+          paddingTop: 40,
           flexDirection: 'column',
-          alignItems: 'center',
-          shadowColor: 'grey',
-          shadowOffset: {
-            width: 0,
-            height: 1,
-          },
-          shadowOpacity: 0.2,
-          shadowRadius: 1.41,
-          zIndex: 99,
-          elevation: 2,
+          alignItems: 'flex-start',
+          flex: 1,
+          width: '100%',
         }}>
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            top: 40,
-            left: 20,
-          }}
-          onPress={handleGoBack}>
-          <Image source={backArrowIcon} />
-        </TouchableOpacity>
-        <View
-          style={{
-            margin: 10,
-            borderRadius: 8,
-          }}>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={{ position: 'absolute', zIndex: -1, paddingTop: 10 }}>
+        <View style={{ flex: 5, flexDirection: 'column', padding: 15, width: '100%' }}>
+          <View style={{ flex: 3 }}>
+            <TouchableOpacity onPress={handleGoBack}>
+              <Icon name={'chevron-left'} size={30} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+            <View
+              style={{
+                flex: 4,
+              }}>
               <SearchTextInput
                 onChange={(text: string) => setTagInput(text)}
                 value={tagInput}
@@ -121,9 +103,10 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
             </View>
             <View
               style={{
-                paddingLeft: 280,
-                marginVertical: 13,
-                paddingBottom: 10,
+                paddingRight: 20,
+                flex: 1,
+                height: 60,
+                justifyContent: 'flex-end',
               }}>
               <Button onPress={() => search(tags.join())} color="primary" width={50} padding={0}>
                 <Icon library="Ionicons" name="hammer-outline" color="accent" />
@@ -132,9 +115,9 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
           </View>
           <View
             style={{
-              display: 'flex',
               flexDirection: 'row',
               flexWrap: 'wrap',
+              flexGrow: 2,
             }}>
             {tags ? (
               tags.map((tag: any) =>
@@ -164,71 +147,65 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
             )}
           </View>
         </View>
-        <View
-          style={{
-            height: 40,
-          }}>
-          <H1>Start from a Fixit plan</H1>
-        </View>
-      </View>
-      <StyledPageWrapper>
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
-          }>
-          {isRefreshing ? (
-            <></>
-          ) : (
-            fixes.map((fix: any) =>
-              fix ? (
-                <View
-                  key={fix.Id}
-                  style={{
-                    padding: 0,
-                    paddingLeft: 20,
-                    paddingRight: 20,
-                  }}>
-                  <TouchableOpacity
-                    onPress={() => handleSelectFixTemplate(fix.Id)}
-                    style={FixRequestStyles.searchResultsTouchableWrapper}>
-                    <View style={FixRequestStyles.searchResultsMockImage}></View>
-                    <View
-                      style={{
-                        flexWrap: 'wrap',
-                        marginRight: 60,
-                      }}>
-                      <H3 style={GlobalStyles.boldTitle}>{fix.TemplateName}</H3>
-                      <P>{fix.WorkCategory}</P>
-                      <P>{fix.FixUnit}</P>
+        <View style={{ flex: 10, backgroundColor: colors.white, width: '100%', paddingTop: 20 }}>
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} size={1} colors={[colors.orange]} />
+            }>
+            {isRefreshing ? (
+              <></>
+            ) : (
+              fixes.map((fix: any) =>
+                fix ? (
+                  <View
+                    key={fix.Id}
+                    style={{
+                      padding: 0,
+                      paddingLeft: 20,
+                      paddingRight: 20,
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => handleSelectFixTemplate(fix.Id)}
+                      style={FixRequestStyles.searchResultsTouchableWrapper}>
+                      <View style={FixRequestStyles.searchResultsMockImage}></View>
                       <View
                         style={{
-                          flexDirection: 'row',
                           flexWrap: 'wrap',
+                          marginRight: 60,
                         }}>
-                        {fix.Tags.split(', ').map((tag: string) => (
-                          <Tag key={tag} backgroundColor={'accent'} textColor={'dark'}>
-                            {tag}
-                          </Tag>
-                        ))}
+                        <H3 style={GlobalStyles.boldTitle}>{fix.TemplateName}</H3>
+                        <P>{fix.WorkCategory}</P>
+                        <P>{fix.FixUnit}</P>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                          }}>
+                          {fix.Tags.split(', ').map((tag: string) => (
+                            <Tag key={tag} backgroundColor={'accent'} textColor={'dark'}>
+                              {tag}
+                            </Tag>
+                          ))}
+                        </View>
                       </View>
-                    </View>
-                  </TouchableOpacity>
-                  <Divider faded />
-                </View>
-              ) : null,
-            )
-          )}
-          {fixes.length < 1 && !searching && (
-            <Text
-              style={{
-                marginTop: 20,
-                textAlign: 'center',
-              }}>
-              No fixes match your search terms, please try again.
-            </Text>
-          )}
-        </ScrollView>
-      </StyledPageWrapper>
+                    </TouchableOpacity>
+                    <Divider faded />
+                  </View>
+                ) : null,
+              )
+            )}
+            {fixes.length < 1 && !searching && (
+              <Text
+                style={{
+                  marginTop: 20,
+                  textAlign: 'center',
+                }}>
+                No fixes match your search terms, please try again.
+              </Text>
+            )}
+          </ScrollView>
+        </View>
+      </View>
     </>
   );
 };

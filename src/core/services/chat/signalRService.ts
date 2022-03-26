@@ -34,11 +34,11 @@ export default class SignalRService {
   public setGroup(userId: string, conversationId: string): void {
     this.userId = userId;
     if (this.userId === '') {
-      console.error('user id cannot be empty');
+      console.debug('user id cannot be empty');
     }
     this.conversationId = conversationId;
     if (this.conversationId === '') {
-      console.error('conversation id cannot be empty');
+      console.debug('conversation id cannot be empty');
     }
   }
 
@@ -96,7 +96,9 @@ export default class SignalRService {
     return axios
       .post(`${config.rawConfig.chatTriggerUrl}/chat/users/${this.userId}/negotiate`, null)
       .then((response) => response.data)
-      .catch((error) => console.error(error.response.data));
+      .catch((error) => {
+        console.debug(error.response);
+      });
   }
 
   private registerListener(callbackFn: MessageCallbackType, groupId: string): void {
@@ -118,8 +120,8 @@ export default class SignalRService {
         console.debug('Message successfully sent!');
       })
       .catch((err) => {
-        console.error('Failed to send message to group:', groupId);
-        console.error(err);
+        console.debug('Failed to send message to group:', groupId);
+        console.debug(err);
       });
   }
 
@@ -141,8 +143,8 @@ export default class SignalRService {
           resolve();
         })
         .catch((err) => {
-          console.error(`Failed joining group ${groupId}!`);
-          console.error(err);
+          console.debug(`Failed joining group ${groupId}!`);
+          console.debug(err);
           reject(err);
         });
     });
@@ -167,8 +169,8 @@ export default class SignalRService {
         }
       })
       .catch((err) => {
-        console.error(`Failed leaving group ${this.conversationId}!`);
-        console.error(err);
+        console.debug(`Failed leaving group ${this.conversationId}!`);
+        console.debug(err);
       });
   }
 

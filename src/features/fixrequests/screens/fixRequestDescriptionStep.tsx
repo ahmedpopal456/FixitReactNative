@@ -163,7 +163,7 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
             />
             <View style={{ flexDirection: 'row', flexGrow: 1, flexWrap: 'wrap', justifyContent: 'flex-start' }}>
               <DeletableCameraAssets
-                fixId={fixId}
+                id={fixId}
                 assets={assets}
                 setAssets={setAssets}
                 uploadedFiles={uploadedFiles}
@@ -171,6 +171,7 @@ const FixRequestDescriptionStep: FunctionComponent = (): JSX.Element => {
                 assetToFile={assetToFile}
                 setassetToFile={setAssetToFile}
                 isUploading={isUploading}
+                type={'fixes'}
               />
             </View>
           </StyledContentWrapper>

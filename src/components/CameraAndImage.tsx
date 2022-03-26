@@ -1,5 +1,5 @@
 import React, { Dispatch, FunctionComponent, PropsWithChildren, SetStateAction } from 'react';
-import { Button } from 'fixit-common-ui';
+import { Button, Icon } from 'fixit-common-ui';
 import { Asset, ImagePickerResponse, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
@@ -8,7 +8,7 @@ interface CameraAndImageProps {
   setAssets?: Dispatch<SetStateAction<Array<Asset & { isUploaded: boolean }>>>;
   setAsset?: Dispatch<SetStateAction<(Asset & { isUploaded: boolean }) | undefined>>;
   setErrorMessage: Dispatch<SetStateAction<string>>;
-  buttonText: string;
+  buttonText?: string;
   selectionLimit?: number;
 }
 
@@ -84,7 +84,7 @@ export const CameraAndImage: FunctionComponent<PropsWithChildren<CameraAndImageP
   return (
     <>
       <Button onPress={onPress} key={'add image'}>
-        {buttonText}
+        {buttonText ? buttonText : <Icon library="FontAwesome" name="image" color="accent" size={20} />}
       </Button>
     </>
   );
