@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, Dimensions, TextInput } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, Dimensions, TextInput, Platform } from 'react-native';
 import { Button, Icon } from 'fixit-common-ui';
 import { store, StoreState, useSelector } from '../../../store';
 import useAsyncEffect from 'use-async-effect';
@@ -15,8 +15,9 @@ const styles = StyleSheet.create({
     height: (Dimensions.get('window').height * 90) / 100,
     width: '100%',
     backgroundColor: '#FFD14A',
+    paddingTop: 30,
   },
-  topContainer: {
+  header: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -25,9 +26,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     flexDirection: 'column',
+    flex: 1,
     padding: 10,
     width: '100%',
-    height: '100%',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -51,7 +52,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginTop: 50,
   },
   searchSection: {
     flexDirection: 'row',
@@ -102,8 +102,8 @@ const ProfileScreen: FunctionComponent<any> = (props) => {
   }, [user]);
 
   const render = () => (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.topContainer}>
+    <View style={styles.container}>
+      <View style={styles.header}>
         <Button onPress={() => props.navigation.goBack()} color="transparent">
           <Icon library="AntDesign" name="back" size={30} />
         </Button>
@@ -149,7 +149,7 @@ const ProfileScreen: FunctionComponent<any> = (props) => {
           </View>
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </View>
   );
   return render();
 };

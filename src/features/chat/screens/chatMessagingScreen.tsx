@@ -75,6 +75,9 @@ const styles = StyleSheet.create({
     flex: 2,
     marginTop: 50,
     flexDirection: 'row',
+    borderBottomColor: colors.grey,
+    borderBottomWidth: 0.8,
+    width: '100%',
   },
   headerAvatar: {
     flex: 1,
@@ -247,7 +250,9 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     <></>
                   )}
                   {mess?.attachments ? (
-                    <View key={`${mess.createdTimestampUtc}-attachments-view-4`} style={{ flexDirection: 'column' }}>
+                    <View
+                      key={`${mess.createdTimestampUtc}-attachments-view-4`}
+                      style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
                       {mess?.attachments?.map((attachment) => {
                         return (
                           <Image
@@ -259,6 +264,8 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                               height: 100,
                               margin: 2,
                               borderRadius: 10,
+                              borderColor: colors.grey,
+                              borderWidth: 0.3,
                             }}
                             source={{ uri: decodeURIComponent(attachment.attachmentUrl) }}
                           />
@@ -303,7 +310,9 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     <></>
                   )}
                   {mess?.attachments ? (
-                    <View key={`${mess.createdTimestampUtc}-attachments-view-4`} style={{ flexDirection: 'column' }}>
+                    <View
+                      key={`${mess.createdTimestampUtc}-attachments-view-4`}
+                      style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                       {mess?.attachments?.map((attachment) => {
                         return (
                           <Image
@@ -315,6 +324,8 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                               height: 100,
                               margin: 2,
                               borderRadius: 10,
+                              borderColor: colors.grey,
+                              borderWidth: 0.3,
                             }}
                             source={{ uri: decodeURIComponent(attachment.attachmentUrl) }}
                           />
@@ -365,6 +376,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
               flexDirection: 'column',
             }}>
             <ScrollView
+              keyboardShouldPersistTaps="handled"
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -414,6 +426,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
               placeholder="Enter your message..."
               onChangeText={setMessage}
               value={message}
+              multiline
             />
             <View style={{ width: 63, height: 63 }}>
               <CameraAndImage assets={assets} setAssets={setAssets} setErrorMessage={setErrorMessage} />
@@ -421,7 +434,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
             <Button
               style={styles.buttons}
               onPress={() => {
-                if (message || uploadedFiles) {
+                if (message || uploadedFiles.length) {
                   let attachments: Array<ConversationMessageAttachmentModel> = [];
                   uploadedFiles.forEach((uploadedFile) => {
                     const attachment: ConversationMessageAttachmentModel = {

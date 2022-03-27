@@ -13,7 +13,6 @@ import {
   FETCH_USER_FAILURE,
   UserAddressModel,
   UserAddressModelBase,
-  UserSummaryModel,
   UPDATE_PROFILEPICTURE_FAILURE,
   UPDATE_PROFILEPICTURE_SUCCESS,
   UPDATE_PROFILEPICTURE_BEGIN,
@@ -21,6 +20,7 @@ import {
 import BaseConfigProvider from '../config/providers/baseConfigProvider';
 import axios from 'axios';
 import Logger from '../../logger';
+import { UserSummaryModel } from '../models/user';
 
 export default class UserService {
   config: BaseConfigProvider;

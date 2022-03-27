@@ -108,7 +108,14 @@ const FixSearchResultsScreen: FunctionComponent<any> = (props): JSX.Element => {
                 height: 60,
                 justifyContent: 'flex-end',
               }}>
-              <Button onPress={() => search(tags.join())} color="primary" width={50} padding={0}>
+              <Button
+                onPress={() => {
+                  addTag();
+                  search(tags.join());
+                }}
+                color="primary"
+                width={50}
+                padding={0}>
                 <Icon library="Ionicons" name="hammer-outline" color="accent" />
               </Button>
             </View>
