@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   Platform,
   Keyboard,
-  Image,
 } from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
 import { store, StoreState, useSelector } from '../../../store';
@@ -32,6 +31,7 @@ import { useNavigation } from '@react-navigation/native';
 import { DeletableCameraAssets } from '../../../components/DeletableCameraAssets';
 import FileManagementService, { UploadFileResponse } from '../../../core/services/file/fileManagementService';
 import { FixitError } from '../../../common/FixitError';
+import ImageModal from 'react-native-image-modal';
 
 const styles = StyleSheet.create({
   container: {
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     paddingBottom: 5,
     flexDirection: 'row',
+    alignItems: 'flex-end',
   },
   messageAvatar: {},
   messageBox: {
@@ -232,7 +233,6 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
 
   const selfParticipant = getParticipant(true);
   const otherParticipant = getParticipant(false);
-
   const renderMessages = (): JSX.Element => (
     <>
       {userConversationMessages.messages?.map((mess) => {
@@ -241,7 +241,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
           <View key={`${mess.createdTimestampUtc}-view-1`}>
             {isSelf ? (
               <View style={[styles.messageContainer, messageContainer(isSelf)]} key={`${mess.id}-view-2`}>
-                <View style={{ flexDirection: 'column' }}>
+                <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
                   {mess?.message ? (
                     <View style={[styles.messageBox, messageBox(isSelf)]} key={`${mess.id}-view-3`}>
                       <Text>{mess?.message}</Text>
@@ -250,27 +250,25 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     <></>
                   )}
                   {mess?.attachments ? (
-                    <View
-                      key={`${mess.createdTimestampUtc}-attachments-view-4`}
-                      style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
-                      {mess?.attachments?.map((attachment) => {
-                        return (
-                          <Image
-                            key={attachment.fileId}
-                            resizeMode="cover"
-                            resizeMethod="scale"
-                            style={{
-                              width: 100,
-                              height: 100,
-                              margin: 2,
-                              borderRadius: 10,
-                              borderColor: colors.grey,
-                              borderWidth: 0.3,
-                            }}
-                            source={{ uri: decodeURIComponent(attachment.attachmentUrl) }}
-                          />
-                        );
-                      })}
+                    <View key={`${mess.createdTimestampUtc}-attachments-view-4`} style={{ flexDirection: 'column' }}>
+                      {mess?.attachments?.map((attachment) => (
+                        <ImageModal
+                          key={`${mess.createdTimestampUtc}-${attachment.fileId}`}
+                          resizeMode="cover"
+                          imageBackgroundColor={colors.white}
+                          style={{
+                            width: 100,
+                            height: 100,
+                            margin: 2,
+                            borderRadius: 10,
+                            borderColor: colors.grey,
+                            borderWidth: 0.3,
+                          }}
+                          source={{
+                            uri: decodeURIComponent(attachment.attachmentUrl),
+                          }}
+                        />
+                      ))}
                     </View>
                   ) : (
                     <></>
@@ -301,7 +299,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     }}
                   />
                 </View>
-                <View style={{ flexDirection: 'column' }}>
+                <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
                   {mess?.message ? (
                     <View style={[styles.messageBox, messageBox(isSelf)]}>
                       <Text style={{ color: colors.white }}>{mess?.message}</Text>
@@ -310,15 +308,12 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     <></>
                   )}
                   {mess?.attachments ? (
-                    <View
-                      key={`${mess.createdTimestampUtc}-attachments-view-4`}
-                      style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <View key={`${mess.createdTimestampUtc}-attachments-view-4`} style={{ flexDirection: 'column' }}>
                       {mess?.attachments?.map((attachment) => {
                         return (
-                          <Image
-                            key={attachment.fileId}
+                          <ImageModal
                             resizeMode="cover"
-                            resizeMethod="scale"
+                            imageBackgroundColor={colors.white}
                             style={{
                               width: 100,
                               height: 100,
@@ -327,11 +322,12 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                               borderColor: colors.grey,
                               borderWidth: 0.3,
                             }}
-                            source={{ uri: decodeURIComponent(attachment.attachmentUrl) }}
+                            source={{
+                              uri: decodeURIComponent(attachment.attachmentUrl),
+                            }}
                           />
                         );
                       })}
-                      ;
                     </View>
                   ) : (
                     <></>

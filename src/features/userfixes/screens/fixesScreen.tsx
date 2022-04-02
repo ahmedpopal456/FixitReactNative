@@ -85,6 +85,7 @@ const FixesScreen: FunctionComponent<any> = () => {
 
   const user = useSelector((storeState: StoreState) => storeState.user);
   const newFixes = useSelector((storeState: StoreState) => storeState.fixes.newFixesState);
+  console.log(newFixes.fixes[0]);
   const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
   const inProgressFixes = useSelector((storeState: StoreState) => storeState.fixes.inProgressFixesState);
   const inReviewFixes = useSelector((storeState: StoreState) => storeState.fixes.inReviewFixesState);

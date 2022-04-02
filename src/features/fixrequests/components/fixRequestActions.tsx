@@ -65,6 +65,7 @@ const FixRequestActions: FunctionComponent<NavigationProps<FixProps>> = (
 
   const handleClientSubmitFixRequestConfirm = (): void => {
     const fixRequestService = new FixRequestService(config, store);
+
     if (id === 'fix_request') {
       fixRequestService.publishFixRequest(fix as FixRequestModel);
     }
@@ -345,7 +346,7 @@ const FixRequestActions: FunctionComponent<NavigationProps<FixProps>> = (
     return null;
   };
 
-  const CategoryAndType = () => {
+  const Category = () => {
     if (fix?.status !== 2) {
       return (
         <>
@@ -369,7 +370,19 @@ const FixRequestActions: FunctionComponent<NavigationProps<FixProps>> = (
     }
     return <></>;
   };
-
+  const Unit = () => {
+    console.log();
+    if (fix?.details) {
+      return (
+        <>
+          <H3 style={globalStyles.boldTitle}>Unit</H3>
+          <P>{fix?.details?.unit as string}</P>
+          <Divider />
+        </>
+      );
+    }
+    return <></>;
+  };
   const JobDescription = () => (
     <>
       <H3 style={globalStyles.boldTitle}>Job Description</H3>
@@ -565,7 +578,8 @@ const FixRequestActions: FunctionComponent<NavigationProps<FixProps>> = (
           <StyledContentWrapper>
             <H2 style={globalStyles.boldTitle}>{fix?.details.name as string}</H2>
             <Spacer height={'40px'} />
-            <CategoryAndType />
+            <Category />
+            <Unit />
             <JobDescription />
             <Cost />
             {fix?.craftsmanEstimatedCost ? <Comments /> : <></>}
