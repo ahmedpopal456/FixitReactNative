@@ -23,7 +23,11 @@ import {
 import SignalRService, { SignalRConnectionOptions } from '../../../core/services/chat/signalRService';
 import ChatService from '../../../store/services/chatService';
 import config from '../../../core/config/appConfig';
-import { PUSH_MESSAGE_TO_CONVERSATION, RESET_MESSAGES_FROM_CONVERSATION } from '../../../store/slices/chatSlice';
+import {
+  ChatMessagesStateWithAction,
+  PUSH_MESSAGE_TO_CONVERSATION,
+  RESET_MESSAGES_FROM_CONVERSATION,
+} from '../../../store/slices/chatSlice';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { CameraAndImage } from '../../../components/CameraAndImage';
 import { Asset } from 'react-native-image-picker';
@@ -107,7 +111,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
   const { conversationId, conversation: paramsConversation } = props.route.params;
   const scrollRef = useRef<ScrollView>(null);
   const user = useSelector((storeState: StoreState) => storeState.user);
-  const userConversationMessages = useSelector(
+  const userConversationMessages: ChatMessagesStateWithAction = useSelector(
     (storeState: StoreState) => storeState.chat.selectedConversationMessages,
   );
   const navigation = useNavigation();
@@ -123,6 +127,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
   const [scrollHeight, setScrollHeight] = useState<number>(0);
   const [uploadedFiles, setUploadedFiles] = useState<Array<UploadFileResponse>>([]);
   signalRService.setGroup(user.userId as string, conversation.id);
+  const { width, height } = Dimensions.get('screen');
 
   const onNewMessage = useCallback<(receivedMessage: ConversationMessageModel) => void>(
     (receivedMessage) => {
@@ -253,6 +258,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     <View key={`${mess.createdTimestampUtc}-attachments-view-4`} style={{ flexDirection: 'column' }}>
                       {mess?.attachments?.map((attachment) => (
                         <ImageModal
+                          modalImageStyle={{ minHeight: height, minWidth: width }}
                           key={`${mess.createdTimestampUtc}-${attachment.fileId}`}
                           resizeMode="cover"
                           imageBackgroundColor={colors.white}
@@ -299,7 +305,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     }}
                   />
                 </View>
-                <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
+                <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                   {mess?.message ? (
                     <View style={[styles.messageBox, messageBox(isSelf)]}>
                       <Text style={{ color: colors.white }}>{mess?.message}</Text>
@@ -312,6 +318,8 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                       {mess?.attachments?.map((attachment) => {
                         return (
                           <ImageModal
+                            key={`${mess.createdTimestampUtc}-${attachment.fileId}`}
+                            modalImageStyle={{ minHeight: height, minWidth: width }}
                             resizeMode="cover"
                             imageBackgroundColor={colors.white}
                             style={{
@@ -383,10 +391,10 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
               }
               ref={scrollRef}
               contentContainerStyle={{ justifyContent: 'flex-end', flexDirection: 'column', flexGrow: 1 }}
-              onContentSizeChange={(_width, height) => {
-                setScrollHeight(height);
+              onContentSizeChange={(_width, _height) => {
+                setScrollHeight(_height);
                 scrollRef?.current?.scrollTo({
-                  y: height,
+                  y: _height,
                   animated: true,
                 });
               }}>

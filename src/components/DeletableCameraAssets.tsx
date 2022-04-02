@@ -1,7 +1,7 @@
 import { ImageModel } from '../store';
 import { colors, Button } from 'fixit-common-ui';
 import React, { FunctionComponent, PropsWithChildren, useState } from 'react';
-import { View, Image, Pressable } from 'react-native';
+import { View, Image, Pressable, Dimensions } from 'react-native';
 import { Asset } from 'react-native-image-picker';
 import FileManagementService, { UploadFileResponse } from '../core/services/file/fileManagementService';
 import Logger from '../logger';
@@ -32,7 +32,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
   const [isImageLoading, setIsImageLoading] = useState<{ [key: string]: boolean }>({});
   const [, setIsImageDownloadStillInProgress] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
-
+  const { width, height } = Dimensions.get('screen');
   const addOrRemoveUriOfAssetsToDelete = (uri: string) => {
     let updateUriOfAssetsToDelete = [...uriOfAssetsToDelete];
     const uriOfAssetsToDeleteIndex = updateUriOfAssetsToDelete.indexOf(uri);
@@ -143,6 +143,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
         files.map((file) => (
           <View key={`view-${file.url}`}>
             <ImageModal
+              modalImageStyle={{ minHeight: height, minWidth: width }}
               onLoadStart={() => setIsImageLoading({ ...isImageLoading, [file.url]: true })}
               onLoadEnd={() => {
                 const updateIsImageLoading = { ...isImageLoading, [file.url]: false };
