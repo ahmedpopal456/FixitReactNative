@@ -371,7 +371,6 @@ const FixRequestActions: FunctionComponent<NavigationProps<FixProps>> = (
     return <></>;
   };
   const Unit = () => {
-    console.log();
     if (fix?.details) {
       return (
         <>

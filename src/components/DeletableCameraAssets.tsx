@@ -6,6 +6,7 @@ import { Asset } from 'react-native-image-picker';
 import FileManagementService, { UploadFileResponse } from '../core/services/file/fileManagementService';
 import Logger from '../logger';
 import ProgressIndicatorFactory from './progressIndicators/progressIndicatorFactory';
+import ImageModal from 'react-native-image-modal';
 
 interface DeletableCameraAssetsProps {
   id?: string;
@@ -141,7 +142,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
       {files && files.length ? (
         files.map((file) => (
           <View key={`view-${file.url}`}>
-            <Image
+            <ImageModal
               onLoadStart={() => setIsImageLoading({ ...isImageLoading, [file.url]: true })}
               onLoadEnd={() => {
                 const updateIsImageLoading = { ...isImageLoading, [file.url]: false };
@@ -156,7 +157,6 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
               }}
               key={file.url}
               resizeMode="cover"
-              resizeMethod="scale"
               style={{
                 width: 100,
                 height: 100,

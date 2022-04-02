@@ -130,7 +130,6 @@ const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Elemen
     };
 
     const updatedByUser = createdByClient;
-    console.log('fixTemplate.fixUnit', fixTemplate.fixUnit);
     const fix: FixRequestModel = {
       id: fixId,
       details: {
