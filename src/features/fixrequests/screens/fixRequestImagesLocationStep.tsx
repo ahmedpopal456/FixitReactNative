@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     alignSelf: 'center',
+    paddingLeft: 3,
   },
   searchIcon: {
     padding: 10,
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
 const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Element => {
   const navigation = useNavigation();
   const { fixId, images } = props.route.params;
-  console.log(images);
+
   const user = useSelector((storeState: StoreState) => storeState.user);
   const fixRequest = useSelector((storeState: StoreState) => storeState.fixRequest);
   const fixTemplate = useSelector((storeState: StoreState) => storeState.fixTemplate);
@@ -117,13 +118,15 @@ const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Elemen
     });
 
     const createdByClient: UserSummaryModel = {
-      id: user.userId,
+      id: user.userId as string,
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       userPrincipalName: user.userPrincipalName || '',
       savedAddresses: user.savedAddresses,
       status: user.status || { status: 1, lastSeenTimestampUtc: 0 },
       role: user.role,
+      profilePictureUrl: '',
+      licenses: [],
     };
 
     const updatedByUser = createdByClient;
@@ -167,15 +170,14 @@ const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Elemen
 
         <ScrollView style={{ padding: 10 }}>
           {/** Location */}
-          <View style={{ paddingBottom: 10 }}>
-            <View style={{ height: 50 }}>
-              <H2
-                style={{
-                  fontWeight: 'bold',
-                }}>
-                Location
-              </H2>
-            </View>
+          <View>
+            <H2
+              style={{
+                fontWeight: 'bold',
+                paddingBottom: 10,
+              }}>
+              Location
+            </H2>
             <View style={styles.searchSection}>
               <TextInput
                 style={styles.formField}
@@ -219,11 +221,11 @@ const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Elemen
                   title={'Min'}
                   numeric
                   padLeft
-                  onChange={(cost: string) =>
+                  onChange={(cost: string) => {
                     store.dispatch(
-                      fixRequestActions.setFixRequestClientMinEstimatedCost({ minimumCost: parseInt(cost, 10) }),
-                    )
-                  }
+                      fixRequestActions.setFixRequestClientMinEstimatedCost({ minimumCost: parseInt(cost, 10) || 0 }),
+                    );
+                  }}
                   value={
                     fixRequest.clientEstimatedCost.minimumCost === 0
                       ? ''
@@ -259,11 +261,11 @@ const FixRequestImagesLocationStep: FunctionComponent = (props: any): JSX.Elemen
                   title={'Max'}
                   numeric
                   padLeft
-                  onChange={(cost: string) =>
+                  onChange={(cost: string) => {
                     store.dispatch(
-                      fixRequestActions.setFixRequestClientMaxEstimatedCost({ maximumCost: parseInt(cost, 10) }),
-                    )
-                  }
+                      fixRequestActions.setFixRequestClientMaxEstimatedCost({ maximumCost: parseInt(cost, 10) || 0 }),
+                    );
+                  }}
                   editable={true}
                   value={
                     fixRequest.clientEstimatedCost.maximumCost === 0

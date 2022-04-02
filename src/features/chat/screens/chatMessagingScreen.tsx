@@ -1,15 +1,37 @@
-import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Dimensions, ViewStyle, RefreshControl, Keyboard, Platform } from 'react-native';
+import React, { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Dimensions,
+  ViewStyle,
+  RefreshControl,
+  TouchableOpacity,
+  Platform,
+  Keyboard,
+  Image,
+} from 'react-native';
 import { Button, Icon, colors } from 'fixit-common-ui';
 import { store, StoreState, useSelector } from '../../../store';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import useAsyncEffect from 'use-async-effect';
 import { Avatar } from 'react-native-elements';
-import { ConversationModel, ConversationMessageModel } from '../../../store/models/chat/chatModels';
+import {
+  ConversationModel,
+  ConversationMessageModel,
+  ConversationMessageAttachmentModel,
+} from '../../../store/models/chat/chatModels';
 import SignalRService, { SignalRConnectionOptions } from '../../../core/services/chat/signalRService';
 import ChatService from '../../../store/services/chatService';
 import config from '../../../core/config/appConfig';
 import { PUSH_MESSAGE_TO_CONVERSATION, RESET_MESSAGES_FROM_CONVERSATION } from '../../../store/slices/chatSlice';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { CameraAndImage } from '../../../components/CameraAndImage';
+import { Asset } from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import { DeletableCameraAssets } from '../../../components/DeletableCameraAssets';
+import FileManagementService, { UploadFileResponse } from '../../../core/services/file/fileManagementService';
+import { FixitError } from '../../../common/FixitError';
 
 const styles = StyleSheet.create({
   container: {
@@ -18,17 +40,10 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: colors.accent,
   },
-  topContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-
   bodyContainer: {
     flex: 1,
+    flexDirection: 'column',
     backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 70,
     paddingHorizontal: 15,
   },
   input: {
@@ -38,7 +53,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     flex: 5.6,
-    padding: 10,
+    textAlignVertical: 'center',
+    textAlign: 'left',
+    paddingLeft: 10,
+    margin: 5,
   },
   buttons: {
     backgroundColor: colors.dark,
@@ -47,7 +65,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     height: 50,
     width: 50,
-    margin: 2.5,
     flex: 1,
   },
   headerContainer: {
@@ -55,8 +72,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   headerInformation: {
-    flex: 5,
-    padding: 10,
+    flex: 2,
+    marginTop: 50,
+    flexDirection: 'row',
+    borderBottomColor: colors.grey,
+    borderBottomWidth: 0.8,
+    width: '100%',
   },
   headerAvatar: {
     flex: 1,
@@ -79,22 +100,27 @@ export interface ConversationMessageState {
   length: number;
 }
 const signalRService = new SignalRService();
+const fileManagementService = new FileManagementService();
 
 const ChatMessagingScreen: FunctionComponent<any> = (props) => {
-  const scrollRef: React.RefObject<ScrollView> = React.createRef();
+  const { conversationId, conversation: paramsConversation } = props.route.params;
+  const scrollRef = useRef<ScrollView>(null);
   const user = useSelector((storeState: StoreState) => storeState.user);
   const userConversationMessages = useSelector(
     (storeState: StoreState) => storeState.chat.selectedConversationMessages,
   );
-  const [conversation] = useState<ConversationModel>(props.route.params.conversation);
-
+  const navigation = useNavigation();
+  const [assets, setAssets] = useState<Array<Asset & { isUploaded: boolean }>>([]);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
   const [newMessage, setNewMessage] = useState<ConversationMessageModel>({} as any);
-
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [scrollViewBottomPadding, setScrollViewBottomPadding] = useState<number>(30);
-
+  const [conversation] = useState<ConversationModel>(paramsConversation);
+  const [isUploading, setIsUploading] = useState<{ [key: string]: boolean }>({});
+  const [assetToFile, setAssetToFile] = useState<{ [key: string]: string }>({});
   const chatService: ChatService = new ChatService(user.userId as string, config, store);
+  const [scrollHeight, setScrollHeight] = useState<number>(0);
+  const [uploadedFiles, setUploadedFiles] = useState<Array<UploadFileResponse>>([]);
   signalRService.setGroup(user.userId as string, conversation.id);
 
   const onNewMessage = useCallback<(receivedMessage: ConversationMessageModel) => void>(
@@ -113,22 +139,6 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (Platform.OS === 'ios') {
-      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-        setScrollViewBottomPadding(350);
-      });
-      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-        setScrollViewBottomPadding(20);
-      });
-
-      return () => {
-        keyboardDidHideListener.remove();
-        keyboardDidShowListener.remove();
-      };
-    }
-  }, []);
-
   useAsyncEffect(async () => {
     await signalRService.initializeGetConnectionInfoListener(onNewMessage, {
       rejoinGroupOnHubStart: true,
@@ -137,24 +147,77 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
 
   useAsyncEffect(async () => {
     await onRefreshAsync();
-    setTimeout(() => {
-      setTimeout(() => {
-        scrollRef?.current?.scrollToEnd({ animated: false });
-      });
-    });
   }, []);
 
   useAsyncEffect(async () => {
-    setRefreshing(false);
-  }, [userConversationMessages]);
+    if (newMessage.attachments) {
+      setTimeout(() => {
+        store.dispatch(PUSH_MESSAGE_TO_CONVERSATION(newMessage));
+      }, 300);
+    }
+  }, [newMessage]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      scrollRef?.current?.scrollTo({ y: scrollHeight });
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      scrollRef?.current?.scrollTo({ y: scrollHeight });
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, [scrollHeight]);
+
+  const uploadFiles = async () => {
+    const tempAssets = [...assets];
+    let updateAssetToFile = assetToFile;
+    const tempUploadedFiles = [...uploadedFiles];
+    let i = tempAssets.length;
+
+    while (i--) {
+      try {
+        if (!tempAssets[i].isUploaded) {
+          const uri = tempAssets[i].uri as string;
+          setIsUploading({
+            ...isUploading,
+            [uri]: true,
+          });
+
+          const uploadedFile = await fileManagementService.uploadFile(conversationId, tempAssets[i], 'conversations');
+          tempAssets[i].isUploaded = true;
+          updateAssetToFile = {
+            ...updateAssetToFile,
+            [tempAssets[i].uri as string]: uploadedFile.fileCreatedId,
+          };
+          tempUploadedFiles.push(uploadedFile);
+          let updateisUploading = isUploading;
+          delete updateisUploading[uri];
+          setIsUploading({
+            ...updateisUploading,
+          });
+        }
+      } catch (e: any & FixitError) {
+        tempAssets.splice(i, 1);
+      }
+    }
+    setUploadedFiles(tempUploadedFiles);
+    setAssetToFile(updateAssetToFile);
+    setAssets(tempAssets);
+  };
 
   useAsyncEffect(async () => {
-    store.dispatch(PUSH_MESSAGE_TO_CONVERSATION(newMessage));
-  }, [newMessage]);
+    if (conversationId) {
+      await uploadFiles();
+    }
+  }, [assets.length]);
 
   const onRefreshAsync = async () => {
     setRefreshing(true);
     await chatService.getMessages(conversation.id, 1, 1000);
+    setRefreshing(false);
   };
 
   const getParticipant = (isSelf: boolean) => {
@@ -175,45 +238,106 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
       {userConversationMessages.messages?.map((mess) => {
         const isSelf = mess?.createdByUser?.id === user.userId;
         return (
-          <View>
+          <View key={`${mess.createdTimestampUtc}-view-1`}>
             {isSelf ? (
-              <>
-                <View style={[styles.messageContainer, messageContainer(isSelf)]}>
-                  <View style={[styles.messageBox, messageBox(isSelf)]}>
-                    <Text>{mess?.message}</Text>
-                  </View>
-                  <View style={styles.messageAvatar}>
-                    <Avatar
-                      size="medium"
-                      rounded
-                      icon={{
-                        name: 'user',
-                        color: '#FFD14A',
-                        type: 'font-awesome',
-                      }}
-                    />
-                  </View>
+              <View style={[styles.messageContainer, messageContainer(isSelf)]} key={`${mess.id}-view-2`}>
+                <View style={{ flexDirection: 'column' }}>
+                  {mess?.message ? (
+                    <View style={[styles.messageBox, messageBox(isSelf)]} key={`${mess.id}-view-3`}>
+                      <Text>{mess?.message}</Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                  {mess?.attachments ? (
+                    <View
+                      key={`${mess.createdTimestampUtc}-attachments-view-4`}
+                      style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
+                      {mess?.attachments?.map((attachment) => {
+                        return (
+                          <Image
+                            key={attachment.fileId}
+                            resizeMode="cover"
+                            resizeMethod="scale"
+                            style={{
+                              width: 100,
+                              height: 100,
+                              margin: 2,
+                              borderRadius: 10,
+                              borderColor: colors.grey,
+                              borderWidth: 0.3,
+                            }}
+                            source={{ uri: decodeURIComponent(attachment.attachmentUrl) }}
+                          />
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <></>
+                  )}
                 </View>
-              </>
+                <View style={styles.messageAvatar}>
+                  <Avatar
+                    size="medium"
+                    rounded
+                    icon={{
+                      name: 'user',
+                      color: '#FFD14A',
+                      type: 'font-awesome',
+                    }}
+                  />
+                </View>
+              </View>
             ) : (
-              <>
-                <View style={[styles.messageContainer, messageContainer(isSelf)]}>
-                  <View style={styles.messageAvatar}>
-                    <Avatar
-                      size="medium"
-                      rounded
-                      icon={{
-                        name: 'user',
-                        color: '#FFD14A',
-                        type: 'font-awesome',
-                      }}
-                    />
-                  </View>
-                  <View style={[styles.messageBox, messageBox(isSelf)]}>
-                    <Text style={{ color: colors.white }}>{mess?.message}</Text>
-                  </View>
+              <View style={[styles.messageContainer, messageContainer(isSelf)]} key={`${mess.id}-view-2`}>
+                <View style={styles.messageAvatar} key={`${mess.id}-view-3`}>
+                  <Avatar
+                    size="medium"
+                    rounded
+                    icon={{
+                      name: 'user',
+                      color: '#FFD14A',
+                      type: 'font-awesome',
+                    }}
+                  />
                 </View>
-              </>
+                <View style={{ flexDirection: 'column' }}>
+                  {mess?.message ? (
+                    <View style={[styles.messageBox, messageBox(isSelf)]}>
+                      <Text style={{ color: colors.white }}>{mess?.message}</Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                  {mess?.attachments ? (
+                    <View
+                      key={`${mess.createdTimestampUtc}-attachments-view-4`}
+                      style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                      {mess?.attachments?.map((attachment) => {
+                        return (
+                          <Image
+                            key={attachment.fileId}
+                            resizeMode="cover"
+                            resizeMethod="scale"
+                            style={{
+                              width: 100,
+                              height: 100,
+                              margin: 2,
+                              borderRadius: 10,
+                              borderColor: colors.grey,
+                              borderWidth: 0.3,
+                            }}
+                            source={{ uri: decodeURIComponent(attachment.attachmentUrl) }}
+                          />
+                        );
+                      })}
+                      ;
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                </View>
+              </View>
             )}
           </View>
         );
@@ -234,43 +358,67 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
   const render = () => (
     <View style={styles.container}>
       <View style={styles.bodyContainer}>
-        <View style={styles.headerInformation}>
-          <Text style={{ textAlign: 'right', color: colors.grey }}>
-            {/* last seen at {otherParticipant.lastRead} */}
-          </Text>
-          <Text style={{ textAlign: 'right' }}>
-            {otherParticipant?.user.firstName} {otherParticipant?.user.lastName}
-          </Text>
-        </View>
-        <View style={{ paddingBottom: scrollViewBottomPadding }}>
-          <ScrollView
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefreshAsync.bind(this)}
-                size={1}
-                colors={[colors.orange]}
-              />
-            }
-            ref={scrollRef}
-            onContentSizeChange={() => {
-              setTimeout(() => {
-                scrollRef?.current?.scrollToEnd({ animated: false });
-              });
+        <KeyboardAwareScrollView
+          enableOnAndroid={true}
+          contentContainerStyle={{ flex: 1 }}
+          keyboardShouldPersistTaps="handled">
+          <View style={styles.headerInformation}>
+            <TouchableOpacity style={{ flex: 1, alignSelf: 'center' }} onPress={() => navigation.goBack()}>
+              <Icon name={'chevron-left'} size={30} />
+            </TouchableOpacity>
+            <Text style={{ justifyContent: 'flex-end', fontSize: 20, alignSelf: 'center' }}>
+              {otherParticipant?.user.firstName} {otherParticipant?.user.lastName}
+            </Text>
+          </View>
+          <View
+            style={{
+              flex: assets.length > 0 ? 10 : 18,
+              flexDirection: 'column',
             }}>
-            <View>
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefreshAsync.bind(this)}
+                  size={1}
+                  colors={[colors.orange]}
+                />
+              }
+              ref={scrollRef}
+              contentContainerStyle={{ justifyContent: 'flex-end', flexDirection: 'column', flexGrow: 1 }}
+              onContentSizeChange={(_width, height) => {
+                setScrollHeight(height);
+                scrollRef?.current?.scrollTo({
+                  y: height,
+                  animated: true,
+                });
+              }}>
               {userConversationMessages.messages?.length !== 0
                 ? renderMessages()
                 : renderNoMessage(
                     otherParticipant?.user.firstName as string,
                     otherParticipant?.user.lastName as string,
                   )}
-            </View>
-          </ScrollView>
+            </ScrollView>
+          </View>
+          <View>
+            <DeletableCameraAssets
+              id={conversationId}
+              assets={assets}
+              setAssets={setAssets}
+              uploadedFiles={uploadedFiles}
+              setUploadedFiles={setUploadedFiles}
+              assetToFile={assetToFile}
+              setassetToFile={setAssetToFile}
+              isUploading={isUploading}
+              type={'conversations'}
+            />
+          </View>
           <View
             style={{
+              flex: Platform.OS === 'ios' ? 2 : 3,
               flexDirection: 'row',
-              alignItems: 'center',
             }}>
             <TextInput
               style={styles.input}
@@ -278,34 +426,38 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
               placeholder="Enter your message..."
               onChangeText={setMessage}
               value={message}
-              onSubmitEditing={() => {
-                if (message) {
-                  signalRService.sendMessage(conversation.id, {
-                    message,
-                    sentByUser: selfParticipant.user,
-                    attachments: [],
-                  });
-                }
-              }}
+              multiline
             />
-            <Button style={styles.buttons} onPress={() => {}}>
-              <Icon library="FontAwesome" name="image" color="accent" size={20} />
-            </Button>
+            <View style={{ width: 63, height: 63 }}>
+              <CameraAndImage assets={assets} setAssets={setAssets} setErrorMessage={setErrorMessage} />
+            </View>
             <Button
               style={styles.buttons}
               onPress={() => {
-                if (message) {
+                if (message || uploadedFiles.length) {
+                  let attachments: Array<ConversationMessageAttachmentModel> = [];
+                  uploadedFiles.forEach((uploadedFile) => {
+                    const attachment: ConversationMessageAttachmentModel = {
+                      attachmentThumbnailUrl: '',
+                      attachmentUrl: uploadedFile.imageUrl.url,
+                      fileId: uploadedFile.fileCreatedId,
+                    };
+                    attachments.push(attachment);
+                  });
                   signalRService.sendMessage(conversation.id, {
                     message,
                     sentByUser: selfParticipant.user,
-                    attachments: [],
+                    attachments,
                   });
+
+                  setAssets([]);
+                  setUploadedFiles([]);
                 }
               }}>
               <Icon library="FontAwesome" name="send" color="accent" size={20} />
             </Button>
           </View>
-        </View>
+        </KeyboardAwareScrollView>
       </View>
     </View>
   );
@@ -323,7 +475,7 @@ function messageBox(isSelf: boolean): ViewStyle {
 }
 
 function toCamel(o: any) {
-  let newO;
+  let newO: any;
   let origKey;
   let newKey;
   let value;

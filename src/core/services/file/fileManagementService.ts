@@ -40,7 +40,6 @@ export default class FileManagementService {
       });
       return response.data;
     } catch (e: any) {
-      console.log(JSON.stringify(e));
       throw new FixitError('Failed to upload image', e);
     }
   }

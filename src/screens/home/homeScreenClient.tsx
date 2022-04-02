@@ -88,8 +88,8 @@ const HomeScreenClient: FunctionComponent = () => {
   const popularFixTags = useSelector((storeState: StoreState) => storeState.fixes.topFixTagsState);
 
   const [tagInputTextState, setTagInputTextState] = useState<string>('');
-  const [selectedTagsState, setSelectedTagsState] = useState<Array<string>>(['']);
-  const [suggestedTagsState, setSuggestedTagsState] = useState<Array<string>>(['']);
+  const [selectedTagsState, setSelectedTagsState] = useState<Array<string>>([]);
+  const [suggestedTagsState, setSuggestedTagsState] = useState<Array<string>>([]);
   const [, setTagSuggestionsVisible] = useState<boolean>(false);
 
   useAsyncEffect(async () => {
@@ -180,9 +180,11 @@ const HomeScreenClient: FunctionComponent = () => {
         tags = result;
       }
     }
-    navigation.navigate('SearchResultsScreen', {
-      tags,
-    });
+    if (tags.length) {
+      navigation.navigate('SearchResultsScreen', {
+        tags,
+      });
+    }
   };
 
   return (

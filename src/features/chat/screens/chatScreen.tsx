@@ -67,7 +67,7 @@ const ChatScreen: FunctionComponent<any> = (props) => {
   useAsyncEffect(async () => {
     const active: ConversationModel[] = [];
     const matched: ConversationModel[] = [];
-    userConversations?.conversations?.forEach((conversation) => {
+    userConversations?.conversations?.forEach((conversation: ConversationModel) => {
       if (conversation.lastMessage == null) {
         matched.unshift(conversation);
       } else {
@@ -130,7 +130,9 @@ const ChatScreen: FunctionComponent<any> = (props) => {
             return (
               <TouchableOpacity
                 key={conversation.id}
-                onPress={() => props.navigation.navigate('ChatMessage', { conversation })}>
+                onPress={() =>
+                  props.navigation.navigate('ChatMessage', { conversationId: conversation.id, conversation })
+                }>
                 <View style={styles.messageContainer}>
                   <View style={{ flex: 2.2 }}>
                     <Avatar size="medium" rounded icon={{ name: 'user', color: '#FFD14A', type: 'font-awesome' }} />

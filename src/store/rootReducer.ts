@@ -51,7 +51,7 @@ export const appReducer: Reducer<CombinedState<RootState>> = combineReducers({
   chat: chatReducer,
 });
 
-export const rootReducer = (state: RootState, action: PayloadAction<any>) => {
+export const rootReducer = (state: RootState, action: PayloadAction<any>): CombinedState<RootState> => {
   if (action.type === 'RESET_ROOT_STATE') {
     return appReducer(
       {

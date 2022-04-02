@@ -30,10 +30,7 @@ export default class SearchTextInput extends React.Component<{
 
   render(): JSX.Element {
     return (
-      <View
-        style={{
-          position: 'relative',
-        }}>
+      <View style={{}}>
         <TextInput
           ref={(c) => {
             this.textInput = c;

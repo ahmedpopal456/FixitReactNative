@@ -1,10 +1,12 @@
-import { ApplicationTypesEnum, Config, ConfigFactory } from '../../store';
+import ConfigFactory from '../../store/config/factory/configFactory';
+import ApplicationTypesEnum from '../../store/models/config/applicationTypesEnum';
+import { ConfigModel } from '../../store/models/config/configModel';
 
 // I didn't want to update the Config type so adding it as a const
 
 export const fileApiBaseUrl = 'https://fixitdevfilemsapi.azurewebsites.net/api';
 
-const config: Config = {
+const config: ConfigModel = {
   production: true,
   nmsBaseApiUrl: 'https://fixit-dev-nms-api.azurewebsites.net/api',
   fixApiBaseUrl: 'https://fixit-dev-fms-api.azurewebsites.net/api',
