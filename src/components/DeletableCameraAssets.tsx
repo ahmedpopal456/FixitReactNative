@@ -7,6 +7,7 @@ import FileManagementService, { UploadFileResponse } from '../core/services/file
 import Logger from '../logger';
 import ProgressIndicatorFactory from './progressIndicators/progressIndicatorFactory';
 import ImageModal from 'react-native-image-modal';
+import FastImage from 'react-native-fast-image';
 
 interface DeletableCameraAssetsProps {
   id?: string;
@@ -144,6 +145,7 @@ export const DeletableCameraAssets: FunctionComponent<PropsWithChildren<Deletabl
           <View key={`view-${file.url}`}>
             <ImageModal
               modalImageStyle={{ minHeight: height, minWidth: width }}
+              modalImageResizeMode={FastImage.resizeMode.contain}
               onLoadStart={() => setIsImageLoading({ ...isImageLoading, [file.url]: true })}
               onLoadEnd={() => {
                 const updateIsImageLoading = { ...isImageLoading, [file.url]: false };

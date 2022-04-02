@@ -36,6 +36,7 @@ import { DeletableCameraAssets } from '../../../components/DeletableCameraAssets
 import FileManagementService, { UploadFileResponse } from '../../../core/services/file/fileManagementService';
 import { FixitError } from '../../../common/FixitError';
 import ImageModal from 'react-native-image-modal';
+import FastImage from 'react-native-fast-image';
 
 const styles = StyleSheet.create({
   container: {
@@ -258,9 +259,10 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                     <View key={`${mess.createdTimestampUtc}-attachments-view-4`} style={{ flexDirection: 'column' }}>
                       {mess?.attachments?.map((attachment) => (
                         <ImageModal
-                          modalImageStyle={{ minHeight: height, minWidth: width }}
                           key={`${mess.createdTimestampUtc}-${attachment.fileId}`}
                           resizeMode="cover"
+                          modalImageStyle={{ minHeight: height, minWidth: width }}
+                          modalImageResizeMode={FastImage.resizeMode.contain}
                           imageBackgroundColor={colors.white}
                           style={{
                             width: 100,
@@ -320,6 +322,7 @@ const ChatMessagingScreen: FunctionComponent<any> = (props) => {
                           <ImageModal
                             key={`${mess.createdTimestampUtc}-${attachment.fileId}`}
                             modalImageStyle={{ minHeight: height, minWidth: width }}
+                            modalImageResizeMode={FastImage.resizeMode.contain}
                             resizeMode="cover"
                             imageBackgroundColor={colors.white}
                             style={{
