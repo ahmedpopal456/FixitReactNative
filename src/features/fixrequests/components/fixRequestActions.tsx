@@ -126,7 +126,7 @@ const FixRequestActions: FunctionComponent<NavigationProps<FixProps>> = (
   };
 
   const updateFixStatus = async (fixStatus: number): Promise<void> => {
-    let updateFix: FixesModel | null = await fixesService.getFix(fix?.id || '');
+    let updateFix: FixesModel | null = await fixesService.getFixAsync(fix?.id || '');
     const date = new Date();
     const utcTimestamp = Math.floor(date.getTime() / 1000);
     const body: Partial<FixesModel> = {

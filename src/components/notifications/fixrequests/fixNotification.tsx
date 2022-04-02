@@ -91,6 +91,7 @@ const FixNotification: FunctionComponent<NotificationProps> = (props: Notificati
       if (systemPayload) {
         const parsedFixData: FixesModel = systemPayload as FixesModel;
         fix = parsedFixData;
+
         const { schedule } = parsedFixData;
         if (schedule.length === 1 && schedule[0].startTimestampUtc === schedule[0].endTimestampUtc) {
           isRightAway = true;
@@ -138,7 +139,7 @@ const FixNotification: FunctionComponent<NotificationProps> = (props: Notificati
 
   const Header = () => {
     const name = isFixClientRequest
-      ? `Incoming fix request from  ${fix?.createdByClient.firstName} ${fix?.createdByClient.lastName}`
+      ? `Incoming fix request from  ${fix?.createdByClient?.firstName} ${fix?.createdByClient?.lastName}`
       : `Incoming craftsman response from ${fix?.assignedToCraftsman.firstName} ${fix?.assignedToCraftsman.lastName}`;
     return (
       <>
@@ -243,7 +244,7 @@ const FixNotification: FunctionComponent<NotificationProps> = (props: Notificati
           />
           {isFixClientRequest ? (
             <>
-              <Text>{fix?.clientEstimatedCost.minimumCost}</Text>
+              <Text>{fix?.clientEstimatedCost?.minimumCost}</Text>
               <Text
                 style={{
                   marginLeft: 10,
@@ -261,11 +262,11 @@ const FixNotification: FunctionComponent<NotificationProps> = (props: Notificati
                   marginRight: 5,
                 }}
               />
-              <Text>{fix?.clientEstimatedCost.maximumCost}</Text>
+              <Text>{fix?.clientEstimatedCost?.maximumCost}</Text>
             </>
           ) : (
             <>
-              <Text>{fix?.craftsmanEstimatedCost.cost}</Text>
+              <Text>{fix?.craftsmanEstimatedCost?.cost}</Text>
             </>
           )}
         </View>

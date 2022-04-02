@@ -199,7 +199,7 @@ export default class FixesService {
     }
   }
 
-  getFix = (fixId: string): Promise<FixesModel> =>
+  getFixAsync = (fixId: string): Promise<FixesModel> =>
     axios
       .get(`${this.config.fixApiBaseUrl}/fixes/${fixId}`)
       .then((response) => response.data)

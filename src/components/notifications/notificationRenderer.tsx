@@ -1,26 +1,55 @@
-import React, { FunctionComponent, useEffect } from 'react';
-import { NotificationTypes, StoreState, useSelector } from '../../store';
+import React, { FunctionComponent, useState } from 'react';
+import { FixesService, NotificationDocument, NotificationTypes, store, StoreState, useSelector } from '../../store';
 import { NotificationProps } from '../../common/models/notifications/NotificationProps';
+import config from '../../core/config/appConfig';
+import useAsyncEffect from 'use-async-effect';
 import FixNotification from './fixrequests/fixNotification';
 
+const fixesService = new FixesService(config, store);
 export const NotificationRenderer: FunctionComponent<NotificationProps> = (props: NotificationProps): JSX.Element => {
   const currentDisplayedNotificationPayload = useSelector(
     (storeState: StoreState) => storeState.notifications.currentDisplayedNotificationPayload,
   );
+  const [currentFullDisplayedNotificationPayload, setCurrentFullDisplayedNotificationPayload] = useState<any>({});
 
-  useEffect(() => {}, [currentDisplayedNotificationPayload]);
+  useAsyncEffect(async () => {
+    switch (currentDisplayedNotificationPayload?.payload?.action) {
+      case NotificationTypes.FixClientRequest:
+      case NotificationTypes.FixCraftsmanResponse:
+        let fixDocument = await fixesService.getFixAsync(
+          currentDisplayedNotificationPayload?.payload?.systemPayload?.id,
+        );
+        setCurrentFullDisplayedNotificationPayload(fixDocument);
+      default:
+        break;
+    }
+  }, [currentDisplayedNotificationPayload]);
 
   const render = (): JSX.Element => {
     if (currentDisplayedNotificationPayload) {
-      const notificationProps = {
-        currentDisplayedRemoteMessageData: currentDisplayedNotificationPayload,
-        navRef: props.navRef,
-      };
-
       switch (currentDisplayedNotificationPayload.payload?.action) {
         case NotificationTypes.FixClientRequest:
         case NotificationTypes.FixCraftsmanResponse:
-          return <FixNotification {...notificationProps}></FixNotification>;
+          let notificationDocument = JSON.parse(
+            JSON.stringify(currentDisplayedNotificationPayload),
+          ) as NotificationDocument;
+
+          let fixDocument = currentFullDisplayedNotificationPayload;
+          if (!!fixDocument) {
+            fixDocument.assignedToCraftsman = notificationDocument.payload.systemPayload.assignedToCraftsman;
+            fixDocument.schedule = notificationDocument.payload.systemPayload.schedule;
+            fixDocument.craftsmanEstimatedCost = notificationDocument.payload.systemPayload.craftsmanEstimatedCost;
+            notificationDocument.payload.systemPayload = fixDocument;
+            if (!!notificationDocument.payload.systemPayload.details) {
+              return (
+                <FixNotification
+                  {...{
+                    navRef: props.navRef,
+                    currentDisplayedRemoteMessageData: notificationDocument,
+                  }}></FixNotification>
+              );
+            }
+          }
         default:
           break;
       }

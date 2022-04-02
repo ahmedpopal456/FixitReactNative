@@ -25,7 +25,7 @@ import {
   NotificationStatus,
 } from '../../../store';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { Avatar, Divider } from 'react-native-elements';
+import { Avatar, Divider, Overlay } from 'react-native-elements';
 import useAsyncEffect from 'use-async-effect';
 import config from '../../../core/config/appConfig';
 import { useState } from 'react';
@@ -86,6 +86,11 @@ const notificationService = new NotificationsService(config, store);
 const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
   const notifications = useSelector((storeState: StoreState) => storeState.notifications.notifications);
   const user = useSelector((storeState: StoreState) => storeState.user);
+  const [visible, setVisible] = useState(true);
+
+  const toggleOverlay = () => {
+    setVisible(!visible);
+  };
 
   //TODO: Add paging to screen
   const pageSize = 100000;

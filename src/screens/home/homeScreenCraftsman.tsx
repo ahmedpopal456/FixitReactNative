@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   fixContainer: {
     flexDirection: 'row',
-    width: Dimensions.get('window').width / 1.5,
+    width: Dimensions.get('window').width,
     backgroundColor: 'white',
     borderRadius: 10,
     marginVertical: 5,
@@ -282,7 +282,6 @@ const HomeScreenCraftsman: FunctionComponent = () => {
               ) : (
                 [showPendingFixes, showInProgressFixes]
               )}
-
               <Text style={styles.headers}>Popular Tags</Text>
               {renderTagsFallback ? (
                 <View style={styles.spinner}>

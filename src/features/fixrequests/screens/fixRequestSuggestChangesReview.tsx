@@ -42,7 +42,7 @@ const FixRequestSuggestChangesReview: FunctionComponent<NavigationProps<FixSugge
       message: 'Incoming Response from Craftsman',
       payload: {
         systemPayload: {
-          ...fix,
+          id: fix.id,
           assignedToCraftsman: {
             id: store.getState().user.userId,
             firstName: store.getState().user.firstName,
