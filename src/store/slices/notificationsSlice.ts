@@ -150,9 +150,13 @@ const notificationsSlice = createSlice({
 
         if (distinctArray) {
           state.notifications.notifications = removeDuplicates(distinctArray, 'id');
-          state.notifications.notifications.forEach(
-            (item) => (item.payload.systemPayload = JSON.parse(item.payload.systemPayload)),
-          );
+          state.notifications.notifications.forEach((item) => {
+            item.payload.systemPayload =
+              typeof item.payload.systemPayload === 'string'
+                ? JSON.parse(item.payload.systemPayload)
+                : item.payload.systemPayload;
+          });
+
           state.notifications.unreadNotifications = state.notifications.notifications?.filter(
             (item) => item.status === NotificationStatus.SEND,
           )?.length;

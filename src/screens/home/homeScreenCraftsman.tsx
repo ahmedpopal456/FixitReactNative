@@ -30,6 +30,8 @@ import ProgressIndicatorFactory from '../../components/progressIndicators/progre
 import NavigationEnum from '../../common/enums/navigationEnum';
 import config from '../../core/config/appConfig';
 import { Divider } from 'react-native-elements';
+import ImageModal from 'react-native-image-modal';
+import FastImage from 'react-native-fast-image';
 
 const fixesService = new FixesService(config, store);
 const ratingsService = new RatingsService(config, store);
@@ -55,7 +57,8 @@ const styles = StyleSheet.create({
   },
   fixContainer: {
     flexDirection: 'row',
-    width: Dimensions.get('window').width,
+    height: 125,
+    width: Dimensions.get('window').width - 35,
     backgroundColor: 'white',
     borderRadius: 10,
     marginVertical: 5,
@@ -64,6 +67,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   fixContainerView: {
+    width: 300,
     paddingVertical: 5,
     margin: 7,
   },
@@ -132,6 +136,7 @@ const HomeScreenCraftsman: FunctionComponent = () => {
   const pendingFixes = useSelector((storeState: StoreState) => storeState.fixes.pendingFixesState);
   const popularFixTags = useSelector((storeState: StoreState) => storeState.fixes.topFixTagsState);
   const user = useSelector((storeState: StoreState) => storeState.user);
+  const { width, height } = Dimensions.get('screen');
 
   useAsyncEffect(async () => {
     await onRefresh();
@@ -146,31 +151,68 @@ const HomeScreenCraftsman: FunctionComponent = () => {
     await fixesService.getPopularFixTags('5');
   };
 
-  const renderPendingFixItems = ({ item }: Item): JSX.Element => (
-    <View key={item.id} style={styles.fixContainer}>
-      <View style={styles.fixContainerView}>
-        <Text style={styles.fixContainerText}>{item.details.name}</Text>
-        <View style={styles.fixContainerDetailsView}>
-          <Text style={styles.fixContainerFinePrints}>
-            {`Client: ${item.createdByClient.firstName} ${item.createdByClient.lastName}`}
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate(NavigationEnum.FIX, {
-              fix: item,
-              title: 'Fix',
-              id: 'fixes_screen',
-            })
-          }>
-          <View style={styles.detail}>
-            <Text style={styles.fixContainerDetailsButton}>See Details</Text>
+  const renderPendingFixItems = ({ item }: Item): JSX.Element => {
+    let expectedDeliveryDate = 0;
+    if (item.schedule.length === 1 && item.schedule[0].startTimestampUtc === item.schedule[0].endTimestampUtc) {
+      expectedDeliveryDate = item.schedule[0].endTimestampUtc;
+    } else if (item.schedule.length >= 1) {
+      let tempExpectedDeliveryDate = 0;
+      item.schedule.forEach((s: Schedule) => {
+        if (s.endTimestampUtc > tempExpectedDeliveryDate) {
+          tempExpectedDeliveryDate = s.endTimestampUtc;
+        }
+      });
+      expectedDeliveryDate = tempExpectedDeliveryDate;
+    }
+    const sampleImage = item.images.length > 0 ? item.images[0] : null;
+    return (
+      <View key={item.id} style={styles.fixContainer}>
+        {!!sampleImage ? (
+          <View>
+            <ImageModal
+              key={`${sampleImage.id}`}
+              modalImageStyle={{ minHeight: height, minWidth: width }}
+              modalImageResizeMode={FastImage.resizeMode.contain}
+              resizeMode="cover"
+              imageBackgroundColor={colors.white}
+              style={{
+                width: 125,
+                height: 125,
+                margin: 2,
+                borderRadius: 10,
+                borderColor: colors.grey,
+                borderWidth: 0.3,
+              }}
+              source={{
+                uri: decodeURIComponent(sampleImage.url),
+              }}
+            />
           </View>
-        </TouchableOpacity>
+        ) : (
+          <></>
+        )}
+        <View style={styles.fixContainerView}>
+          <Text style={styles.fixContainerFinePrints}>
+            {item.createdByClient.firstName} {item.createdByClient.lastName}
+          </Text>
+          <Text style={styles.fixContainerText}>{item.details.name}</Text>
+          <Text>{`Deadline: ${new Date(expectedDeliveryDate * 1000).toISOString().split('T')[0]}`}</Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate(NavigationEnum.FIX, {
+                fix: item,
+                title: 'Fix',
+                id: 'fixes_screen',
+              })
+            }>
+            <View style={styles.detail}>
+              <Text style={styles.fixContainerDetailsButton}>See Details</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderFixRequestItems = ({ item }: Item): JSX.Element => {
     let expectedDeliveryDate = 0;
@@ -188,7 +230,7 @@ const HomeScreenCraftsman: FunctionComponent = () => {
     const sampleImage = item.images.length > 0 ? item.images[0] : null;
     return (
       <View key={item.id} style={styles.fixContainer}>
-        {sampleImage !== null ? (
+        {!!sampleImage ? (
           <View>
             <ImageBackground
               source={{ uri: sampleImage.url } as ImageSourcePropType}

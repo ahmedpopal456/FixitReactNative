@@ -10,7 +10,6 @@ import './i18n';
 
 const notificationService = new NotificationHandlerService();
 notificationService.configure();
-
 Logger.instance.loadAppInsights();
 
 const HeadlessCheck = ({ isHeadless }) => {

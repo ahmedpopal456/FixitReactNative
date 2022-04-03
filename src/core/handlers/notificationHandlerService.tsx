@@ -9,6 +9,7 @@ import {
   notificationsActions,
   NotificationsService,
   NotificationStatus,
+  NotificationTypes,
   store,
 } from '../../store';
 
@@ -89,13 +90,22 @@ export default class NotificationHandlerService {
   }
 
   public async onNotificationReceived(remoteMessage: any) {
-    if (remoteMessage && remoteMessage.data && remoteMessage.data.systemPayload) {
+    if (remoteMessage && remoteMessage.data) {
       const notification = {
         id: remoteMessage.data.id,
+        title: remoteMessage.title,
+        message: remoteMessage.message,
         status: NotificationStatus.SEND,
+        createdTimestampUtc: Math.round(Date.now() / 1000),
         payload: {
-          action: JSON.parse(remoteMessage.data.action),
-          systemPayload: JSON.parse(remoteMessage.data.systemPayload),
+          action:
+            typeof remoteMessage?.data?.action === 'string'
+              ? JSON.parse(remoteMessage.data.action)
+              : remoteMessage.data.action,
+          systemPayload:
+            typeof remoteMessage?.data?.systemPayload === 'string'
+              ? JSON.parse(remoteMessage.data.systemPayload)
+              : remoteMessage.data.systemPayload,
         },
       } as NotificationDocument;
 

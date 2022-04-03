@@ -1,6 +1,6 @@
 import React from 'react';
 import { LogBox, StatusBar } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { PersistGate, persistor, Provider, store } from './store';
 import RootStackNavigator from './core/navigators/rootStackNavigator';
 import SplashScreen from './screens/splashScreen';

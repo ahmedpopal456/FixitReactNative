@@ -5,6 +5,7 @@ import { NotificationStatus, NotificationTypes } from './enums';
 export interface NotificationDocument {
   id: string;
   entityId: string;
+  title: string;
   message: string;
   payload: NotificationPayloadDto;
   action: NotificationTypes;

@@ -86,11 +86,6 @@ const notificationService = new NotificationsService(config, store);
 const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
   const notifications = useSelector((storeState: StoreState) => storeState.notifications.notifications);
   const user = useSelector((storeState: StoreState) => storeState.user);
-  const [visible, setVisible] = useState(true);
-
-  const toggleOverlay = () => {
-    setVisible(!visible);
-  };
 
   //TODO: Add paging to screen
   const pageSize = 100000;
@@ -119,11 +114,44 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
     store.dispatch(notificationsActions.DISPLAY_NOTIFICATION(item));
   };
 
+  const notificationItemResolver = (notificationDocument: NotificationDocument) => {
+    switch (notificationDocument.payload?.action) {
+      case NotificationTypes.FixClientRequest:
+      case NotificationTypes.FixCraftsmanResponse:
+        const isFixClientRequest = notificationDocument.payload.action === NotificationTypes.FixClientRequest;
+        const fix = notificationDocument.payload.systemPayload as FixesModel;
+        const firstName = isFixClientRequest ? fix?.createdByClient?.firstName : fix?.assignedToCraftsman?.firstName;
+        const lastName = isFixClientRequest ? fix?.createdByClient?.lastName : fix?.assignedToCraftsman?.lastName;
+        return {
+          title: notificationDocument.message,
+          subtitle: `${firstName} ${lastName}`,
+          date: new Date(notificationDocument.createdTimestampUtc * 1000).toLocaleDateString('en-US'),
+        };
+      case NotificationTypes.NewMessage:
+        return {
+          title: notificationDocument?.title,
+          subtitle: notificationDocument?.message,
+          date: new Date(notificationDocument.createdTimestampUtc * 1000).toLocaleDateString('en-US'),
+        };
+      case NotificationTypes.NewConversation:
+        return {
+          title: notificationDocument?.title,
+          subtitle: notificationDocument?.message,
+          date: new Date(notificationDocument.createdTimestampUtc * 1000).toLocaleDateString('en-US'),
+        };
+      case NotificationTypes.FixAccepted:
+        return {
+          title: notificationDocument?.title,
+          subtitle: notificationDocument?.message,
+          date: new Date(notificationDocument.createdTimestampUtc * 1000).toLocaleDateString('en-US'),
+        };
+      default:
+        break;
+    }
+  };
+
   const renderItem = ({ item }: { item: NotificationDocument }): JSX.Element => {
-    const isFixClientRequest = item.payload.action === NotificationTypes.FixClientRequest;
-    const fix = item.payload.systemPayload as FixesModel;
-    const firstName = isFixClientRequest ? fix?.createdByClient?.firstName : fix?.assignedToCraftsman?.firstName;
-    const lastName = isFixClientRequest ? fix?.createdByClient?.lastName : fix?.assignedToCraftsman?.lastName;
+    const itemInfo = notificationItemResolver(item);
     return (
       <View
         style={{
@@ -146,13 +174,9 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
             onPressNotification(item);
           }}
           style={{ width: '75%' }}>
-          <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.message?.trimEllip(35)}</Text>
-          <Text style={{ fontSize: 12, color: 'grey' }}>
-            {firstName} {lastName}
-          </Text>
-          <Text style={{ fontSize: 12, color: 'grey' }}>
-            {new Date(item.createdTimestampUtc * 1000).toLocaleDateString('en-US')}
-          </Text>
+          <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{itemInfo?.title?.trimEllip(35)}</Text>
+          <Text style={{ fontSize: 12, color: 'grey' }}>{itemInfo?.subtitle}</Text>
+          <Text style={{ fontSize: 12, color: 'grey' }}>{itemInfo?.date}</Text>
           <Divider style={{ marginTop: 15 }} orientation="horizontal" />
         </TouchableOpacity>
         <Button

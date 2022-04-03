@@ -4,6 +4,8 @@ import { NotificationProps } from '../../common/models/notifications/Notificatio
 import config from '../../core/config/appConfig';
 import useAsyncEffect from 'use-async-effect';
 import FixNotification from './fixrequests/fixNotification';
+import NavigationEnum from '../../common/enums/navigationEnum';
+import { NavigationActions } from 'react-navigation';
 
 const fixesService = new FixesService(config, store);
 export const NotificationRenderer: FunctionComponent<NotificationProps> = (props: NotificationProps): JSX.Element => {
@@ -50,6 +52,13 @@ export const NotificationRenderer: FunctionComponent<NotificationProps> = (props
               );
             }
           }
+          break;
+        case NotificationTypes.NewConversation:
+          props.navRef.current.navigate('Chat');
+          break;
+        case NotificationTypes.FixAccepted:
+          props.navRef.current.navigate('Fixes');
+          break;
         default:
           break;
       }

@@ -11,8 +11,10 @@ import {
 } from '../../../common/models/auth/B2CTypes';
 import config from '../../../core/config/appConfig';
 import Logger from '../../../logger';
+import NotificationHandlerService from '../../../core/handlers/notificationHandlerService';
 
 const userService = new UserService(config, store);
+const notificationService = new NotificationHandlerService();
 
 export default class NativeAuthService {
   private static readonly B2C_PASSWORD_CHANGE = 'AADB2C90118';
@@ -72,6 +74,8 @@ export default class NativeAuthService {
 
       store.dispatch(userActions.UPDATE_AUTH_STATUS({ isAuthenticated: true, authToken: msalResult?.accessToken }));
       await userService.fetchUser(userId);
+
+      notificationService.configure();
       return msalResult;
     } catch (error: any) {
       Logger.instance.trackException({
@@ -107,6 +111,8 @@ export default class NativeAuthService {
     );
 
     userService.fetchUser(userId);
+    notificationService.configure();
+
     return msalResult;
   }
 
