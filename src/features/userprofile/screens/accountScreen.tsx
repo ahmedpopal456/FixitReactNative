@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'column',
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -82,8 +82,8 @@ const AccountScreen: FunctionComponent<any> = (props) => {
       <View style={styles.bodyContainer}>
         <View style={styles.buttonsContainer}>
           {option('profileBtn', 'My Profile', 'Profile', null, styles.buttonFirst)}
-          {option('loginSecurityBtn', 'Login & Security', undefined, null, styles.button)}
-          {option('paymentBtn', 'Payments', undefined, null, styles.button)}
+          {/* {option('loginSecurityBtn', 'Login & Security', undefined, null, styles.button)} */}
+          {/* {option('paymentBtn', 'Payments', undefined, null, styles.button)} */}
           {option('ratingsBtn', 'Ratings', 'Ratings', null, styles.button)}
           {option('signOutBtn', 'Sign Out', undefined, async () => NativeAuthService.signOut(), styles.buttonLast)}
         </View>

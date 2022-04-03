@@ -29,6 +29,7 @@ import { Avatar, Divider, Overlay } from 'react-native-elements';
 import useAsyncEffect from 'use-async-effect';
 import config from '../../../core/config/appConfig';
 import { useState } from 'react';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 const styles = StyleSheet.create({
   container: {
@@ -86,13 +87,11 @@ const notificationService = new NotificationsService(config, store);
 const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationProps> = (props) => {
   const notifications = useSelector((storeState: StoreState) => storeState.notifications.notifications);
   const user = useSelector((storeState: StoreState) => storeState.user);
+  const { showActionSheetWithOptions } = useActionSheet();
 
   //TODO: Add paging to screen
   const pageSize = 100000;
   const [isRefreshing, setRefreshState] = useState<boolean>(false);
-
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [currentSelectedNotification, setCurrentSelectedNotification] = useState<NotificationDocument>({});
 
   useAsyncEffect(async () => {
     await onRefresh();
@@ -181,13 +180,33 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
         </TouchableOpacity>
         <Button
           onPress={() => {
-            setCurrentSelectedNotification(item);
-            setIsModalVisible(true);
+            OnPressNotificationEllipsis(item.id);
           }}
           color="white">
           <Icon library="FontAwesome5" name="ellipsis-h" color={'dark'} size={15} />
         </Button>
       </View>
+    );
+  };
+
+  const OnPressNotificationEllipsis = async (notificationId: string) => {
+    showActionSheetWithOptions(
+      {
+        options: ['Remove Notification', 'Cancel'],
+        destructiveButtonIndex: 1,
+        cancelButtonIndex: 1,
+        userInterfaceStyle: 'dark',
+      },
+      async (buttonIndex) => {
+        if (buttonIndex === 0) {
+          await notificationService.deleteNotificationsByIds(user.userId as string, [notificationId]);
+          onRefresh();
+        } else if (buttonIndex === 1) {
+          // Do nothing
+        } else if (buttonIndex === 2) {
+          // Do nothing
+        }
+      },
     );
   };
 
@@ -221,51 +240,9 @@ const NotificationsScreen: FunctionComponent<NotificationsScreenWithNavigationPr
             />
           )}
         </View>
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => {
-            setIsModalVisible(false);
-          }}>
-          <TouchableOpacity
-            style={{
-              height: '15%',
-              marginTop: 'auto',
-              backgroundColor: 'white',
-              elevation: 10,
-              zIndex: 10,
-              borderRadius: 10,
-            }}
-            activeOpacity={1}
-            onPressOut={() => setIsModalVisible(false)}>
-            <View
-              style={{
-                flex: 1,
-              }}>
-              <View>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', padding: 20, alignItems: 'center' }}
-                  onPress={() => {
-                    notificationService.deleteNotificationsByIds(user.userId as string, [
-                      currentSelectedNotification.id,
-                    ]);
-                    setIsModalVisible(false);
-                    onRefresh();
-                  }}>
-                  <Button color="light" onPress={() => {}}>
-                    <Icon library="FontAwesome5" name="trash" color={'dark'} size={15} />
-                  </Button>
-                  <Text>Remove this notification</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </Modal>
       </View>
     );
   };
-
   return render();
 };
 
