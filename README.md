@@ -9,6 +9,7 @@ I led a team of 8 young developers as principal developer, using Azure Devops as
 ```
 
 > The entire Fixit repository library consist of microservices working in tandum, in scalable fashion, to address the contents and operations required by the application. 
+The services are hosted in Microsoft Azure, making use of all latest cloud patterns and technologies, to properly handle scalability, availibility, networking, monitoring and failiure management.
 
 **The application contains many innate features, including:**
 
