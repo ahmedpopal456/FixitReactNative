@@ -3,6 +3,10 @@
 
 ### Fixit is a mobile application, meant to be the service allowing handymen and individuals in need of work/repairs to find them automatically through a matching system (kind of like Uber!)
 
+```
+This project initially started out by me reaching out to Concordia University, trying to find students who could work on it as their capstone project.
+I led a team of 8 young developers as principal developer, using Azure Devops as the DevSecOps tool (for backlog, repository, deployment and test plans), and eventually evolved Fixit into a business
+```
 
 > The entire Fixit repository library consist of microservices working in tandum, in scalable fashion, to address the contents and operations required by the application. 
 
@@ -73,5 +77,4 @@ Here are some pictures showing off these functionalities :)
 > Submitting a request
 <img src="https://github.com/ahmedpopal456/FixitReactNative/assets/10645534/133b8c12-255b-4f97-95aa-4e0255cf6fb6" width="400" height="790">
 
-> This project initially started out by me reaching out to Concordia University, trying to find students who could work on it as their capstone project.
-I led a team of 8 young developers, maintained a backlog in Azure Devops, and eventually evolved this into a business
+
