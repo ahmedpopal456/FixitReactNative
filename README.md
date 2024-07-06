@@ -29,12 +29,15 @@ trigger, which will based on proximity, rating, and more, search for a finite li
  5. The handymen will then propose a new cost, or accept an existing one, and then send a finalized review for the client to approve.
 
 > Mentions: 
-The service has an internal, built-from scratch chat system integrated to allow communication between the client and the handyment, after being matched.
+The service has an internal, built-from scratch chat system integrated to allow communication between the client and the handymen, after being matched.
 
 
 **This repository contains:** 
-1. Both the android and ios sources for the mobile application
-2. All of the necessary CI/CD templates/deployment scripts allowing for its deployment
+1. Both the android/ios source configurations for the mobile application
+2. The actual source components, pages, and any other relevant source code
+3. All of the necessary CI/CD templates/deployment scripts allowing for its deployment
+
+--- 
 
 Here are some pictures showing off these functionalities :)
 
