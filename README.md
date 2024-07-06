@@ -44,7 +44,7 @@ Here are some pictures showing off these functionalities :)
 ---
 
 > Home Page 
-<img src="https://github.com/ahmedpopal456/FixitReactNative/assets/10645534/1fc4b349-4977-4fcc-8ff7-258fd77fcd1c" width="500" height="790">
+<img src="https://github.com/ahmedpopal456/FixitReactNative/assets/10645534/98678014-69d1-4e01-afe8-8171bcb1972c" width="400" height="790">
 
 ---
 
@@ -65,11 +65,6 @@ Here are some pictures showing off these functionalities :)
 
 > Creating a Fixit Template and the Request
 <img src="https://github.com/ahmedpopal456/FixitReactNative/assets/10645534/6995b947-dca9-44a5-9dd2-cb3fd7404159" width="400" height="790">
-
----
-
-> Showing in-progress fixes
-<img src="https://github.com/ahmedpopal456/FixitReactNative/assets/10645534/98678014-69d1-4e01-afe8-8171bcb1972c" width="400" height="790">
 
 ---
 
