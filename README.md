@@ -72,3 +72,6 @@ Here are some pictures showing off these functionalities :)
 
 > Submitting a request
 <img src="https://github.com/ahmedpopal456/FixitReactNative/assets/10645534/133b8c12-255b-4f97-95aa-4e0255cf6fb6" width="400" height="790">
+
+> This project initially started out by me reaching out to Concordia University, trying to find students who could work on it as their capstone project.
+I led a team of 8 young developers, maintained a backlog in Azure Devops, and eventually evolved this into a business
